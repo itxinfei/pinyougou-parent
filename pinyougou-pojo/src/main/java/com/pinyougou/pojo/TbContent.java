@@ -2,7 +2,10 @@ package com.pinyougou.pojo;
 
 import java.io.Serializable;
 
-public class TbContent implements Serializable{
+/**
+ *
+ */
+public class TbContent implements Serializable {
     private Long id;
 
     private Long categoryId;

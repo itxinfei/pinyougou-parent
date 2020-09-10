@@ -20,7 +20,6 @@ import java.util.List;
 @Transactional
 public class SellerServiceImpl implements SellerService {
 
-    //注入SellerDao
     @Autowired
     private TbSellerMapper tbSellerMapper;
 
@@ -128,6 +127,4 @@ public class SellerServiceImpl implements SellerService {
     public PageResult search(TbSeller tbSeller, int page, int rows) {
         return null;
     }
-
-
 }

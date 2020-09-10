@@ -10,23 +10,70 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <!--品优购子模块-->
+    <!--子模块-->
     <modules>
+        <!--通用工具-->
         <module>pinyougou-common</module>
+        <!--通用数据访问层-->
         <module>pinyougou-dao</module>
+        <!--通用实体类层-->
         <module>pinyougou-pojo</module>
+        <!--商家商品服务接口-->
         <module>pinyougou-sellergoods-interface</module>
+        <!--商家商品服务-->
         <module>pinyougou-sellergoods-service</module>
+        <!--运营商管理后台-->
         <module>pinyougou-manager-web</module>
+        <!--广告类型及广告管理接口-->
         <module>pinyougou-content-interface</module>
+        <!--广告管理-->
         <module>pinyougou-content-service</module>
+        <!--商家管理后台-->
         <module>pinyougou-shop-web</module>
+        <!--广告展示-->
         <module>pinyougou-portal-web</module>
+        <!--搜索工具-->
         <module>pinyougou-solr-util</module>
+        <!--秒杀服务接口-->
         <module>pinyougou-seckill-interface</module>
+        <!--秒杀服务-->
         <module>pinyougou-seckill-service</module>
+        <!--秒杀服务Web-->
         <module>pinyougou-seckill-web</module>
-        <module>pinyougou-demo</module>
+        <!--测试工程-->
+        <module>pinyougou-demo-security</module>
+        <!---->
+        <module>pinyougou-cart-interface</module>
+        <!---->
+        <module>pinyougou-cart-service</module>
+        <!---->
+        <module>pinyougou-cart-web</module>
+        <!---->
+        <module>pinyougou-order-interface</module>
+        <!---->
+        <module>pinyougou-order-service</module>
+        <!---->
+        <module>pinyougou-page-interface</module>
+        <!---->
+        <module>pinyougou-page-service</module>
+        <!---->
+        <module>pinyougou-page-web</module>
+        <!---->
+        <module>pinyougou-pay-interface</module>
+        <!---->
+        <module>pinyougou-pay-service</module>
+        <!---->
+        <module>pinyougou-search-interface</module>
+        <!---->
+        <module>pinyougou-search-service</module>
+        <!---->
+        <module>pinyougou-search-web</module>
+        <!---->
+        <module>pinyougou-user-interface</module>
+        <!---->
+        <module>pinyougou-user-service</module>
+        <!---->
+        <module>pinyougou-user-web</module>
     </modules>
 
     <!-- 集中定义依赖版本号 -->
@@ -281,28 +328,35 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- <build>
-         <plugins>
-             &lt;!&ndash; java编译插件 &ndash;&gt;
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-compiler-plugin</artifactId>
-                 <version></version>
-                 <configuration>
-                     <source>1.7</source>
-                     <target>1.7</target>
-                     <encoding>UTF-8</encoding>
-                 </configuration>
-             </plugin>
-
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-surefire-plugin</artifactId>
-                 <version>2.6</version>
-                 <configuration>
-                     <skipTests>true</skipTests>
-                 </configuration>
-             </plugin>
-         </plugins>
-     </build>-->
+    <!--编译-->
+    <build>
+        <plugins>
+            <!--编译插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <!--测试用例-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <!--Doc-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -4,7 +4,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
     <!-- 数据库连接池 -->
     <!-- 加载配置文件 -->
     <context:property-placeholder location="classpath:properties/db.properties"/>
@@ -18,7 +17,6 @@
         <property name="maxActive" value="100"/>
         <property name="minIdle" value="50"/>
     </bean>
-
     <!-- 让spring管理sqlsessionfactory 使用mybatis和spring整合包中的 -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <!-- 数据库连接池 -->
@@ -29,5 +27,4 @@
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.pinyougou.mapper"/>
     </bean>
-
 </beans>
