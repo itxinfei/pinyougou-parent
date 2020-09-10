@@ -24,5 +24,4 @@ public class ContentController {
     public List<TbContent> findAll() {
         return contentService.findAll();
     }
-
 }

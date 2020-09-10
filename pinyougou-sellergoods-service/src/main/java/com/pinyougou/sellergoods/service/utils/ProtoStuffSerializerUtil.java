@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * ProtoStuffSerializerUtil
- *
- * @author Sirius
- * @date 2019-1-8
+ * 序列化
  */
 public class ProtoStuffSerializerUtil {
     /**

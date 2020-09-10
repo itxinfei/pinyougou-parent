@@ -13,7 +13,6 @@
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
 
-    <!--通用工具类-->
     <dependencies>
         <!--fastdfs-->
         <dependency>

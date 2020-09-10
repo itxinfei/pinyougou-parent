@@ -28,12 +28,12 @@
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="sellerController"
       ng-init="searchEntity={status:'0'}">
 <!-- .box-body -->
-<div class="box box-primary" ng-click="findAll()">
+<div class="box box-primary">
     <div class="box-header with-border">
         <h3 class="box-title">商家审核</h3>
     </div>
 
-    <div class="box-body">
+    <div class="box-body" ng-click="findAll()">
         <!-- 数据表格 -->
         <div class="table-box">
             <!--工具栏-->
@@ -64,7 +64,7 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="entity in list">
-                    <td><input type="checkbox" ></td>
+                    <td><input type="checkbox"></td>
                     <td>{{entity.sellerId}}</td>
                     <td>{{entity.name}}</td>
                     <td>{{entity.nickName}}</td>
@@ -80,16 +80,11 @@
                 </tbody>
             </table>
             <!--数据列表/-->
-
-
         </div>
         <!-- 数据表格 /-->
         <!-- 分页 -->
         <tm-pagination conf="paginationConf"></tm-pagination>
-
-
     </div>
-    <!-- /.box-body -->
 
     <!-- 商家详情 -->
     <div class="modal fade" id="sellerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"

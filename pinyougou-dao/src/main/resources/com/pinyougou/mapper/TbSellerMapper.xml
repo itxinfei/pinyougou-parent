@@ -92,9 +92,9 @@
     seller_id, name, nick_name, password, email, mobile, telephone, status, address_detail, 
     linkman_name, linkman_qq, linkman_mobile, linkman_email, license_number, tax_number, 
     org_number, address, logo_pic, brief, create_time, legal_person, legal_person_card_id, 
-    bank_user, bank_name,account_number
+    bank_user, bank_name
   </sql>
-
+<!--,account_number-->
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pinyougou.pojo.TbSellerExample" >
     select
     <if test="distinct" >

@@ -25,7 +25,6 @@ public class BrandServiceImpl implements BrandService {
     @Autowired
     private TbBrandMapper brandMapper;
 
-
     /**
      * 查询所有
      *

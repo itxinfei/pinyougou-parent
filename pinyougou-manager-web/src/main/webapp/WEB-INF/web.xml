@@ -17,8 +17,18 @@
             <param-value>true</param-value>
         </init-param>
     </filter>
+
+    <!--权限控制-->
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
@@ -38,7 +48,7 @@
     </servlet-mapping>
 
     <!--Spring-->
-    <!--<context-param>
+    <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:spring/spring-*.xml</param-value>
     </context-param>
@@ -46,21 +56,10 @@
         <listener-class>
             org.springframework.web.context.ContextLoaderListener
         </listener-class>
-    </listener>-->
-
-    <!--权限控制-->
-    <!-- <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>-->
+    </listener>
 
     <!--默认首页-->
     <welcome-file-list>
         <welcome-file>login.html</welcome-file>
     </welcome-file-list>
-
 </web-app>

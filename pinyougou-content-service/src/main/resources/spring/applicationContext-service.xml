@@ -9,6 +9,6 @@
     <!--暴露dubbo服务-->
     <dubbo:protocol name="dubbo" port="20882"/>
     <dubbo:application name="pinyougou-content-service"/>
-    <dubbo:registry address="zookeeper://localhost:2181"/>
+    <dubbo:registry address="zookeeper://172.168.20.134:2181"/>
     <dubbo:annotation package="com.pinyougou.content.service.impl"/>
 </beans>
