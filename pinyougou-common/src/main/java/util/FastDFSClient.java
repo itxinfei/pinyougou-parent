@@ -1,7 +1,11 @@
 package util;
 
 import org.csource.common.NameValuePair;
-import org.csource.fastdfs.*;
+import org.csource.fastdfs.ClientGlobal;
+import org.csource.fastdfs.StorageClient1;
+import org.csource.fastdfs.StorageServer;
+import org.csource.fastdfs.TrackerClient;
+import org.csource.fastdfs.TrackerServer;
 
 public class FastDFSClient {
 
