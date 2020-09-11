@@ -37,5 +37,6 @@ public class PhoneFormatCheckUtils {
         Pattern p = Pattern.compile(regExp);  
         Matcher m = p.matcher(str);  
         return m.matches();  
-    }
+    }  
+	
 }
