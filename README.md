@@ -10,34 +10,3 @@
 主要包括网站首页、商家首页、商品详细页、、搜索页、会员中心、订单与支付相关页面、秒杀频道等。
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0617/162244_2ad4e0f5_800553.png "微信图片_20200617162215.png")
 
-表名称	                    含义
-tb_brand	                品牌
-
-tb_specification	        规格
-
-tb_specification_option	    规格选项
-
-tb_type_template	        类型模板：用于关联品牌和规格
-
-tb_item_cat	                商品分类
-
-tb_seller	                商家
-
-tb_goods	                商品
-
-tb_goods_desc	            商品详情
-
-tb_item	                    商品明细
-
-tb_content	                内容（广告）
-
-tb_content_category	        内容（广告）类型
-
-tb_user	                    用户
-
-tb_order	                订单
-
-tb_order_item	            订单明细
-
-tb_pay_log	                支付日志
-
