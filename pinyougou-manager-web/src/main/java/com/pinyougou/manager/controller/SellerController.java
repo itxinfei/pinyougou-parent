@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 商家审核CRUD
+ * 商家管理
  */
 @RestController
 @RequestMapping("/seller")
@@ -21,7 +21,7 @@ public class SellerController {
     private SellerService sellerService;
 
     /**
-     * 查询所有商家审核
+     * 查询所有商家管理
      *
      * @return
      */
@@ -53,7 +53,7 @@ public class SellerController {
 
 
     /**
-     * 添加商家审核
+     * 添加商家管理
      */
     @RequestMapping("/add")
     public void add(TbSeller tbSeller) {
@@ -62,7 +62,7 @@ public class SellerController {
     }
 
     /**
-     * 更改商家审核
+     * 更改商家管理
      */
     @RequestMapping("/update")
     public void update(TbSeller tbSeller) {
@@ -70,7 +70,7 @@ public class SellerController {
     }
 
     /**
-     * 更新商家审核状态
+     * 更新商家管理状态
      */
     @RequestMapping("/updateStatus")
     public Result updateStatus(String sellerId, String status) {
@@ -84,7 +84,7 @@ public class SellerController {
     }
 
     /**
-     * 搜索商家审核
+     * 搜索商家管理
      *
      * @return
      */

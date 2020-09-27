@@ -155,7 +155,6 @@ public class GoodsServiceImpl implements GoodsService {
      * @param id
      * @return
      */
-
     public Goods findOne(Long id) {
         Goods goods = new Goods();
         // 查询商品表的信息

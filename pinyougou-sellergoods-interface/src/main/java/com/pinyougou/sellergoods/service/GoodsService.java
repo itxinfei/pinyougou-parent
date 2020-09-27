@@ -80,7 +80,16 @@ public interface GoodsService {
 
     /**
      * 根据ID查询实体
-	 * @return
-	 */
+     *
+     * @return
+     */
     public TbGoods findById(Long id);
+
+    /**
+     * 根据ID获取实体
+     *
+     * @param id
+     * @return
+     */
+    public Goods findOne(Long id);
 }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 品牌管理功能
+ * 品牌管理
  */
 @Service
 @Transactional
@@ -30,12 +30,10 @@ public class BrandServiceImpl implements BrandService {
      *
      * @return
      */
-
     @Override
     public List<TbBrand> findAll() {
         return brandMapper.selectByExample(null);
     }
-
 
     /**
      * 保存品牌
@@ -78,8 +76,14 @@ public class BrandServiceImpl implements BrandService {
         }
     }
 
-
-    // 条件查询带分页
+    /**
+     * 条件查询带分页
+     *
+     * @param brand
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public PageResult findByPage(TbBrand brand, int pageNum, int pageSize) {
         // 使用分页插件:
@@ -104,10 +108,6 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Map> selectOptionList() {
         List<Map> maps = brandMapper.selectOptionList();
-        for (Map map : maps) {
-            System.out.println("selectOptionList" + map);
-        }
         return maps;
     }
-
 }
