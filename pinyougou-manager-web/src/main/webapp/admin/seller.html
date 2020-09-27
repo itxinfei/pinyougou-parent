@@ -26,9 +26,9 @@
 
 </head>
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="sellerController"
-      ng-init="searchEntity={status:'0'}" >
+      ng-init="searchEntity={status:'0'}" ng-init="findAll()">
 <!-- .box-body -->
-<div class="box box-primary"  >
+<div class="box box-primary">
     <div class="box-header with-border">
         <h3 class="box-title">商家管理</h3>
     </div>
@@ -70,7 +70,7 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="entity in list">
-                    <td><input type="checkbox" ></td>
+                    <td><input type="checkbox"></td>
                     <td>{{entity.sellerId}}</td>
                     <td>{{entity.name}}</td>
                     <td>{{entity.nickName}}</td>
@@ -96,14 +96,14 @@
 
     <!-- 商家详情 -->
     <div class="modal fade" id="sellerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true" >
-        <div class="modal-dialog modal-lg" >
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header" >
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" >×</button>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h3 id="myModalLabel">商家详情</h3>
                 </div>
-                <div class="modal-body" >
+                <div class="modal-body">
 
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#home" data-toggle="tab">基本信息</a></li>
@@ -220,6 +220,6 @@
             </div>
         </div>
     </div>
-
+</div>
 </body>
 </html>

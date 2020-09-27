@@ -3,12 +3,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-
         http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-
     <!--暴露dubbo服务-->
     <dubbo:protocol name="dubbo" port="20882"/>
     <dubbo:application name="pinyougou-content-service"/>
-    <dubbo:registry address="zookeeper://172.168.20.134:2181"/>
+    <dubbo:registry address="zookeeper://localhost:2181"
+                    file="${catalina.home}/dubbo-registry/dubbo-registry.properties"/>
     <dubbo:annotation package="com.pinyougou.content.service.impl"/>
 </beans>

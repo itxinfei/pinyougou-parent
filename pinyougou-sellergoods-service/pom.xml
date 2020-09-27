@@ -85,7 +85,7 @@
             <scope>provided</scope>
         </dependency>
         <!-- //protostuff序列化 -->
-       <!-- <dependency>
+        <dependency>
             <groupId>com.dyuproject.protostuff</groupId>
             <artifactId>protostuff-core</artifactId>
             <version>1.0.8</version>
@@ -95,12 +95,11 @@
             <artifactId>protostuff-runtime</artifactId>
             <version>1.0.8</version>
         </dependency>
-        &lt;!&ndash; Objenesis &ndash;&gt;
         <dependency>
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
             <version>2.1</version>
-        </dependency>-->
+        </dependency>
 
 
         <!--品优购其他工程依赖-->
@@ -146,5 +145,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
