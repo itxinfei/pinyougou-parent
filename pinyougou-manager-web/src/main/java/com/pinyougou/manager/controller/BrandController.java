@@ -81,7 +81,7 @@ public class BrandController {
     @RequestMapping("/findById")
     public TbBrand findById(Long id) {
         TbBrand byId = brandService.findById(id);
-        System.out.println("后端接收到的ID:" + byId);
+        //System.out.println("后端接收到的ID:" + byId);
         return brandService.findById(id);
     }
 
@@ -101,8 +101,6 @@ public class BrandController {
     @RequestMapping("/selectOptionList")
     public List<Map> selectOptionList() {
         List<Map> maps = brandService.selectOptionList();
-        //输出maps
-        System.out.println("selectOptionList:" + maps);
         return maps;
     }
 }

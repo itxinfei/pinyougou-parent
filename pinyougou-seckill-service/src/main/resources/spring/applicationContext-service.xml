@@ -33,6 +33,6 @@
     <!--发布服务-->
     <dubbo:protocol name="dubbo" port="20889"></dubbo:protocol>
     <dubbo:application name="pinyougou-seckill-service"/>
-    <dubbo:registry address="zookeeper://172.168.20.134:2181"/>
+    <dubbo:registry address="zookeeper://172.168.20.221:2181"/>
     <dubbo:annotation package="com.pinyougou.seckill.service.impl"/>
 </beans>

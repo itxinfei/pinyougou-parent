@@ -15,11 +15,22 @@ public class ContentController {
     @Reference
     private ContentService contentService;
 
+    /**
+     * 根据广告类型ID查询列表
+     *
+     * @param categoryId
+     * @return
+     */
     @RequestMapping("/findByCategoryId")
     public List<TbContent> findByCategoryId(Long categoryId) {
         return contentService.findByCategoryId(categoryId);
     }
 
+    /**
+     * 查询所有广告
+     *
+     * @return
+     */
     @RequestMapping("/findAll")
     public List<TbContent> findAll() {
         return contentService.findAll();

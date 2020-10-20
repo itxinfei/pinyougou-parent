@@ -76,7 +76,6 @@ public class ContentServiceImpl implements ContentService {
         if (categoryId.longValue() != content.getCategoryId().longValue()) {
             redisTemplate.boundHashOps("content").delete(content.getCategoryId());
         }
-
     }
 
     /**
@@ -104,7 +103,12 @@ public class ContentServiceImpl implements ContentService {
         }
     }
 
-
+    /**
+     * @param content
+     * @param pageNum  当前页 码
+     * @param pageSize 每页记录数
+     * @return
+     */
     @Override
     public PageResult findPage(TbContent content, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
@@ -132,12 +136,16 @@ public class ContentServiceImpl implements ContentService {
         return new PageResult(page.getTotal(), page.getResult());
     }
 
-
+    /**
+     * 提供给portal前端工程
+     * 根据广告类型ID查询列表
+     *
+     * @param categoryId
+     * @return
+     */
     @Override
     public List<TbContent> findByCategoryId(Long categoryId) {
-
         List<TbContent> list = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
-
         if (list == null) {
             System.out.println("从数据库中查询数据并放入缓存 ");
             TbContentExample example = new TbContentExample();
@@ -152,5 +160,4 @@ public class ContentServiceImpl implements ContentService {
         }
         return list;
     }
-
 }

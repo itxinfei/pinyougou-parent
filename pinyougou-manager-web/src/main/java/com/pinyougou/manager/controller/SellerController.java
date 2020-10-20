@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.sellergoods.service.SellerService;
 import entity.PageResult;
 import entity.Result;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -84,13 +85,16 @@ public class SellerController {
     }
 
     /**
-     * 搜索商家管理
+     * 查询+分页
      *
+     * @param seller
+     * @param page
+     * @param rows
      * @return
      */
     @RequestMapping("/search")
-    public PageResult search() {
-        return null;
+    public PageResult search(@RequestBody TbSeller seller, int page, int rows) {
+        return sellerService.findPage(seller, page, rows);
     }
 
 }

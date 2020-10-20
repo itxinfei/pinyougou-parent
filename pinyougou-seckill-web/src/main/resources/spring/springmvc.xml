@@ -27,8 +27,7 @@
 
     <!-- 消费dubbo服务 -->
     <dubbo:application name="pinyougou-seckill-web"/>
-    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <dubbo:registry address="zookeeper://172.168.20.221:2181"/>
     <dubbo:annotation package="com.pinyougou.seckill.controller"/>
     <dubbo:consumer id="default-consumer" default="true" check="false" timeout="8000" retries="0"/>
-
 </beans>

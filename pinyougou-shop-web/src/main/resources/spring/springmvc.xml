@@ -32,10 +32,7 @@
 		<property name="maxUploadSize" value="5242880"></property>
 	</bean>
 
-	<!-- 引用dubbo服务 -->
+	<!-- 引用dubbo 服务 -->
 	<dubbo:application name="pinyougou-shop-web" />
-	<dubbo:registry address="zookeeper://localhost:2181"/>
 	<dubbo:annotation package="com.pinyougou.shop.controller" />
-	<!--设置全局超时配置-->
-	<dubbo:consumer timeout="50000" />
 </beans>
