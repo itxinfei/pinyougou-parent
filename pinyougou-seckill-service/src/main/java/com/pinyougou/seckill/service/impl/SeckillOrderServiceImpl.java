@@ -85,7 +85,12 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         }
     }
 
-
+    /**
+     * @param seckillOrder
+     * @param pageNum      当前页 码
+     * @param pageSize     每页记录数
+     * @return
+     */
     @Override
     public PageResult findPage(TbSeckillOrder seckillOrder, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
@@ -115,9 +120,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
             if (seckillOrder.getTransactionId() != null && seckillOrder.getTransactionId().length() > 0) {
                 criteria.andTransactionIdLike("%" + seckillOrder.getTransactionId() + "%");
             }
-
         }
-
         Page<TbSeckillOrder> page = (Page<TbSeckillOrder>) seckillOrderMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());
     }
@@ -131,9 +134,12 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
     @Autowired
     private IdWorker idWorker;
 
+    /**
+     * @param seckillId
+     * @param userId
+     */
     @Override
     public void submitOrder(Long seckillId, String userId) {
-
         //1.查询缓存中的商品
         TbSeckillGoods seckillGoods = (TbSeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(seckillId);
         if (seckillGoods == null) {
@@ -142,7 +148,6 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         if (seckillGoods.getStockCount() <= 0) {
             throw new RuntimeException("商品已经被抢光");
         }
-
         //2.减少库存
         seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);//减库存
         redisTemplate.boundHashOps("seckillGoods").put(seckillId, seckillGoods);//存入缓存
@@ -151,7 +156,6 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
             redisTemplate.boundHashOps("seckillGoods").delete(seckillId);
             System.out.println("商品同步到数据库...");
         }
-
         //3.存储秒杀订单 (不向数据库存 ,只向缓存中存储 )
         TbSeckillOrder seckillOrder = new TbSeckillOrder();
         seckillOrder.setId(idWorker.nextId());
@@ -165,15 +169,22 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         System.out.println("保存订单成功(redis)");
     }
 
+    /**
+     * @param userId
+     * @return
+     */
     @Override
     public TbSeckillOrder searchOrderFromRedisByUserId(String userId) {
-
         return (TbSeckillOrder) redisTemplate.boundHashOps("seckillOrder").get(userId);
     }
 
+    /**
+     * @param userId
+     * @param orderId
+     * @param transactionId
+     */
     @Override
     public void saveOrderFromRedisToDb(String userId, Long orderId, String transactionId) {
-
         //1.从缓存中提取订单数据
         TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
         if (seckillOrder == null) {
@@ -182,38 +193,33 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         if (seckillOrder.getId().longValue() != orderId.longValue()) {
             throw new RuntimeException("订单号不符");
         }
-
         //2.修改订单实体的属性
         seckillOrder.setPayTime(new Date());//支付日期
         seckillOrder.setStatus("1");//已支付 状态
         seckillOrder.setTransactionId(transactionId);
-
         //3.将订单存入数据库
         seckillOrderMapper.insert(seckillOrder);
-
         //4.清除缓存中的订单
         redisTemplate.boundHashOps("seckillOrder").delete(userId);
 
     }
 
+    /**
+     * @param userId
+     * @param orderId
+     */
     @Override
     public void deleteOrderFromRedis(String userId, Long orderId) {
-
         //1.查询出缓存中的订单
-
         TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
         if (seckillOrder != null) {
-
             //2.删除缓存中的订单
             redisTemplate.boundHashOps("seckillOrder").delete(userId);
-
             //3.库存回退
             TbSeckillGoods seckillGoods = (TbSeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(seckillOrder.getSeckillId());
             if (seckillGoods != null) { //如果不为空
                 seckillGoods.setStockCount(seckillGoods.getStockCount() + 1);
                 redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(), seckillGoods);
-
-
             } else {
                 seckillGoods = new TbSeckillGoods();
                 seckillGoods.setId(seckillOrder.getSeckillId());
@@ -221,11 +227,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
                 seckillGoods.setStockCount(1);//数量为1
                 redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(), seckillGoods);
             }
-
             System.out.println("订单取消：" + orderId);
         }
-
-
     }
-
 }

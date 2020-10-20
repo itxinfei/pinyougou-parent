@@ -6,11 +6,13 @@ import com.pinyougou.pojo.group.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
 import entity.Result;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商品管理
@@ -92,6 +94,10 @@ public class GoodsController {
      */
     @RequestMapping("/search")
     public PageResult search(@RequestBody TbGoods goods, int page, int rows) {
+        //获取商家ID
+        String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+        //添加查询条件
+        goods.setSellerId(sellerId);
         return goodsService.findPage(goods, page, rows);
     }
 
@@ -115,4 +121,12 @@ public class GoodsController {
     public Result updateIsDelete(final Long[] ids) {
         return null;
     }
+
+    @RequestMapping("/genHtml")
+    public void genHtml(Long goodsId) {
+
+        //itemPageService.genItemHtml(goodsId);
+
+    }
+
 }

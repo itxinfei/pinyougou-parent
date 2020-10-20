@@ -116,6 +116,7 @@ public class GoodsController {
     public PageResult search(@RequestBody TbGoods goods, int page, int rows) {
         //获取商家ID
         String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println(sellerId);
         //添加查询条件
         goods.setSellerId(sellerId);
         return goodsService.findPage(goods, page, rows);

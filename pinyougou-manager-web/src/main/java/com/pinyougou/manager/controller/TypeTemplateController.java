@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * 模板管理
+ * 类型模板：用于关联品牌和规格
  */
 @RestController
 @RequestMapping("/typeTemplate")

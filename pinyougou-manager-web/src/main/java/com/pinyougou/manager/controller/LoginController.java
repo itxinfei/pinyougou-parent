@@ -23,14 +23,14 @@ public class LoginController {
      * @return
      */
     @RequestMapping("/showName")
+    @ResponseBody
     public Map showName(String username, String password) {
-        System.out.println(username + password);
         Map map = new HashMap();
         // 获得用户名信息:
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         map.put("username", user);
         //后台输出用户
-        System.out.println(map.toString());
+        //System.out.println(map.toString());
         return map;
     }
 
@@ -42,6 +42,6 @@ public class LoginController {
     @RequestMapping("/test")
     @ResponseBody
     public String demo() {
-        return "测试数据";
+        return "test_data";
     }
 }

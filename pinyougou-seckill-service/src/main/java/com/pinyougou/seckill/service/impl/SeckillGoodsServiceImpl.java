@@ -82,7 +82,12 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
         }
     }
 
-
+    /**
+     * @param seckillGoods
+     * @param pageNum      当前页 码
+     * @param pageSize     每页记录数
+     * @return
+     */
     @Override
     public PageResult findPage(TbSeckillGoods seckillGoods, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
