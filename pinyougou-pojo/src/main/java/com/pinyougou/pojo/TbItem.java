@@ -1,19 +1,21 @@
 package com.pinyougou.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.solr.core.mapping.Dynamic;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
-public class TbItem implements Serializable{
-	
-	@Field
+public class TbItem implements Serializable {
+
+    @Field
     private Long id;
 
-	@Field("item_title")
+    @Field("item_title")
     private String title;
 
     private String sellPoint;
@@ -36,7 +38,9 @@ public class TbItem implements Serializable{
 
     private Date createTime;
 
-    @Field("item_updatetime")
+    // @Field("item_updatetime")
+    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS Z", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     private String itemSn;
@@ -64,23 +68,22 @@ public class TbItem implements Serializable{
 
     @Field("item_seller")
     private String seller;
-    
-   
+
+
     @Dynamic
     @Field("item_spec_*")
-    private Map<String,String> specMap;
-    
+    private Map<String, String> specMap;
+
     public Map<String, String> getSpecMap() {
-		return specMap;
-	}
+        return specMap;
+    }
 
-	public void setSpecMap(Map<String, String> specMap) {
-		this.specMap = specMap;
-	}
-	
-    
+    public void setSpecMap(Map<String, String> specMap) {
+        this.specMap = specMap;
+    }
 
-	public Long getId() {
+
+    public Long getId() {
         return id;
     }
 
@@ -247,7 +250,7 @@ public class TbItem implements Serializable{
     public void setBrand(String brand) {
         this.brand = brand == null ? null : brand.trim();
     }
-    
+
 
     public String getSpec() {
         return spec;
