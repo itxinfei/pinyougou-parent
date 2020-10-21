@@ -58,8 +58,6 @@ public class UserController {
         if (!checkSmsCode) {
             return new Result(false, "验证码不正确！");
         }
-
-
         try {
             userService.add(user);
             return new Result(true, "增加成功");
@@ -117,7 +115,7 @@ public class UserController {
     /**
      * 查询+分页
      *
-     * @param brand
+     * @param user
      * @param page
      * @param rows
      * @return
@@ -127,6 +125,10 @@ public class UserController {
         return userService.findPage(user, page, rows);
     }
 
+    /**
+     * @param phone
+     * @return
+     */
     @RequestMapping("/sendCode")
     public Result sendCode(String phone) {
 

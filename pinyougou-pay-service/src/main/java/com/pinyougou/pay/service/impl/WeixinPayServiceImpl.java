@@ -24,6 +24,8 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     private String partnerkey;
 
     /**
+     * 生成二维码
+     *
      * @param out_trade_no
      * @param total_fee
      * @return
@@ -73,6 +75,8 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     }
 
     /**
+     * 查询支付状态
+     *
      * @param out_trade_no
      * @return
      */
