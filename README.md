@@ -1,4 +1,4 @@
-![](Doc/Logo.png)
+![](docs/Logo.png)
 
 <p align="center">
   <a href="https://gitee.com/itxinfei">
