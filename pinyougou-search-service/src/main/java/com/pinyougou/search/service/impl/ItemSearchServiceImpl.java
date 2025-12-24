@@ -3,6 +3,7 @@ package com.pinyougou.search.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,8 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 @Service(timeout = 5000)
 public class ItemSearchServiceImpl implements ItemSearchService {
+
+    private static final Logger logger = Logger.getLogger(ItemSearchServiceImpl.class);
 
     @Autowired
     private SolrTemplate solrTemplate;
@@ -49,7 +52,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
                 map.putAll(searchBrandAndSpecList(categoryList.get(0)));
             }
         }
-        System.out.println("搜索内容：" + map.toString());
+        logger.info("搜索内容：" + map.toString());
         return map;
     }
 
@@ -145,8 +148,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             List<Highlight> highlightList = entry.getHighlights();
 
             for (Highlight h : highlightList) {
-                List<String> sns = h.getSnipplets();//每个域有可能存储多值
-                System.out.println(sns);
+                List<String> sns = h.getSnipplets();
+                logger.debug("高亮片段: " + sns);
             }
 
             if (highlightList.size() > 0 && highlightList.get(0).getSnipplets().size() > 0) {
@@ -209,12 +212,12 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             //2.根据模板ID获取品牌列表
             List brandList = (List) redisTemplate.boundHashOps("brandList").get(templateId);
             map.put("brandList", brandList);
-            System.out.println("品牌列表条数：" + brandList.size());
+            logger.info("品牌列表条数：" + brandList.size());
 
             //3.根据模板ID获取规格列表
             List specList = (List) redisTemplate.boundHashOps("specList").get(templateId);
             map.put("specList", specList);
-            System.out.println("规格列表条数：" + specList.size());
+            logger.info("规格列表条数：" + specList.size());
         }
 
         return map;

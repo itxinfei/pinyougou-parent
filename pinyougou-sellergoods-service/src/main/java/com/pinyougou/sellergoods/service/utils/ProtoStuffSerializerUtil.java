@@ -4,6 +4,8 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
+import exception.SerializationException;
+import exception.ValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +24,7 @@ public class ProtoStuffSerializerUtil {
      */
     public static <T> byte[] serialize(T obj) {
         if (obj == null) {
-            throw new RuntimeException("序列化对象(" + obj + ")!");
+            throw new ValidationException("序列化对象不能为空");
         }
         @SuppressWarnings("unchecked")
         Schema<T> schema = (Schema<T>) RuntimeSchema.getSchema(obj.getClass());
@@ -31,7 +33,7 @@ public class ProtoStuffSerializerUtil {
         try {
             protostuff = ProtostuffIOUtil.toByteArray(obj, schema, buffer);
         } catch (Exception e) {
-            throw new RuntimeException("序列化(" + obj.getClass() + ")对象(" + obj + ")发生异常!", e);
+            throw new SerializationException("序列化对象(" + obj.getClass() + ")发生异常", e);
         } finally {
             buffer.clear();
         }
@@ -47,15 +49,18 @@ public class ProtoStuffSerializerUtil {
      */
     public static <T> T deserialize(byte[] paramArrayOfByte, Class<T> targetClass) {
         if (paramArrayOfByte == null || paramArrayOfByte.length == 0) {
-            throw new RuntimeException("反序列化对象发生异常,byte序列为空!");
+            throw new ValidationException("反序列化对象发生异常,byte序列为空");
+        }
+        if (targetClass == null) {
+            throw new ValidationException("反序列化对象发生异常,目标类不能为空");
         }
         T instance = null;
         try {
             instance = targetClass.newInstance();
         } catch (InstantiationException e1) {
-            throw new RuntimeException("反序列化过程中依据类型创建对象失败!", e1);
+            throw new SerializationException("反序列化过程中依据类型创建对象失败", e1);
         } catch (IllegalAccessException e2) {
-            throw new RuntimeException("反序列化过程中依据类型创建对象失败!", e2);
+            throw new SerializationException("反序列化过程中依据类型创建对象失败", e2);
         }
         Schema<T> schema = RuntimeSchema.getSchema(targetClass);
         ProtostuffIOUtil.mergeFrom(paramArrayOfByte, instance, schema);
@@ -70,7 +75,7 @@ public class ProtoStuffSerializerUtil {
      */
     public static <T> byte[] serializeList(List<T> objList) {
         if (objList == null || objList.isEmpty()) {
-            throw new RuntimeException("序列化对象列表(" + objList + ")参数异常!");
+            throw new ValidationException("序列化对象列表不能为空");
         }
         @SuppressWarnings("unchecked")
         Schema<T> schema = (Schema<T>) RuntimeSchema.getSchema(objList.get(0).getClass());
@@ -82,7 +87,7 @@ public class ProtoStuffSerializerUtil {
             ProtostuffIOUtil.writeListTo(bos, objList, schema, buffer);
             protostuff = bos.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("序列化对象列表(" + objList + ")发生异常!", e);
+            throw new SerializationException("序列化对象列表发生异常", e);
         } finally {
             buffer.clear();
             try {
@@ -90,7 +95,7 @@ public class ProtoStuffSerializerUtil {
                     bos.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new SerializationException("关闭输出流失败", e);
             }
         }
 
@@ -106,7 +111,10 @@ public class ProtoStuffSerializerUtil {
      */
     public static <T> List<T> deserializeList(byte[] paramArrayOfByte, Class<T> targetClass) {
         if (paramArrayOfByte == null || paramArrayOfByte.length == 0) {
-            throw new RuntimeException("反序列化对象发生异常,byte序列为空!");
+            throw new ValidationException("反序列化对象发生异常,byte序列为空");
+        }
+        if (targetClass == null) {
+            throw new ValidationException("反序列化对象发生异常,目标类不能为空");
         }
 
         Schema<T> schema = RuntimeSchema.getSchema(targetClass);
@@ -114,7 +122,7 @@ public class ProtoStuffSerializerUtil {
         try {
             result = ProtostuffIOUtil.parseListFrom(new ByteArrayInputStream(paramArrayOfByte), schema);
         } catch (IOException e) {
-            throw new RuntimeException("反序列化对象列表发生异常!", e);
+            throw new SerializationException("反序列化对象列表发生异常", e);
         }
         return result;
     }

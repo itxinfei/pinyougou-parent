@@ -45,6 +45,12 @@
 		</div>
 	</div>
 	<div class="cart py-container">
+		<div class="alert alert-danger" ng-show="errorMessage" style="margin: 10px 0;">
+			{{errorMessage}}
+		</div>
+		<div class="alert alert-success" ng-show="successMessage" style="margin: 10px 0;">
+			{{successMessage}}
+		</div>
 		<!--logoArea-->
 		<div class="logoArea">
 			<div class="fl logo"><span class="title">结算页</span></div>

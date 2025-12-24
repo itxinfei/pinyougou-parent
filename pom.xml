@@ -36,8 +36,6 @@
         <module>pinyougou-seckill-interface</module>
         <module>pinyougou-seckill-service</module>
         <module>pinyougou-seckill-web</module>
-        <!--测试工程-->
-        <module>pinyougou-demo</module>
         <!---->
         <module>pinyougou-cart-interface</module>
         <module>pinyougou-cart-service</module>
@@ -323,8 +321,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

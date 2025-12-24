@@ -1,32 +1,117 @@
 //购物车控制层
 app.controller('cartController',function($scope,cartService){
-	//查询购物车列表
+	$scope.errorMessage = '';
+	$scope.successMessage = '';
+	
+	$scope.showMessage = function(type, msg, duration) {
+		if(type === 'error') {
+			$scope.errorMessage = msg;
+			$scope.successMessage = '';
+		} else {
+			$scope.successMessage = msg;
+			$scope.errorMessage = '';
+		}
+		setTimeout(function() {
+			$scope.errorMessage = '';
+			$scope.successMessage = '';
+			$scope.$apply();
+		}, duration || 3000);
+	};
+	
+	$scope.clearMessages = function() {
+		$scope.errorMessage = '';
+		$scope.successMessage = '';
+	};
+	
+	$scope.validateItemId = function(itemId) {
+		if(!itemId || itemId <= 0) {
+			$scope.showMessage('error', '商品ID无效');
+			return false;
+		}
+		return true;
+	};
+	
+	$scope.validateNum = function(num) {
+		if(!num || num === '') {
+			$scope.showMessage('error', '商品数量不能为空');
+			return false;
+		}
+		var numValue = parseInt(num);
+		if(isNaN(numValue) || numValue < 1) {
+			$scope.showMessage('error', '商品数量必须大于0');
+			return false;
+		}
+		if(numValue > 999) {
+			$scope.showMessage('error', '单次购买数量不能超过999件');
+			return false;
+		}
+		return true;
+	};
+	
 	$scope.findCartList=function(){
+		$scope.clearMessages();
 		cartService.findCartList().success(
 			function(response){
 				$scope.cartList=response;
 				$scope.totalValue= cartService.sum($scope.cartList);
 			}
+		).error(
+			function(data, status, headers, config){
+				$scope.showMessage('error', '获取购物车列表失败，请稍后重试');
+			}
 		);
 	}
 	
-	//数量加减
 	$scope.addGoodsToCartList=function(itemId,num){
+		$scope.clearMessages();
+		if(!$scope.validateItemId(itemId)) {
+			return;
+		}
+		if(!$scope.validateNum(num)) {
+			return;
+		}
 		cartService.addGoodsToCartList(itemId,num).success(
 			function(response){
-				if(response.success){//如果成功
-					$scope.findCartList();//刷新列表
+				if(response.success){
+					$scope.findCartList();
+					$scope.showMessage('success', '购物车已更新');
 				}else{
-					alert(response.message);
+					$scope.showMessage('error', response.message || '操作失败');
 				}				
-			}		
+			}
+		).error(
+			function(data, status, headers, config){
+				$scope.showMessage('error', '网络请求失败，请检查网络连接');
+			}
 		);		
 	}
 	
-
+	$scope.updateItemNum=function(itemId, num) {
+		$scope.clearMessages();
+		if(!$scope.validateItemId(itemId)) {
+			return;
+		}
+		if(!$scope.validateNum(num)) {
+			return;
+		}
+		cartService.addGoodsToCartList(itemId,0).success(
+			function(response){
+				if(response.success){
+					$scope.findCartList();
+					$scope.showMessage('success', '数量已更新');
+				}else{
+					$scope.showMessage('error', response.message || '更新失败');
+				}				
+			}
+		).error(
+			function(data, status, headers, config){
+				$scope.showMessage('error', '网络请求失败，请检查网络连接');
+			}
+		);
+	};
 	
-	//获取当前用户的地址列表
 	$scope.findAddressList=function(){
+		$scope.clearMessages();
 		cartService.findAddressList().success(
 			function(response){
 				$scope.addressList=response;
@@ -36,17 +121,19 @@ app.controller('cartController',function($scope,cartService){
 						break;
 					}					
 				}
-				
+			}
+		).error(
+			function(data, status, headers, config){
+				$scope.showMessage('error', '获取地址列表失败，请稍后重试');
 			}
 		);		
 	}
 	
-	//选择地址
 	$scope.selectAddress=function(address){
+		$scope.clearMessages();
 		$scope.address=address;		
 	}
 	
-	//判断某地址对象是不是当前选择的地址
 	$scope.isSeletedAddress=function(address){
 		if(address==$scope.address){
 			return true;
@@ -55,35 +142,54 @@ app.controller('cartController',function($scope,cartService){
 		}		
 	}
 	
-	$scope.order={paymentType:'1'};//订单对象
+	$scope.order={paymentType:'1'};
 	
-	//选择支付类型
 	$scope.selectPayType=function(type){
+		$scope.clearMessages();
 		$scope.order.paymentType=type;
 	}
 	
-	//保存订单
+	$scope.validateOrder=function() {
+		if(!$scope.address) {
+			$scope.showMessage('error', '请选择收货地址');
+			return false;
+		}
+		if(!$scope.order.paymentType) {
+			$scope.showMessage('error', '请选择支付方式');
+			return false;
+		}
+		if(!$scope.cartList || $scope.cartList.length === 0) {
+			$scope.showMessage('error', '购物车为空，无法提交订单');
+			return false;
+		}
+		return true;
+	};
+	
 	$scope.submitOrder=function(){
-		$scope.order.receiverAreaName=$scope.address.address;//地址
-		$scope.order.receiverMobile=$scope.address.mobile;//手机
-		$scope.order.receiver=$scope.address.contact;//联系人
+		$scope.clearMessages();
+		if(!$scope.validateOrder()) {
+			return;
+		}
+		$scope.order.receiverAreaName=$scope.address.address;
+		$scope.order.receiverMobile=$scope.address.mobile;
+		$scope.order.receiver=$scope.address.contact;
 		
-		cartService.submitOrder( $scope.order ).success(
+		cartService.submitOrder($scope.order).success(
 			function(response){
-				//alert(response.message);
 				if(response.success){
-					//页面跳转
-					if($scope.order.paymentType=='1'){//如果是微信支付，跳转到支付页面
+					if($scope.order.paymentType=='1'){
 						location.href="pay.html";
-					}else{//如果货到付款，跳转到提示页面
+					}else{
 						location.href="paysuccess.html";
 					}
-					
 				}else{
-					alert(response.message);	//也可以跳转到提示页面				
+					$scope.showMessage('error', response.message || '提交订单失败');
 				}
-				
-			}				
+			}
+		).error(
+			function(data, status, headers, config){
+				$scope.showMessage('error', '网络请求失败，请检查网络连接');
+			}
 		);		
 	}
 	

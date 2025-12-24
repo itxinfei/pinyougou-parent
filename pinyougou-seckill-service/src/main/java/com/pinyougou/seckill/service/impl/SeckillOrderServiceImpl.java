@@ -11,6 +11,10 @@ import com.pinyougou.pojo.TbSeckillOrderExample;
 import com.pinyougou.pojo.TbSeckillOrderExample.Criteria;
 import com.pinyougou.seckill.service.SeckillOrderService;
 import entity.PageResult;
+import exception.InsufficientStockException;
+import exception.ResourceNotFoundException;
+import exception.ValidationException;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import util.IdWorker;
@@ -25,6 +29,8 @@ import java.util.List;
  */
 @Service
 public class SeckillOrderServiceImpl implements SeckillOrderService {
+
+    private static final Logger logger = Logger.getLogger(SeckillOrderServiceImpl.class);
 
     @Autowired
     private TbSeckillOrderMapper seckillOrderMapper;
@@ -140,33 +146,37 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      */
     @Override
     public void submitOrder(Long seckillId, String userId) {
-        //1.查询缓存中的商品
+        if(seckillId==null||seckillId<=0){
+            throw new ValidationException("秒杀商品ID不能为空且必须大于0");
+        }
+        if(userId==null||userId.trim().isEmpty()){
+            throw new ValidationException("用户ID不能为空");
+        }
+        
         TbSeckillGoods seckillGoods = (TbSeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(seckillId);
         if (seckillGoods == null) {
-            throw new RuntimeException("商品不存在");
+            throw new ResourceNotFoundException("秒杀商品不存在，商品ID："+seckillId);
         }
         if (seckillGoods.getStockCount() <= 0) {
-            throw new RuntimeException("商品已经被抢光");
+            throw new InsufficientStockException("秒杀商品已经被抢光");
         }
-        //2.减少库存
-        seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);//减库存
-        redisTemplate.boundHashOps("seckillGoods").put(seckillId, seckillGoods);//存入缓存
+        seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
+        redisTemplate.boundHashOps("seckillGoods").put(seckillId, seckillGoods);
         if (seckillGoods.getStockCount() == 0) {
-            seckillGoodsMapper.updateByPrimaryKey(seckillGoods);    //更新数据库
+            seckillGoodsMapper.updateByPrimaryKey(seckillGoods);
             redisTemplate.boundHashOps("seckillGoods").delete(seckillId);
-            System.out.println("商品同步到数据库...");
+            logger.info("商品同步到数据库...");
         }
-        //3.存储秒杀订单 (不向数据库存 ,只向缓存中存储 )
         TbSeckillOrder seckillOrder = new TbSeckillOrder();
         seckillOrder.setId(idWorker.nextId());
         seckillOrder.setSeckillId(seckillId);
         seckillOrder.setMoney(seckillGoods.getCostPrice());
         seckillOrder.setUserId(userId);
-        seckillOrder.setSellerId(seckillGoods.getSellerId());//商家ID
+        seckillOrder.setSellerId(seckillGoods.getSellerId());
         seckillOrder.setCreateTime(new Date());
-        seckillOrder.setStatus("0");//状态
+        seckillOrder.setStatus("0");
         redisTemplate.boundHashOps("seckillOrder").put(userId, seckillOrder);
-        System.out.println("保存订单成功(redis)");
+        logger.info("保存订单成功(redis)");
     }
 
     /**
@@ -185,21 +195,27 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      */
     @Override
     public void saveOrderFromRedisToDb(String userId, Long orderId, String transactionId) {
-        //1.从缓存中提取订单数据
+        if(userId==null||userId.trim().isEmpty()){
+            throw new ValidationException("用户ID不能为空");
+        }
+        if(orderId==null||orderId<=0){
+            throw new ValidationException("订单ID不能为空且必须大于0");
+        }
+        if(transactionId==null||transactionId.trim().isEmpty()){
+            throw new ValidationException("交易ID不能为空");
+        }
+        
         TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
         if (seckillOrder == null) {
-            throw new RuntimeException("不存在订单");
+            throw new ResourceNotFoundException("不存在订单，用户ID："+userId);
         }
         if (seckillOrder.getId().longValue() != orderId.longValue()) {
-            throw new RuntimeException("订单号不符");
+            throw new ValidationException("订单号不符，期望订单ID："+orderId+"，实际订单ID："+seckillOrder.getId());
         }
-        //2.修改订单实体的属性
-        seckillOrder.setPayTime(new Date());//支付日期
-        seckillOrder.setStatus("1");//已支付 状态
+        seckillOrder.setPayTime(new Date());
+        seckillOrder.setStatus("1");
         seckillOrder.setTransactionId(transactionId);
-        //3.将订单存入数据库
         seckillOrderMapper.insert(seckillOrder);
-        //4.清除缓存中的订单
         redisTemplate.boundHashOps("seckillOrder").delete(userId);
 
     }
@@ -217,17 +233,16 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
             redisTemplate.boundHashOps("seckillOrder").delete(userId);
             //3.库存回退
             TbSeckillGoods seckillGoods = (TbSeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(seckillOrder.getSeckillId());
-            if (seckillGoods != null) { //如果不为空
+            if (seckillGoods != null) {
                 seckillGoods.setStockCount(seckillGoods.getStockCount() + 1);
                 redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(), seckillGoods);
             } else {
                 seckillGoods = new TbSeckillGoods();
                 seckillGoods.setId(seckillOrder.getSeckillId());
-                //属性要设置。。。。省略
-                seckillGoods.setStockCount(1);//数量为1
+                seckillGoods.setStockCount(1);
                 redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(), seckillGoods);
             }
-            System.out.println("订单取消：" + orderId);
+            logger.info("订单取消：" + orderId);
         }
     }
 }

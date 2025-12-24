@@ -1,5 +1,7 @@
 package util;
 
+import exception.ValidationException;
+
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -80,21 +82,18 @@ public class IdWorker {
     public synchronized long nextId() {
         long timestamp = timeGen();
         if (timestamp < lastTimestamp) {
-            throw new RuntimeException(String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
+            throw new ValidationException("时钟回拨，拒绝生成ID，回拨时间：" + (lastTimestamp - timestamp) + "毫秒");
         }
 
         if (lastTimestamp == timestamp) {
-            // 当前毫秒内，则+1
             sequence = (sequence + 1) & sequenceMask;
             if (sequence == 0) {
-                // 当前毫秒内计数满了，则等待下一秒
                 timestamp = tilNextMillis(lastTimestamp);
             }
         } else {
             sequence = 0L;
         }
         lastTimestamp = timestamp;
-        // ID偏移组合生成最终的ID，并返回ID
         long nextId = ((timestamp - twepoch) << timestampLeftShift)
                 | (datacenterId << datacenterIdShift)
                 | (workerId << workerIdShift) | sequence;

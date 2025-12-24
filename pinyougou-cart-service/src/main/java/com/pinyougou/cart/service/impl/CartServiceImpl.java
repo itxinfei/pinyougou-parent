@@ -4,11 +4,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.cart.service.CartService;
+import com.pinyougou.exception.InsufficientStockException;
+import com.pinyougou.exception.ResourceNotFoundException;
+import com.pinyougou.exception.ValidationException;
 import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbOrderItem;
@@ -16,58 +20,73 @@ import com.pinyougou.pojo.group.Cart;
 @Service
 public class CartServiceImpl implements CartService {
 
+	private static final Logger logger = Logger.getLogger(CartServiceImpl.class);
+
 	@Autowired
 	private TbItemMapper itemMapper;
 	
 	@Override
 	public List<Cart> addGoodsToCartList(List<Cart> cartList, Long itemId, Integer num) {
 		
-		//1.根据skuID查询商品明细SKU的对象
+		if(itemId==null||itemId<=0){
+			throw new ValidationException("商品ID不能为空且必须大于0");
+		}
+		if(num==null||num<=0){
+			throw new ValidationException("商品数量不能为空且必须大于0");
+		}
+		if(num>999){
+			throw new ValidationException("单次购买数量不能超过999件");
+		}
+		
 		TbItem item = itemMapper.selectByPrimaryKey(itemId);
 		if(item==null){
-			throw new RuntimeException("商品不存在");
+			throw new ResourceNotFoundException("商品不存在");
 		}
 		if(!item.getStatus().equals("1")){
-			throw new RuntimeException("商品状态不合法");
-		}		
-		//2.根据SKU对象得到商家ID
-		String sellerId = item.getSellerId();//商家ID
+			throw new ValidationException("商品状态不合法");
+		}
+		if(item.getStockCount()==null||item.getStockCount()<=0){
+			throw new InsufficientStockException("商品库存不足");
+		}
+		if(num>item.getStockCount()){
+			throw new InsufficientStockException("购买数量超过库存，当前库存："+item.getStockCount());
+		}
 		
-		//3.根据商家ID在购物车列表中查询购物车对象
+		String sellerId = item.getSellerId();
+		
 		Cart cart = searchCartBySellerId(cartList,sellerId);
 		
-		if(cart==null){//4.如果购物车列表中不存在该商家的购物车
+		if(cart==null){
 			
-			//4.1 创建一个新的购物车对象
 			cart=new Cart();
-			cart.setSellerId(sellerId);//商家ID
-			cart.setSellerName(item.getSeller());//商家名称			
-			List<TbOrderItem> orderItemList=new ArrayList();//创建购物车明细列表
+			cart.setSellerId(sellerId);
+			cart.setSellerName(item.getSeller());			
+			List<TbOrderItem> orderItemList=new ArrayList();
 			TbOrderItem orderItem = createOrderItem(item,num);			
 			orderItemList.add(orderItem);			
 			cart.setOrderItemList(orderItemList);
 			
-			//4.2将新的购物车对象添加到购物车列表中
 			cartList.add(cart);
 			
-		}else{//5.如果购物车列表中存在该商家的购物车
-			// 判断该商品是否在该购物车的明细列表中存在
+		}else{
 			TbOrderItem orderItem = searchOrderItemByItemId(cart.getOrderItemList(),itemId);
 			if(orderItem==null){
-				//5.1  如果不存在  ，创建新的购物车明细对象，并添加到该购物车的明细列表中
 				orderItem=createOrderItem(item,num);
 				cart.getOrderItemList().add(orderItem);				
 				
 			}else{
-				//5.2 如果存在，在原有的数量上添加数量 ,并且更新金额	
-				orderItem.setNum(orderItem.getNum()+num);//更改数量
-				//金额
+				int newNum=orderItem.getNum()+num;
+				if(newNum>999){
+					throw new ValidationException("单次购买数量不能超过999件");
+				}
+				if(newNum>item.getStockCount()){
+					throw new InsufficientStockException("购买数量超过库存，当前库存："+item.getStockCount());
+				}
+				orderItem.setNum(newNum);
 				orderItem.setTotalFee( new BigDecimal(orderItem.getPrice().doubleValue()*orderItem.getNum() ) );
-				//当明细的数量小于等于0，移除此明细
 				if(orderItem.getNum()<=0){
 					cart.getOrderItemList().remove(orderItem);					
 				}
-				//当购物车的明细数量为0，在购物车列表中移除此购物车
 				if(cart.getOrderItemList().size()==0){
 					cartList.remove(cart);
 				}				
@@ -133,7 +152,7 @@ public class CartServiceImpl implements CartService {
 
 	@Override
 	public List<Cart> findCartListFromRedis(String username) {
-		System.out.println("从redis中提取购物车"+username);
+		logger.info("从redis中提取购物车" + username);
 		List<Cart> cartList = (List<Cart>) redisTemplate.boundHashOps("cartList").get(username);
 		if(cartList==null){
 			cartList=new ArrayList();
@@ -143,7 +162,7 @@ public class CartServiceImpl implements CartService {
 
 	@Override
 	public void saveCartListToRedis(String username, List<Cart> cartList) {
-		System.out.println("向redis中存入购物车"+username);
+		logger.info("向redis中存入购物车" + username);
 		redisTemplate.boundHashOps("cartList").put(username, cartList);
 		
 	}

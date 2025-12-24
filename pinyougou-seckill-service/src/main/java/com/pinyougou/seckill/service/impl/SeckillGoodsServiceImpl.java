@@ -9,6 +9,7 @@ import com.pinyougou.pojo.TbSeckillGoodsExample;
 import com.pinyougou.pojo.TbSeckillGoodsExample.Criteria;
 import com.pinyougou.seckill.service.SeckillGoodsService;
 import entity.PageResult;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -22,6 +23,8 @@ import java.util.List;
  */
 @Service
 public class SeckillGoodsServiceImpl implements SeckillGoodsService {
+
+    private static final Logger logger = Logger.getLogger(SeckillGoodsServiceImpl.class);
 
     @Autowired
     private TbSeckillGoodsMapper seckillGoodsMapper;
@@ -132,18 +135,17 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
         if (seckillGoodsList == null || seckillGoodsList.size() == 0) {
             TbSeckillGoodsExample example = new TbSeckillGoodsExample();
             Criteria criteria = example.createCriteria();
-            criteria.andStatusEqualTo("1");// 审核通过的商品
-            criteria.andStockCountGreaterThan(0);//库存数大于0
-            criteria.andStartTimeLessThanOrEqualTo(new Date());//开始日期小于等于当前日期
-            criteria.andEndTimeGreaterThanOrEqualTo(new Date());//截止日期大于等于当前日期
+            criteria.andStatusEqualTo("1");
+            criteria.andStockCountGreaterThan(0);
+            criteria.andStartTimeLessThanOrEqualTo(new Date());
+            criteria.andEndTimeGreaterThanOrEqualTo(new Date());
             seckillGoodsList = seckillGoodsMapper.selectByExample(example);
-            //将列表数据装入缓存
             for (TbSeckillGoods seckillGoods : seckillGoodsList) {
                 redisTemplate.boundHashOps("seckillGoods").put(seckillGoods.getId(), seckillGoods);
             }
-            System.out.println("从数据库中读取数据装入缓存");
+            logger.info("从数据库中读取数据装入缓存");
         } else {
-            System.out.println("从缓存中读取数据");
+            logger.info("从缓存中读取数据");
 
         }
         return seckillGoodsList;

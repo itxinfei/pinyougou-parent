@@ -3,7 +3,9 @@ package com.pinyougou.order.service.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,9 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.exception.InsufficientStockException;
+import com.pinyougou.exception.ResourceNotFoundException;
+import com.pinyougou.exception.ValidationException;
 import com.pinyougou.mapper.TbOrderItemMapper;
 import com.pinyougou.mapper.TbOrderMapper;
 import com.pinyougou.mapper.TbPayLogMapper;
+import com.pinyougou.mapper.TbItemMapper;
+import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbOrder;
 import com.pinyougou.pojo.TbOrderExample;
 import com.pinyougou.pojo.TbOrderExample.Criteria;
@@ -38,6 +45,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private TbPayLogMapper payLogMapper;
+
+    @Autowired
+    private TbItemMapper itemMapper;
 
     /**
      * 查询全部
@@ -71,39 +81,85 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void add(TbOrder order) {
+        
+        if(order==null){
+            throw new ValidationException("订单信息不能为空");
+        }
+        if(order.getUserId()==null||order.getUserId().trim().isEmpty()){
+            throw new ValidationException("用户ID不能为空");
+        }
+        if(order.getPaymentType()==null||order.getPaymentType().trim().isEmpty()){
+            throw new ValidationException("支付方式不能为空");
+        }
+        if(order.getReceiver()==null||order.getReceiver().trim().isEmpty()){
+            throw new ValidationException("收货人不能为空");
+        }
+        if(order.getReceiverMobile()==null||order.getReceiverMobile().trim().isEmpty()){
+            throw new ValidationException("收货人电话不能为空");
+        }
+        if(order.getReceiverAreaName()==null||order.getReceiverAreaName().trim().isEmpty()){
+            throw new ValidationException("收货地址不能为空");
+        }
 
-        //1.从redis中提取购物车列表
         List<Cart> cartList = (List<Cart>) redisTemplate.boundHashOps("cartList").get(order.getUserId());
+        
+        if(cartList==null||cartList.isEmpty()){
+            throw new ValidationException("购物车为空，无法创建订单");
+        }
 
-        List<String> orderIdList = new ArrayList();//订单ID集合
-        double total_money = 0;//总金额
-        //2.循环购物车列表添加订单
+        List<String> orderIdList = new ArrayList();
+        double total_money = 0;
+        
         for (Cart cart : cartList) {
             TbOrder tbOrder = new TbOrder();
-            long orderId = idWorker.nextId();    //获取ID
+            long orderId = idWorker.nextId();
             tbOrder.setOrderId(orderId);
-            tbOrder.setPaymentType(order.getPaymentType());//支付类型
-            tbOrder.setStatus("1");//未付款
-            tbOrder.setCreateTime(new Date());//下单时间
-            tbOrder.setUpdateTime(new Date());//更新时间
-            tbOrder.setUserId(order.getUserId());//当前用户
-            tbOrder.setReceiverAreaName(order.getReceiverAreaName());//收货人地址
-            tbOrder.setReceiverMobile(order.getReceiverMobile());//收货人电话
-            tbOrder.setReceiver(order.getReceiver());//收货人
-            tbOrder.setSourceType(order.getSourceType());//订单来源
-            tbOrder.setSellerId(order.getSellerId());//商家ID
+            tbOrder.setPaymentType(order.getPaymentType());
+            tbOrder.setStatus("1");
+            tbOrder.setCreateTime(new Date());
+            tbOrder.setUpdateTime(new Date());
+            tbOrder.setUserId(order.getUserId());
+            tbOrder.setReceiverAreaName(order.getReceiverAreaName());
+            tbOrder.setReceiverMobile(order.getReceiverMobile());
+            tbOrder.setReceiver(order.getReceiver());
+            tbOrder.setSourceType(order.getSourceType());
+            tbOrder.setSellerId(order.getSellerId());
 
-            double money = 0;//合计数
-            //循环购物车中每条明细记录
+            double money = 0;
+            
+            List<Long> itemIds = new ArrayList<>();
             for (TbOrderItem orderItem : cart.getOrderItemList()) {
-                orderItem.setId(idWorker.nextId());//主键
-                orderItem.setOrderId(orderId);//订单编号
-                orderItem.setSellerId(cart.getSellerId());//商家ID
+                itemIds.add(orderItem.getItemId());
+            }
+            
+            Map<Long, TbItem> itemMap = new HashMap<>();
+            if (!itemIds.isEmpty()) {
+                List<TbItem> items = itemMapper.selectByIds(itemIds);
+                for (TbItem item : items) {
+                    itemMap.put(item.getId(), item);
+                }
+            }
+            
+            for (TbOrderItem orderItem : cart.getOrderItemList()) {
+                TbItem item = itemMap.get(orderItem.getItemId());
+                if(item==null){
+                    throw new ResourceNotFoundException("商品不存在，商品ID："+orderItem.getItemId());
+                }
+                if(item.getStockCount()==null||item.getStockCount()<orderItem.getNum()){
+                    throw new InsufficientStockException("库存不足，商品："+item.getTitle()+"，当前库存："+(item.getStockCount()==null?0:item.getStockCount())+"，需求数量："+orderItem.getNum());
+                }
+                
+                item.setStockCount(item.getStockCount()-orderItem.getNum());
+                itemMapper.updateByPrimaryKeySelective(item);
+                
+                orderItem.setId(idWorker.nextId());
+                orderItem.setOrderId(orderId);
+                orderItem.setSellerId(cart.getSellerId());
                 orderItemMapper.insert(orderItem);
                 money += orderItem.getTotalFee().doubleValue();
             }
 
-            tbOrder.setPayment(new BigDecimal(money));//合计
+            tbOrder.setPayment(new BigDecimal(money));
 
             orderMapper.insert(tbOrder);
 
@@ -111,24 +167,22 @@ public class OrderServiceImpl implements OrderService {
             total_money += money;
         }
 
-        //添加支付日志
         if ("1".equals(order.getPaymentType())) {
             TbPayLog payLog = new TbPayLog();
 
-            payLog.setOutTradeNo(idWorker.nextId() + "");//支付订单号
+            payLog.setOutTradeNo(idWorker.nextId() + "");
             payLog.setCreateTime(new Date());
-            payLog.setUserId(order.getUserId());//用户ID
-            payLog.setOrderList(orderIdList.toString().replace("[", "").replace("]", ""));//订单ID串
-            payLog.setTotalFee((long) (total_money * 100));//金额（分）
-            payLog.setTradeState("0");//交易状态
-            payLog.setPayType("1");//微信
+            payLog.setUserId(order.getUserId());
+            payLog.setOrderList(orderIdList.toString().replace("[", "").replace("]", ""));
+            payLog.setTotalFee((long) (total_money * 100));
+            payLog.setTradeState("0");
+            payLog.setPayType("1");
             payLogMapper.insert(payLog);
 
-            redisTemplate.boundHashOps("payLog").put(order.getUserId(), payLog);//放入缓存
+            redisTemplate.boundHashOps("payLog").put(order.getUserId(), payLog);
         }
 
 
-        //3.清除redis中的购物车
         redisTemplate.boundHashOps("cartList").delete(order.getUserId());
     }
 

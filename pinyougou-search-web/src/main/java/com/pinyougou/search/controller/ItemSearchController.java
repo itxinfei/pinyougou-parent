@@ -2,6 +2,7 @@ package com.pinyougou.search.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.search.service.ItemSearchService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -18,14 +19,16 @@ import java.util.Map;
 @RequestMapping("/itemsearch")
 public class ItemSearchController {
 
+    private static final Logger logger = Logger.getLogger(ItemSearchController.class);
+
     @Reference(timeout = 5000)
     private ItemSearchService itemSearchService;
 
     @RequestMapping("/search")
     public Map search(@RequestBody Map searchMap) {
-        System.out.println(searchMap.toString());
+        logger.info("搜索参数: " + searchMap.toString());
         Map search = itemSearchService.search(searchMap);
-        System.out.println(search.toString());
+        logger.info("搜索结果: " + search.toString());
         return itemSearchService.search(searchMap);
     }
 
