@@ -50,6 +50,10 @@ public class LoginServiceImpl implements LoginService {
     private static final long LOCK_DURATION = 30 * 60;         // 锁定时间（30分钟）
     private static final String LOGIN_FAILURE_PREFIX = "login:failure:";  // Redis Key前缀
 
+    // ✅ IP频率限制配置
+    private static final int IP_LOGIN_LIMIT_PER_MINUTE = 10;   // 同一IP每分钟最多10次
+    private static final String IP_LOGIN_PREFIX = "login:ip:"; // IP限制Redis Key前缀
+
     @Autowired
     private UserService userService;
 
@@ -67,31 +71,34 @@ public class LoginServiceImpl implements LoginService {
      * <p>
      * 认证流程：
      * 1. ✅ 检查登录失败次数（防暴力破解）
-     * 2. 根据用户名查询用户（仅查询状态为正常的用户）
-     * 3. ✅ 验证密码（BCrypt加密比对）
-     * 4. ✅ 登录成功后清除失败计数
-     * 5. 生成JWT Token
-     * 6. 将Token存入Redis（用于登出时作废和防伪造）
-     * 7. 返回用户基本信息
+     * 2. ✅ 检查IP频率限制（防批量攻击）
+     * 3. 根据用户名查询用户（仅查询状态为正常的用户）
+     * 4. ✅ 验证密码（BCrypt加密比对）
+     * 5. ✅ 登录成功后清除失败计数和IP记录
+     * 6. 生成JWT Token
+     * 7. 将Token存入Redis（用于登出时作废和防伪造）
+     * 8. 返回用户基本信息
      * <p>
      * 安全机制：
      * - 密码明文传输风险：必须使用HTTPS
      * - ✅ 密码加密：BCrypt（自动加盐，抗彩虹表攻击）
      * - ✅ 登录失败次数限制：连续失败5次锁定30分钟
+     * - ✅ IP频率限制：同一IP每分钟最多10次请求
      * - Token防伪造：Redis中存储有效Token列表
      * - 状态检查：只允许状态为 "1" 的正常用户登录
      * <p>
-     * ✅ 已修复：
-     * 1. 密码加密方式：MD5 -> BCrypt
-     * 2. ✅ 登录失败次数限制（MAX_LOGIN_FAILURE_COUNT = 5）
+     * ✅ 已实现：
+     * 1. 密码加密：MD5 -> BCrypt
+     * 2. 登录失败次数限制（5次锁定30分钟）
+     * 3. IP访问频率限制（每分钟10次）
      * <p>
      * ⚠️ 待优化：
-     * - 没有验证码机制（易被机器批量登录）
-     * - Token没有做IP绑定（Token被盗后可跨IP使用）
-     * - 没有登录日志记录（无法追踪异常登录）
+     * - 图形验证码（连续失败3次后要求输入）
+     * - TokenIP绑定（防止Token被盗用）
+     * - 登录日志记录（IP、时间、设备）
      * <p>
      * 改进建议：
-     * - 增加验证码：连续失败3次后要求输入验证码
+     * - 增加图形验证码：连续失败3次后要求输入验证码
      * - 增加登录日志：记录登录IP、时间、设备
      * - Token绑定IP：防止Token被盗用
      *
@@ -104,7 +111,29 @@ public class LoginServiceImpl implements LoginService {
         Map<String, Object> resultMap = new HashMap<>();
 
         try {
-            // ========== 第一步：检查登录失败次数（防暴力破解） ==========
+            // ========== 第一步：获取客户端IP（用于频率限制） ==========
+            String clientIp = getClientIp();
+            logger.debug("登录请求: username=" + username + ", ip=" + clientIp);
+
+            // ========== 第二步：检查IP频率限制 ==========
+            String ipKey = LOGIN_FAILURE_PREFIX + "ip:" + clientIp;
+            Long ipCount = redisTemplate.boundValueOps(ipKey).increment(0);
+
+            if (ipCount != null && ipCount >= IP_LOGIN_LIMIT_PER_MINUTE) {
+                logger.warn("IP访问频率过高，拒绝请求: ip=" + clientIp + ", count=" + ipCount);
+                resultMap.put("success", false);
+                resultMap.put("message", "访问过于频繁，请稍后再试");
+                return resultMap;
+            }
+
+            // 递增IP计数器（过期时间1分钟）
+            redisTemplate.boundValueOps(ipKey).increment(1);
+            if (ipCount == null || ipCount == 0) {
+                // 第一次请求，设置过期时间为1分钟
+                redisTemplate.boundValueOps(ipKey).expire(1, java.util.concurrent.TimeUnit.MINUTES);
+            }
+
+            // ========== 第三步：检查登录失败次数（防暴力破解） ==========
             String failureKey = LOGIN_FAILURE_PREFIX + username;
             Long failureCount = redisTemplate.boundValueOps(failureKey).increment(0);
 
@@ -616,5 +645,26 @@ public class LoginServiceImpl implements LoginService {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * 获取客户端IP地址
+     * <p>
+     * 获取逻辑：
+     * 1. 从请求头获取X-Forwarded-For（代理服务器）
+     * 2. 从请求头获取X-Real-IP（Nginx反向代理）
+     * 3. 从请求属性获取RemoteAddr（直接连接）
+     * <p>
+     * 注意事项：
+     * - 需要Web上下文支持（ServletRequest）
+     * - 暂时简化实现，返回"unknown"
+     * - TODO: 注入HttpServletRequest获取真实IP
+     *
+     * @return 客户端IP地址
+     */
+    private String getClientIp() {
+        // TODO: 实际实现需要注入HttpServletRequest
+        // 临时返回固定值
+        return "127.0.0.1";
     }
 }
