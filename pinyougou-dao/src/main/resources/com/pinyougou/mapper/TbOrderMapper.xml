@@ -27,6 +27,7 @@
     <result column="invoice_type" property="invoiceType" jdbcType="VARCHAR" />
     <result column="source_type" property="sourceType" jdbcType="VARCHAR" />
     <result column="seller_id" property="sellerId" jdbcType="VARCHAR" />
+    <result column="cancel_reason" property="cancelReason" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -87,10 +88,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    order_id, payment, payment_type, post_fee, status, create_time, update_time, payment_time, 
-    consign_time, end_time, close_time, shipping_name, shipping_code, user_id, buyer_message, 
-    buyer_nick, buyer_rate, receiver_area_name, receiver_mobile, receiver_zip_code, receiver, 
-    expire, invoice_type, source_type, seller_id
+    order_id, payment, payment_type, post_fee, status, create_time, update_time, payment_time,
+    consign_time, end_time, close_time, shipping_name, shipping_code, user_id, buyer_message,
+    buyer_nick, buyer_rate, receiver_area_name, receiver_mobile, receiver_zip_code, receiver,
+    expire, invoice_type, source_type, seller_id, cancel_reason
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pinyougou.pojo.TbOrderExample" >
     select
