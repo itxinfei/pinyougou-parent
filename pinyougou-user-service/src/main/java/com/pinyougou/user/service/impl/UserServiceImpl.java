@@ -183,7 +183,42 @@ public class UserServiceImpl implements UserService {
     private String sign_name;
 
     /**
-     * @param phone
+     * 生成短信验证码并发送
+     * <p>
+     * 执行流程：
+     * 1. 生成6位随机数字验证码
+     * 2. 将验证码存入Redis（key: smscode -> HashMap(phone -> code)）
+     * 3. 通过ActiveMQ发送短信消息
+     * 4. 由短信服务消费者异步发送短信
+     * <p>
+     * 验证码配置：
+     * - 长度：6位数字
+     * - 范围：000000 - 999999
+     * - 存储：Redis Hash（过期时间需在配置中设置）
+     * <p>
+     * ⚠️ 安全缺陷：
+     * 1. 验证码生成使用 Math.random()（不安全，应使用 SecureRandom）
+     *    - Math.random() 是可预测的伪随机数
+     *    - 攻击者可能预测验证码
+     * 2. 未设置发送频率限制
+     *    - 恶意用户可以无限次请求发送短信
+     *    - 导致短信资源浪费和经济损失
+     * 3. 未设置Redis过期时间
+     *    - 验证码永久有效，存在安全隐患
+     * 4. 未记录发送日志
+     *    - 无法追踪短信发送记录
+     *    - 无法审计和排查问题
+     * <p>
+     * 改进建议：
+     * - 随机数生成：Math.random() -> SecureRandom
+     * - 频率限制：60秒内同一手机号只能发送1次
+     * - 次数限制：同一手机号每天最多发送10次
+     * - IP限制：同一IP每天最多发送50次
+     * - Redis过期时间：设置为5-10分钟
+     * - 发送日志：记录手机号、IP、时间、是否成功
+     * - 图形验证码：发送短信前需先验证图形验证码
+     *
+     * @param phone 手机号
      */
     @Override
     public void createSmsCode(final String phone) {

@@ -46,6 +46,35 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 用户名密码登录
+     * <p>
+     * 认证流程：
+     * 1. 根据用户名查询用户（仅查询状态为正常的用户）
+     * 2. 验证密码（MD5加密后比对）
+     * 3. 生成JWT Token
+     * 4. 将Token存入Redis（用于登出时作废和防伪造）
+     * 5. 返回用户基本信息
+     * <p>
+     * 安全机制：
+     * - 密码明文传输风险：必须使用HTTPS
+     * - 密码加密：MD5（⚠️ 不安全，建议升级为 BCrypt）
+     * - Token防伪造：Redis中存储有效Token列表
+     * - 状态检查：只允许状态为 "1" 的正常用户登录
+     * <p>
+     * ⚠️ 安全缺陷：
+     * 1. MD5加密强度不足（易被彩虹表破解）
+     * 2. 没有登录失败次数限制（易被暴力破解）
+     * 3. 没有验证码机制（易被机器批量登录）
+     * 4. Token没有做IP绑定（Token被盗后可跨IP使用）
+     * <p>
+     * 改进建议：
+     * - 密码加密：MD5 -> BCrypt（带盐值）
+     * - 增加验证码：连续失败3次后要求输入验证码
+     * - 增加登录日志：记录登录IP、时间、设备
+     * - Token绑定IP：防止Token被盗用
+     *
+     * @param username 用户名
+     * @param password 明文密码（前端应加密传输）
+     * @return 登录结果 Map（success/message/token/userInfo）
      */
     @Override
     public Map<String, Object> loginByUsername(String username, String password) {
@@ -108,6 +137,41 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 手机号验证码登录
+     * <p>
+     * 认证流程：
+     * 1. 验证短信验证码（从Redis查询）
+     * 2. 根据手机号查询用户
+     * 3. 用户不存在则自动注册（降低注册门槛）
+     * 4. 生成JWT Token
+     * 5. 返回用户信息
+     * <p>
+     * 自动注册逻辑：
+     * - 用户名: user_ + 手机号后4位（示例: user_8888）
+     * - 昵称: 用户 + 手机号后4位（示例: 用户8888）
+     * - 密码: 随机UUID的MD5值（用户无法使用密码登录，只能用短信登录）
+     * - 状态: 正常(1)，手机已验证(1)
+     * <p>
+     * 安全机制：
+     * - 验证码校验：Redis中存储的验证码对比
+     * - 验证码有效期：默认30分钟（在 UserServiceImpl.createSmsCode() 中设置）
+     * - 验证码一次性：验证成功后未删除（⚠️ 建议验证成功后删除）
+     * <p>
+     * ⚠️ 安全问题：
+     * 1. 验证码生成使用 Math.random()（不安全，应使用 SecureRandom）
+     * 2. 验证码未设置发送频率限制（易被短信轰炸攻击）
+     * 3. 验证码未设置尝试次数限制（易被暴力破解）
+     * 4. 自动注册逻辑可能被利用（批量注册垃圾账号）
+     * <p>
+     * 改进建议：
+     * - 验证码：Math.random() -> SecureRandom
+     * - 频率限制：60秒内同一手机号只能发送1次
+     * - 次数限制：同手机号每天最多发送10次
+     * - IP限制：同一IP每天最多发送50次
+     * - 图形验证码：发送短信前需先验证图形验证码
+     *
+     * @param phone 手机号
+     * @param code 短信验证码
+     * @return 登录结果 Map（success/message/token/userInfo）
      */
     @Override
     public Map<String, Object> loginBySms(String phone, String code) {
@@ -297,7 +361,29 @@ public class LoginServiceImpl implements LoginService {
     }
 
     /**
-     * 登出（作废Token）
+     * 用户登出（作废Token）
+     * <p>
+     * 登出流程：
+     * 1. 从Token中解析出用户名
+     * 2. 删除Redis中的Token（用户只能登出自己）
+     * 3. 可选：将Token加入黑名单（强制登出功能）
+     * <p>
+     * Token作废机制：
+     * - 正常登出：直接删除Redis中的Token
+     * - 强制登出（管理员踢人）：将Token加入黑名单，设置过期时间
+     * <p>
+     * 注意事项：
+     * - 删除Redis中的Token后，该Token立即失效
+     * - 黑名单机制：为Token设置30分钟过期时间（Token剩余有效期）
+     * - 所有需要验证Token的接口必须查询Redis黑名单
+     * <p>
+     * ⚠️ 当前实现缺陷：
+     * - getTokenBlacklist() 使用 String key，但 token:blacklist: 前缀缺失
+     * - 应该使用 Set 存储黑名单（支持批量管理）
+     * - 应该增加黑名单查询方法（供Token验证使用）
+     * <p>
+     * @param token JWT Token
+     * @return 操作结果 Map（success/message）
      */
     @Override
     public Map<String, Object> logout(String token) {

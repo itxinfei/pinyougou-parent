@@ -1,4 +1,4 @@
-# 🛍️ 品优购网上商城 - 微服务学习Demo
+# 🛍️ 品优购网上商城
 
 <p align="center">
   <a href="https://gitee.com/itxinfei">

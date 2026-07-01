@@ -10,7 +10,49 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
- * JWT工具类
+ * JWT工具类 - Token生成与验证
+ * <p>
+ * JWT结构说明：
+ * - Header: 算法类型（HS512）
+ * - Payload: 用户信息（username/issuedAt/expiration）
+ * - Signature: 签名（防止篡改）
+ * <p>
+ * Token有效期策略：
+ * - Access Token: 2小时（短期，安全性高）
+ * - Refresh Token: 7天（长期，用于刷新Access Token）
+ * <p>
+ * 认证流程：
+ * 1. 用户登录成功后生成Access Token和Refresh Token
+ * 2. 客户端在请求头携带：Authorization: Bearer <token>
+ * 3. 服务端验证Token有效性（签名、过期时间）
+ * 4. Token过期前30分钟，客户端使用Refresh Token刷新
+ * <p>
+ * Token失效机制：
+ * - 自然过期：Token到达expiration时间自动失效
+ * - 主动登出：将Token从Redis删除或加入黑名单
+ * - 密码修改：删除该用户所有Token
+ * - 封号处理：将用户ID加入黑名单
+ * <p>
+ * ⚠️ 安全注意事项：
+ * 1. 密钥（SECRET）必须足够复杂（至少32位）
+ * 2. 密钥不能硬编码，应从配置中心读取
+ * 3. 密钥必须定期更换（建议90天）
+ * 4. Token必须使用HTTPS传输
+ * 5. 不要在Token中存放敏感信息（密码、身份证号等）
+ * 6. 必须实现Token黑名单机制（防止已登出Token继续使用）
+ * <p>
+ * 🔴 当前实现缺陷：
+ * 1. 密钥硬编码在代码中（安全风险）
+ * 2. 未实现Refresh Token功能（generateRefreshToken已实现但未使用）
+ * 3. 未实现Token黑名单查询方法
+ * 4. 未实现Token刷新逻辑（refreshToken方法未完善）
+ * <p>
+ * 改进建议：
+ * - 密钥配置：@Value("${jwt.secret}") 从配置文件读取
+ * - 黑名单方法：addToBlacklist() / isInBlacklist()
+ * - Token刷新：validateRefreshToken() + generateNewAccessToken()
+ * - IP绑定：将登录IP存入Token并验证
+ * - 设备绑定：支持多设备登录管理
  *
  * @author Administrator
  */
@@ -104,6 +146,27 @@ public class JwtUtils {
 
     /**
      * 验证Token是否有效
+     * <p>
+     * 验证流程：
+     * 1. 解析Token（验证签名和格式）
+     * 2. 检查是否过期（expiration < now）
+     * 3. 检查签发人（issuer）
+     * <p>
+     * 验证失败场景：
+     * - Token格式错误或签名无效（解析失败）
+     * - Token已过期
+     * - 签发人不匹配
+     * - Token被篡改
+     * <p>
+     * ⚠️ 注意事项：
+     * - 此方法不查询Redis黑名单（黑名单检查应在业务层单独实现）
+     * - 只验证Token本身的合法性，不验证用户状态
+     * - 建议在业务层增加：用户是否存在、是否被封禁、Token是否在黑名单
+     * <p>
+     * 性能优化：
+     * - Token验证无需查询数据库（无IO操作）
+     * - 适合在高并发场景使用
+     * - 建议缓存公钥（当前使用对称加密HS512）
      *
      * @param token JWT Token
      * @return true-有效，false-无效

@@ -56,14 +56,34 @@ public class RefundServiceImpl implements RefundService {
     @Autowired
     private IdWorker idWorker;
 
-    // 微信支付配置（实际应该从配置文件读取）
+    // ========== 微信支付配置（⚠️ 安全问题） ==========
+    // ❌ 问题：配置硬编码在代码中，存在严重的安全风险
+    // ✅ 应该：从 application.properties 配置文件读取，并加密存储
+    // 🔒 生产环境必须：使用配置中心（Nacos/Apollo）并加密敏感信息
     private static final String APP_ID = "wx8888888888888888";
     private static final String MCH_ID = "1900000109";
     private static final String KEY = "192006250b4c09247ec02edce69f6a2d";
     private static final String REFUND_URL = "https://api.mch.weixin.qq.com/secapi/pay/refund";
 
     /**
-     * 订单取消
+     * 订单取消功能
+     * <p>
+     * 业务规则：
+     * - 仅允许取消未付款订单（状态为 "1"）
+     * - 已付款订单需要走退款流程，不能直接取消
+     * - 已关闭/已完成的订单不能取消
+     * <p>
+     * 执行步骤：
+     * 1. 验证订单存在性和状态合法性
+     * 2. 更新订单状态为已关闭（TRADE_CLOSED）
+     * 3. 恢复商品库存（防止库存被占用）
+     * 4. 退还用户优惠券（如果使用了优惠券）
+     * <p>
+     * 事务边界：@Transactional 保证上述操作原子性，失败则全部回滚
+     *
+     * @param orderId 订单ID
+     * @param reason 取消原因（记录到日志和数据库）
+     * @return 操作结果 Map（success/message）
      */
     @Override
     @Transactional
@@ -80,6 +100,7 @@ public class RefundServiceImpl implements RefundService {
             }
 
             // 2. 检查订单状态
+            // ⚠️ 注意：状态值应该使用常量定义，避免魔法字符串
             String status = order.getStatus();
             if ("TRADE_CLOSED".equals(status) || "TRADE_FINISHED".equals(status)) {
                 resultMap.put("success", false);
@@ -89,7 +110,7 @@ public class RefundServiceImpl implements RefundService {
 
             // 3. 根据订单状态处理
             if ("TRADE_SUCCESS".equals(status)) {
-                // 已付款，需要退款
+                // 已付款，需要走退款流程
                 resultMap.put("success", false);
                 resultMap.put("message", "订单已付款，请申请退款");
                 return resultMap;
@@ -101,10 +122,10 @@ public class RefundServiceImpl implements RefundService {
                 order.setCancelReason(reason);
                 orderMapper.updateByPrimaryKey(order);
 
-                // 3.2 恢复库存
+                // 3.2 恢复库存（调用私有方法）
                 restoreStock(orderId);
 
-                // 3.3 退还优惠券
+                // 3.3 退还优惠券（调用私有方法）
                 returnCoupon(orderId);
 
                 resultMap.put("success", true);
@@ -112,6 +133,10 @@ public class RefundServiceImpl implements RefundService {
                 logger.info("订单取消成功: " + orderId + ", 原因: " + reason);
             }
 
+        } catch (InsufficientStockException e) {
+            logger.error("订单取消失败（库存恢复异常）: " + orderId, e);
+            resultMap.put("success", false);
+            resultMap.put("message", "订单取消失败：库存恢复失败");
         } catch (Exception e) {
             logger.error("订单取消失败: " + orderId, e);
             resultMap.put("success", false);
@@ -122,7 +147,30 @@ public class RefundServiceImpl implements RefundService {
     }
 
     /**
-     * 退款申请
+     * 退款申请功能
+     * <p>
+     * 业务流程：
+     * 1. 验证订单存在性和状态（必须是已付款状态）
+     * 2. 检查是否已申请过退款（防止重复退款）
+     * 3. 验证退款金额不超过订单金额
+     * 4. 创建退款记录，状态设为待审核
+     * 5. 更新订单状态为退款申请中
+     * <p>
+     * 状态流转：
+     * - 订单状态：TRADE_SUCCESS -> REFUND_APPLY
+     * - 退款记录：创建 -> 待处理(0)
+     * <p>
+     * 退款审核流程：
+     * - 待处理(0) -> 退款成功(1) / 退款失败(2)
+     * <p>
+     * 注意事项：
+     * - 退款申请后需要管理员审核，不能立即退款
+     * - 审核通过后调用 confirmRefund() 完成退款
+     *
+     * @param orderId 订单ID
+     * @param reason 退款原因
+     * @param refundFee 退款金额（不能大于订单金额）
+     * @return 操作结果 Map（success/message）
      */
     @Override
     @Transactional
@@ -197,6 +245,31 @@ public class RefundServiceImpl implements RefundService {
 
     /**
      * 确认退款（审核通过）
+     * <p>
+     * 退款成功后的处理流程：
+     * 1. 验证订单和退款记录有效性
+     * 2. 调用微信退款API（当前为模拟实现）
+     * 3. 更新退款记录状态为成功
+     * 4. 更新订单状态为已关闭
+     * 5. 恢复商品库存
+     * 6. 退还用户优惠券
+     * <p>
+     * 状态流转：
+     * - 退款记录：待处理(0) -> 退款成功(1)
+     * - 订单状态：REFUND_APPLY -> TRADE_CLOSED
+     * <p>
+     * 事务说明：
+     * - 如果微信退款API调用失败，整个事务回滚
+     * - 库存恢复和优惠券退还失败也会回滚
+     * <p>
+     * ⚠️ 注意事项：
+     * - 当前 weixinRefund() 为模拟实现，需要对接真实微信退款API
+     * - 微信退款需要双向证书认证，不是简单的HTTP请求
+     * - 退款金额可以小于或等于订单金额（支持部分退款）
+     * - 退款成功后，用户余额/银行卡会在1-7天内到账
+     *
+     * @param orderId 订单ID
+     * @return 操作结果 Map（success/message/transactionId）
      */
     @Override
     @Transactional
@@ -357,7 +430,25 @@ public class RefundServiceImpl implements RefundService {
     }
 
     /**
-     * 恢复库存
+     * 恢复商品库存
+     * <p>
+     * 业务逻辑：
+     * 1. 查询订单对应的所有订单项
+     * 2. 遍历订单项，恢复每个商品的库存
+     * <p>
+     * SQL执行逻辑：
+     * UPDATE tb_item SET stock_count = stock_count + ? WHERE id = ?
+     * <p>
+     * 调用时机：
+     * - 订单取消时（未付款订单）
+     * - 退款成功时（已付款订单）
+     * <p>
+     * ⚠️ 注意事项：
+     * - restoreStockCount() 方法定义在 TbItemMapper 中，但实际上应该属于 TbOrderMapper
+     * - 该方法违反单一职责原则，TbItemMapper 不应该包含订单相关的库存恢复逻辑
+     * - TODO: 建议将 restoreStockCount 移动到 TbOrderMapper，或创建 OrderItemService
+     *
+     * @param orderId 订单ID
      */
     private void restoreStock(Long orderId) {
         // 查询订单项
@@ -399,7 +490,42 @@ public class RefundServiceImpl implements RefundService {
     }
 
     /**
-     * 调用微信退款接口（模拟实现）
+     * 调用微信退款接口（⚠️ 当前为模拟实现）
+     * <p>
+     * 🔴 生产环境必须替换为真实的微信退款API调用
+     * <p>
+     * 微信退款API文档：
+     * - 接口地址: https://api.mch.weixin.qq.com/secapi/pay/refund
+     * - 请求方式: POST XML
+     * - 认证方式: 双向证书认证（商户证书）
+     * <p>
+     * 必需参数：
+     * - appid: 小程序ID
+     * - mch_id: 商户号
+     * - nonce_str: 随机字符串
+     * - sign: 签名
+     * - out_trade_no: 原订单号
+     * - out_refund_no: 商户退款单号（需要生成新的唯一ID）
+     * - total_fee: 订单总金额（分）
+     * - refund_fee: 退款金额（分）
+     * <p>
+     * 实现步骤：
+     * 1. 生成商户退款单号（使用 idWorker.nextId()）
+     * 2. 组装请求参数
+     * 3. 使用商户证书签名
+     * 4. 发送HTTPS请求（需配置SSL证书）
+     * 5. 解析XML响应
+     * 6. 验证签名和返回码
+     * <p>
+     * 安全注意事项：
+     * - 必须使用 HTTPS 协议
+     * - 必须验证微信服务器的SSL证书
+     * - 签名算法使用 HMAC-SHA256
+     * - 密钥不能硬编码，应从配置文件或配置中心读取
+     *
+     * @param order 订单实体
+     * @param refundFee 退款金额（元）
+     * @return 退款结果 Map（success/message/transactionId）
      */
     private Map<String, Object> weixinRefund(TbOrder order, Double refundFee) {
         Map<String, Object> resultMap = new HashMap<>();
