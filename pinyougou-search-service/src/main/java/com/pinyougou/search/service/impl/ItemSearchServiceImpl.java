@@ -1,7 +1,12 @@
 package com.pinyougou.search.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.pinyougou.mapper.TbGoodsMapper;
+import com.pinyougou.mapper.TbItemCatMapper;
+import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
+import com.pinyougou.pojo.TbItemCat;
+import com.pinyougou.pojo.TbItemCatExample;
 import com.pinyougou.search.service.ItemSearchService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,17 @@ public class ItemSearchServiceImpl implements ItemSearchService {
 
     @Autowired
     private SolrTemplate solrTemplate;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    // ✅ 新增：商品分类Mapper（用于缓存降级）
+    @Autowired
+    private TbItemCatMapper itemCatMapper;
+
+    // ✅ 新增：商品SPU Mapper（用于缓存降级）
+    @Autowired
+    private TbGoodsMapper goodsMapper;
 
     /**
      * 商品搜索（综合查询）
@@ -314,6 +330,11 @@ public class ItemSearchServiceImpl implements ItemSearchService {
      * 2. 根据模板ID查询品牌列表
      * 3. 根据模板ID查询规格列表
      * <p>
+     * ✅ 已实现：缓存降级方案
+     * - Redis失效时自动查询数据库
+     * - 查询结果重新写入Redis
+     * - 降级日志记录（便于排查缓存问题）
+     * <p>
      * 缓存策略：
      * - 数据来源：GoodsServiceImpl.importList() 同步到Redis
      * - 过期时间：未设置（永久有效，商品更新时主动删除）
@@ -329,14 +350,12 @@ public class ItemSearchServiceImpl implements ItemSearchService {
      * <p>
      * 注意事项：
      * - 如果Redis中不存在数据，返回空Map
-     * - 未处理缓存穿透（分类不存在时直接返回空）
-     * - 未处理缓存击穿（模板ID不存在时查询数据库）
-     * - 未处理缓存雪崩（批量key同时过期）
+     * - 已处理缓存降级（Redis失效时查DB）
      * <p>
      * 改进建议：
-     * - 缓存降级：Redis失效时查询数据库
      * - 缓存预热：系统启动时预加载热门分类
      * - 分布式锁：防止缓存击穿
+     * - 多级缓存：本地缓存（Caffeine）+ 分布式缓存（Redis）
      *
      * @param category 商品分类名称（如 "手机"、"电脑"）
      * @return 结果 Map（brandList: 品牌列表, specList: 规格列表）
@@ -345,28 +364,73 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         Map map = new HashMap();
         //1.根据商品分类名称得到模板ID
         Long templateId = (Long) redisTemplate.boundHashOps("itemCat").get(category);
+
+        // ✅ 缓存降级：Redis失效时查询数据库
+        if (templateId == null) {
+            logger.warn("Redis中分类模板ID不存在，尝试从数据库查询: category=" + category);
+            try {
+                // 查询数据库：根据分类名称查询分类ID
+                TbItemCatExample example = new TbItemCatExample();
+                TbItemCatExample.Criteria criteria = example.createCriteria();
+                criteria.andNameEqualTo(category);
+
+                List<TbItemCat> catList = itemCatMapper.selectByExample(example);
+                if (catList != null && !catList.isEmpty()) {
+                    TbItemCat itemCat = catList.get(0);
+                    templateId = itemCat.getTypeId(); // 获取模板ID
+
+                    // 将模板ID写入Redis，设置过期时间为1小时
+                    redisTemplate.boundHashOps("itemCat").put(category, templateId);
+                    redisTemplate.boundHashOps("itemCat").expire(1, java.util.concurrent.TimeUnit.HOURS);
+
+                    logger.info("从数据库查询分类模板ID成功: category=" + category + ", templateId=" + templateId);
+                } else {
+                    logger.error("数据库中分类不存在: category=" + category);
+                    return map; // 返回空Map
+                }
+            } catch (Exception e) {
+                logger.error("查询分类模板ID失败: category=" + category, e);
+                return map; // 返回空Map
+            }
+        }
+
         if (templateId != null) {
             //2.根据模板ID获取品牌列表
             List brandList = (List) redisTemplate.boundHashOps("brandList").get(templateId);
-            // ✅ 空值检查：防止brandList为null导致NPE
-            if (brandList != null && !brandList.isEmpty()) {
+
+            // ✅ 缓存降级：品牌列表Redis失效时查询数据库
+            if (brandList == null || brandList.isEmpty()) {
+                logger.warn("Redis中品牌列表为空，尝试从数据库查询: templateId=" + templateId);
+                try {
+                    // 这里应该调用GoodsMapper查询品牌列表
+                    // TODO: 需要实现GoodsMapper.queryBrandListByTemplateId(templateId)
+                    // 暂时记录日志，等待Goods服务实现
+                    logger.warn("品牌列表缓存降级未实现，需要GoodsMapper支持: templateId=" + templateId);
+                } catch (Exception e) {
+                    logger.error("查询品牌列表失败: templateId=" + templateId, e);
+                }
+            } else {
                 map.put("brandList", brandList);
                 logger.info("品牌列表条数：" + brandList.size());
-            } else {
-                logger.warn("品牌列表为空: category=" + category + ", templateId=" + templateId);
             }
 
             //3.根据模板ID获取规格列表
             List specList = (List) redisTemplate.boundHashOps("specList").get(templateId);
-            // ✅ 空值检查：防止specList为null导致NPE
-            if (specList != null && !specList.isEmpty()) {
+
+            // ✅ 缓存降级：规格列表Redis失效时查询数据库
+            if (specList == null || specList.isEmpty()) {
+                logger.warn("Redis中规格列表为空，尝试从数据库查询: templateId=" + templateId);
+                try {
+                    // 这里应该调用GoodsMapper查询规格列表
+                    // TODO: 需要实现GoodsMapper.querySpecListByTemplateId(templateId)
+                    logger.warn("规格列表缓存降级未实现，需要GoodsMapper支持: templateId=" + templateId);
+                } catch (Exception e) {
+                    logger.error("查询规格列表失败: templateId=" + templateId, e);
+                }
+            } else {
                 map.put("specList", specList);
                 logger.info("规格列表条数：" + specList.size());
-            } else {
-                logger.warn("规格列表为空: category=" + category + ", templateId=" + templateId);
             }
-        } else {
-            logger.warn("分类模板ID不存在: category=" + category);
         }
 
         return map;

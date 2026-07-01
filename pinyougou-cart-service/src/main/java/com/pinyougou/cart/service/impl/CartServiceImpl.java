@@ -34,6 +34,9 @@ public class CartServiceImpl implements CartService {
     private static final long CART_LOCK_TIMEOUT = 10; // 锁过期时间（秒）
     private static final int CART_LOCK_WAIT_COUNT = 10; // 等待锁的重试次数
 
+    // ✅ 购物车商品总数上限（防止内存溢出）
+    private static final int MAX_CART_ITEM_COUNT = 200; // 最多200件商品
+
     @Autowired
     private TbItemMapper itemMapper;
 
@@ -54,9 +57,14 @@ public class CartServiceImpl implements CartService {
      * <p>
      * ✅ 已优化：线程安全
      * - 使用Redis分布式锁（lock:cart:{userId}）
-     * - 锁粒度：按用户维度加锁
+     * - 锁粒度：按用户维度加锁（同一用户并发操作排队）
      * - 锁过期时间：10秒（防止死锁）
      * - 重试次数：最多等待5秒
+     * <p>
+     * 锁粒度说明：
+     * - 用户维度：不同用户互不影响（推荐）
+     * - 商品维度：同一商品所有用户排队（性能差）
+     * - 全局维度：所有操作排队（性能最差）
      * <p>
      * 购物车数据结构：
      * List<Cart>
@@ -79,15 +87,18 @@ public class CartServiceImpl implements CartService {
      * - ResourceNotFoundException: 商品不存在
      * - InsufficientStockException: 库存不足
      *
+     * @param userId 用户ID（用于分布式锁）
      * @param cartList 购物车列表（已有商品）
      * @param itemId 商品SKU ID
      * @param num 购买数量
      * @return 更新后的购物车列表
      */
     @Override
-    public List<Cart> addGoodsToCartList(List<Cart> cartList, Long itemId, Integer num) {
-        // 分布式锁：按商品ID加锁（临时方案，建议优化为按用户加锁）
-        String lockKey = CART_LOCK_PREFIX + "item:" + itemId;
+    public List<Cart> addGoodsToCartList(String userId, List<Cart> cartList, Long itemId, Integer num) {
+        // ✅ 分布式锁：按用户ID加锁（优化锁粒度）
+        // 锁键格式: lock:cart:{userId}
+        // 优势：不同用户互不影响，只有同一用户的并发操作才需要排队
+        String lockKey = CART_LOCK_PREFIX + userId;
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1", CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
 
         // 尝试获取锁
@@ -115,6 +126,28 @@ public class CartServiceImpl implements CartService {
             }
             if(num>999){
                 throw new ValidationException("单次购买数量不能超过999件");
+            }
+
+            // ========== 购物车商品总数检查 ==========
+            // 计算当前购物车商品总数
+            int totalItemCount = 0;
+            for (Cart cart : cartList) {
+                totalItemCount += cart.getOrderItemList().size();
+            }
+
+            // 检查是否已添加过该商品
+            boolean itemExists = false;
+            for (Cart cart : cartList) {
+                TbOrderItem orderItem = searchOrderItemByItemId(cart.getOrderItemList(), itemId);
+                if (orderItem != null) {
+                    itemExists = true;
+                    break;
+                }
+            }
+
+            // 如果商品不存在，且总数已达上限，则拒绝添加
+            if (!itemExists && totalItemCount >= MAX_CART_ITEM_COUNT) {
+                throw new ValidationException("购物车商品总数不能超过" + MAX_CART_ITEM_COUNT + "件，请先清理部分商品");
             }
 
             // ========== 商品信息校验 ==========
@@ -315,7 +348,7 @@ public class CartServiceImpl implements CartService {
      * <p>
      * 合并策略：
      * 1. 遍历购物车2的每个购物车和商品
-     * 2. 调用 addGoodsToCartList() 将商品添加到购物车1
+     * 2. 直接合并商品到购物车1（使用HashMap索引）
      * 3. 如果商品已存在，则增加数量（最多999件）
      * 4. 如果商品不存在，则新增商品到对应商家的购物车
      * <p>
@@ -323,29 +356,27 @@ public class CartServiceImpl implements CartService {
      * - 按商家分组：不同商家的商品分别存放
      * - 相同商品合并：同一SKU的数量累加
      * - 数量限制：合并后总数不超过999件
-     * - 库存校验：合并时再次验证库存
+     * - 库存校验：合并时不再验证库存（提升性能）
      * <p>
-     * ✅ 已优化：性能提升
-     * - 原方案：嵌套循环 O(n×m) 时间复杂度
-     * - 新方案：HashMap索引 O(n+m) 时间复杂度
-     * - 优化效果：商品越多，性能提升越明显
-     * <p>
-     * 优化方案：
-     * - 第一步：将cartList1转换为HashMap（sellerId -> Cart）
-     * - 第二步：遍历cartList2，直接查找Cart
-     * - 第三步：合并商品或新增商品
+     * ✅ 已优化：
+     * - 使用HashMap索引 O(n+m)
+     * - 不再调用addGoodsToCartList（避免重复查询数据库）
+     * - 直接操作内存对象，性能提升显著
      * <p>
      * TODO: 继续优化
      * - 添加商品状态验证（过滤已下架商品）
      * - 添加库存变化提醒（库存不足时提示用户）
      * - 合并后排序：按商家、按添加时间
      *
+     * @param userId 用户ID（用于日志记录）
      * @param cartList1 登录用户的购物车（主购物车）
      * @param cartList2 未登录时的本地购物车（待合并）
      * @return 合并后的购物车列表
      */
     @Override
-    public List<Cart> mergeCartList(List<Cart> cartList1, List<Cart> cartList2) {
+    public List<Cart> mergeCartList(String userId, List<Cart> cartList1, List<Cart> cartList2) {
+        logger.info("合并购物车: userId=" + userId + ", cartList1.size=" + cartList1.size() + ", cartList2.size=" + cartList2.size());
+
         // ========== 第一步：构建HashMap索引（优化查找性能） ==========
         // 将cartList1转换为HashMap，key为sellerId，value为Cart对象
         // 时间复杂度：O(n)，只遍历一次cartList1
@@ -377,8 +408,19 @@ public class CartServiceImpl implements CartService {
                         // ========== 商品已存在，合并数量 ==========
                         int newNum = existingItem.getNum() + orderItem2.getNum();
                         if (newNum > 999) {
-                            logger.warn("合并后数量超过上限: itemId=" + orderItem2.getItemId() + ", num=" + newNum);
+                            logger.warn("合并后数量超过上限: userId=" + userId + ", itemId=" + orderItem2.getItemId() + ", num=" + newNum);
                             newNum = 999; // 截断到上限
+                        }
+                        existingItem.setNum(newNum);
+                        existingItem.setTotalFee(existingItem.getPrice().multiply(new BigDecimal(newNum)));
+                    }
+                }
+            }
+        }
+
+        logger.info("购物车合并完成: userId=" + userId + ", 合并后大小=" + cartList1.size());
+        return cartList1;
+    }
                         }
                         existingItem.setNum(newNum);
                         existingItem.setTotalFee(existingItem.getPrice().multiply(new BigDecimal(newNum)));
