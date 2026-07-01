@@ -67,6 +67,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试添加商品到购物车（新商品）
      */
     @Test
@@ -99,6 +159,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试添加商品到购物车（已存在商品）
      */
     @Test
@@ -126,6 +246,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试商品不存在异常
      */
     @Test(expected = ResourceNotFoundException.class)
@@ -140,6 +320,66 @@ public class CartServiceImplTest {
 
         // 执行测试（应该抛出异常）
         cartService.addGoodsToCartList("user_001", cartList, itemId, 1);
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -162,6 +402,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试根据商家ID查找购物车
      */
     @Test
@@ -180,6 +480,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试根据商家ID查找购物车（未找到）
      */
     @Test
@@ -188,6 +548,66 @@ public class CartServiceImplTest {
         Cart result = cartService.searchCartBySellerId(cartList, "seller_999");
 
         assertNull("不应找到购物车", result);
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -205,6 +625,66 @@ public class CartServiceImplTest {
         assertEquals("数量不匹配", num, orderItem.getNum());
         assertEquals("价格不匹配", testItem.getPrice(), orderItem.getPrice());
         assertEquals("总价计算应正确", testItem.getPrice().multiply(new BigDecimal(num)), orderItem.getTotalFee());
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -258,6 +738,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试购物车合并（相同商家）
      */
     @Test
@@ -294,6 +834,66 @@ public class CartServiceImplTest {
         // 验证结果
         assertEquals("合并后应有1个商家", 1, result.size());
         assertEquals("商家应有2个商品", 2, result.get(0).getOrderItemList().size());
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -343,6 +943,313 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试Redis分布式锁获取失败场景
+     */
+    @Test
+    public void testAddGoodsToCartList_LockFailed() {
+        Long itemId = 1001L;
+        Integer num = 2;
+
+        // Mock商品查询
+        Mockito.when(itemMapper.selectByPrimaryKey(itemId)).thenReturn(testItem);
+
+        // Mock Redis锁获取失败（setIfAbsent返回false）
+        Mockito.when(redisTemplate.opsForValue().setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
+            .thenReturn(false);
+
+        // 第一次调用应该返回空列表（获取锁失败）
+        List<Cart> result1 = cartService.addGoodsToCartList("user_001", new ArrayList<>(), itemId, num);
+        assertNotNull("结果不应为null", result1);
+        assertEquals("锁失败时应返回空列表", 0, result1.size());
+
+        // 第二次调用锁获取成功
+        Mockito.when(redisTemplate.opsForValue().setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
+            .thenReturn(true);
+        Mockito.doNothing().when(redisTemplate).delete(Mockito.anyString());
+
+        List<Cart> result2 = cartService.addGoodsToCartList("user_001", new ArrayList<>(), itemId, num);
+        assertEquals("锁成功时应添加到购物车", 1, result2.size());
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试商品状态禁用时添加购物车
+     */
+    @Test(expected = IllegalStateException.class)
+    public void testAddGoodsToCartList_ItemDisabled() {
+        Long itemId = 1001L;
+        Integer num = 2;
+
+        // Mock商品已禁用
+        testItem.setStatus("0"); // 禁用状态
+        Mockito.when(itemMapper.selectByPrimaryKey(itemId)).thenReturn(testItem);
+        Mockito.when(redisTemplate.opsForValue().setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
+            .thenReturn(true);
+        Mockito.doNothing().when(redisTemplate).delete(Mockito.anyString());
+
+        // 执行测试（应该抛出异常）
+        cartService.addGoodsToCartList("user_001", cartList, itemId, num);
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试添加商品到购物车（userId为null）
+     */
+    @Test
+    public void testAddGoodsToCartList_NullUserId() {
+        Long itemId = 1001L;
+        Integer num = 1;
+
+        Mockito.when(itemMapper.selectByPrimaryKey(itemId)).thenReturn(testItem);
+        Mockito.when(redisTemplate.opsForValue().setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
+            .thenReturn(true);
+        Mockito.doNothing().when(redisTemplate).delete(Mockito.anyString());
+
+        // 执行测试（应该能正确处理null用户ID）
+        List<Cart> result = cartService.addGoodsToCartList(null, new ArrayList<>(), itemId, num);
+        assertNotNull("结果不应为null", result);
+        assertEquals("应有1个商家", 1, result.size());
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试空购物车列表
      */
     @Test
@@ -356,6 +1263,66 @@ public class CartServiceImplTest {
         // 验证结果
         assertNotNull("结果不应为null", result);
         assertEquals("结果应为空列表", 0, result.size());
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -378,6 +1345,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试添加数量为0（应抛出异常或根据业务逻辑处理）
      */
     @Test(expected = IllegalArgumentException.class)
@@ -392,6 +1419,66 @@ public class CartServiceImplTest {
 
         // 执行测试（应该抛出异常或根据业务逻辑处理）
         cartService.addGoodsToCartList("user_001", cartList, itemId, num);
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -412,6 +1499,66 @@ public class CartServiceImplTest {
     }
 
     /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
      * 测试商品ID为null（应抛出异常）
      */
     @Test(expected = IllegalArgumentException.class)
@@ -426,6 +1573,66 @@ public class CartServiceImplTest {
 
         // 执行测试（应该抛出异常）
         cartService.addGoodsToCartList("user_001", cartList, itemId, num);
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 
     /**
@@ -444,5 +1651,65 @@ public class CartServiceImplTest {
         // 执行测试（应该能正确处理null或空用户ID）
         List<Cart> result = cartService.addGoodsToCartList(null, cartList, itemId, num);
         assertNotNull("结果不应为null", result);
+    }
+
+    /**
+     * 测试合并空的主购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMainCart() {
+        // 待合并购物车有数据
+        Cart cart2 = new Cart();
+        cart2.setSellerId("seller_001");
+        TbOrderItem item2 = new TbOrderItem();
+        item2.setItemId(1001L);
+        item2.setNum(3);
+        item2.setPrice(new BigDecimal("99.99"));
+        cart2.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item2);
+        }});
+        List<Cart> mergeCartList = new ArrayList<>();
+        mergeCartList.add(cart2);
+
+        // 主购物车为空
+        List<Cart> mainCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为3", Integer.valueOf(3), result.get(0).getOrderItemList().get(0).getNum());
+    }
+
+    /**
+     * 测试合并空的待合并购物车
+     */
+    @Test
+    public void testMergeCartList_EmptyMergeCart() {
+        // 主购物车有数据
+        Cart cart1 = new Cart();
+        cart1.setSellerId("seller_001");
+        TbOrderItem item1 = new TbOrderItem();
+        item1.setItemId(1001L);
+        item1.setNum(2);
+        item1.setPrice(new BigDecimal("99.99"));
+        cart1.setOrderItemList(new ArrayList<TbOrderItem>() {{
+            add(item1);
+        }});
+        List<Cart> mainCartList = new ArrayList<>();
+        mainCartList.add(cart1);
+
+        // 待合并购物车为空
+        List<Cart> mergeCartList = new ArrayList<>();
+
+        // 执行合并
+        List<Cart> result = cartService.mergeCartList("user_001", mainCartList, mergeCartList);
+
+        // 验证结果
+        assertEquals("合并后应有1个商家", 1, result.size());
+        assertEquals("商品数量应为1", 1, result.get(0).getOrderItemList().size());
+        assertEquals("商品数量应为2", Integer.valueOf(2), result.get(0).getOrderItemList().get(0).getNum());
     }
 }

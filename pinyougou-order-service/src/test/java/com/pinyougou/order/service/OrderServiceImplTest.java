@@ -290,3 +290,81 @@ public class OrderServiceImplTest {
         assertEquals("零金额转分应为0", 0L, totalFee.longValue());
     }
 }
+
+    // ========== 补充的关键业务流程测试 ==========
+
+    /**
+     * 测试findPage分页查询
+     */
+    @Test
+    public void testFindPage() {
+        int pageNum = 1;
+        int pageSize = 10;
+
+        // Mock PageHelper
+        com.github.pagehelper.Page<TbOrder> page = new com.github.pagehelper.Page<>(pageNum, pageSize);
+        List<TbOrder> orderList = new ArrayList<>();
+        orderList.add(testOrder);
+        page.addAll(orderList);
+        page.setTotal(1);
+
+        Mockito.when(orderMapper.selectByExample(Mockito.any(TbOrderExample.class))).thenReturn(orderList);
+
+        // 执行测试
+        entity.PageResult result = orderService.findPage(pageNum, pageSize);
+
+        // 验证结果
+        assertNotNull("分页结果不应为null", result);
+        assertNotNull("商品列表不应为null", result.getRows());
+        assertEquals("总记录数应为1", 1L, result.getTotal());
+        assertEquals("当前页商品数应为1", 1, result.getRows().size());
+    }
+
+    /**
+     * 测试add方法参数校验（订单信息为空）
+     */
+    @Test(expected = com.pinyougou.exception.ValidationException.class)
+    public void testAdd_NullOrder() {
+        orderService.add(null);
+    }
+
+    /**
+     * 测试add方法参数校验（用户ID为空）
+     */
+    @Test(expected = com.pinyougou.exception.ValidationException.class)
+    public void testAdd_EmptyUserId() {
+        TbOrder order = new TbOrder();
+        order.setUserId(""); // 空字符串
+        order.setPaymentType("1");
+        order.setReceiver("张三");
+        order.setReceiverMobile("13800138000");
+        order.setReceiverAreaName("北京市朝阳区");
+
+        orderService.add(order);
+    }
+
+    /**
+     * 测试update方法（订单状态更新）
+     */
+    @Test
+    public void testUpdate() {
+        TbOrder updateOrder = new TbOrder();
+        updateOrder.setOrderId(123456789L);
+        updateOrder.setStatus("2"); // 更新为已付款
+
+        Mockito.when(orderMapper.selectByPrimaryKey(123456789L)).thenReturn(testOrder);
+        Mockito.doNothing().when(orderMapper).updateByPrimaryKey(Mockito.any(TbOrder.class));
+
+        orderService.update(updateOrder);
+
+        Mockito.verify(orderMapper).updateByPrimaryKey(updateOrder);
+    }
+
+    /**
+     * 测试findOne（订单不存在）
+     */
+    @Test(expected = com.pinyougou.exception.ResourceNotFoundException.class)
+    public void testFindOne_NotFound() {
+        Mockito.when(orderMapper.selectByPrimaryKey(999999L)).thenReturn(null);
+        orderService.findOne(999999L);
+    }

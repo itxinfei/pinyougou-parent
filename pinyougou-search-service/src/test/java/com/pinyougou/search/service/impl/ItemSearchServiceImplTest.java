@@ -279,3 +279,149 @@ public class ItemSearchServiceImplTest {
         // 应该触发降级日志，但不会抛出异常
     }
 }
+
+    // ========== 补充的关键测试场景 ==========
+
+    /**
+     * 测试搜索结果为空
+     */
+    @Test
+    public void testSearch_EmptyResult() {
+        // Mock Solr返回空结果
+        List<TbItem> emptyList = new ArrayList<>();
+        Mockito.when(solrTemplate.queryForHighlightPage(Mockito.any(), Mockito.eq(TbItem.class)))
+            .thenReturn(new HighlightPageImpl<>(emptyList));
+
+        // Mock分类列表
+        List<String> categoryList = new ArrayList<>();
+        categoryList.add("手机");
+        HashOperations hashOps = Mockito.mock(HashOperations.class);
+        Mockito.when(redisTemplate.boundHashOps("itemCat")).thenReturn(hashOps);
+        Mockito.when(hashOps.keys("")).thenReturn(categoryList);
+
+        // 执行测试
+        Map<String, Object> result = itemSearchService.search(searchMap);
+
+        // 验证结果
+        assertNotNull("搜索结果不应为null", result);
+        assertNotNull("商品列表不应为null", result.get("rows"));
+        assertEquals("商品数量应为0", 0, ((List<TbItem>) result.get("rows")).size());
+        assertEquals("总页数应为1", 1, result.get("totalPages"));
+        assertEquals("总记录数应为0", 0L, result.get("total"));
+    }
+
+    /**
+     * 测试空关键词搜索
+     */
+    @Test
+    public void testSearch_EmptyKeywords() {
+        searchMap.put("keywords", "");
+
+        // Mock Solr返回空结果
+        List<TbItem> emptyList = new ArrayList<>();
+        Mockito.when(solrTemplate.queryForHighlightPage(Mockito.any(), Mockito.eq(TbItem.class)))
+            .thenReturn(new HighlightPageImpl<>(emptyList));
+
+        HashOperations hashOps = Mockito.mock(HashOperations.class);
+        Mockito.when(redisTemplate.boundHashOps("itemCat")).thenReturn(hashOps);
+        Mockito.when(hashOps.keys("")).thenReturn(new ArrayList<>());
+
+        // 执行测试
+        Map<String, Object> result = itemSearchService.search(searchMap);
+
+        // 验证结果（应该能正确处理空关键词）
+        assertNotNull("搜索结果不应为null", result);
+    }
+
+    /**
+     * 测试导入商品到Solr（空列表）
+     */
+    @Test
+    public void testImportList_Empty() {
+        List<TbItem> emptyList = new ArrayList<>();
+
+        // Mock Solr
+        Mockito.doNothing().when(solrTemplate).saveBeans(Mockito.anyList());
+        Mockito.doNothing().when(solrTemplate).commit();
+
+        // 执行测试
+        itemSearchService.importList(emptyList);
+
+        // 验证方法调用（应该调用commit但不保存任何内容）
+        Mockito.verify(solrTemplate).saveBeans(emptyList);
+        Mockito.verify(solrTemplate).commit();
+    }
+
+    /**
+     * 测试删除商品时goodsIds为空
+     */
+    @Test
+    public void testDeleteByGoodsIds_EmptyList() {
+        List goodsIds = new ArrayList<>();
+
+        // Mock Solr
+        Mockito.doNothing().when(solrTemplate).delete(Mockito.any());
+        Mockito.doNothing().when(solrTemplate).commit();
+
+        // 执行测试
+        itemSearchService.deleteByGoodsIds(goodsIds);
+
+        // 验证不应该调用删除方法
+        Mockito.verify(solrTemplate, Mockito.never()).delete(Mockito.any());
+        Mockito.verify(solrTemplate).commit();
+    }
+
+    /**
+     * 测试删除商品时goodsIds为null
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteByGoodsIds_NullList() {
+        // 执行测试（应该抛出异常）
+        itemSearchService.deleteByGoodsIds(null);
+    }
+
+    /**
+     * 测试分页参数为负数
+     */
+    @Test
+    public void testSearch_NegativePage() {
+        searchMap.put("pageNo", -1);
+        searchMap.put("pageSize", -1);
+
+        // Mock Solr返回空结果
+        List<TbItem> emptyList = new ArrayList<>();
+        Mockito.when(solrTemplate.queryForHighlightPage(Mockito.any(), Mockito.eq(TbItem.class)))
+            .thenReturn(new HighlightPageImpl<>(emptyList));
+
+        HashOperations hashOps = Mockito.mock(HashOperations.class);
+        Mockito.when(redisTemplate.boundHashOps("itemCat")).thenReturn(hashOps);
+        Mockito.when(hashOps.keys("")).thenReturn(new ArrayList<>());
+
+        // 执行测试（应该能正确处理负数并转换为正数）
+        Map<String, Object> result = itemSearchService.search(searchMap);
+        assertNotNull("搜索结果不应为null", result);
+    }
+
+    /**
+     * 测试关键字去除前后空格
+     */
+    @Test
+    public void testSearch_TrimKeywords() {
+        searchMap.put("keywords", "  手机  ");
+
+        // Mock Solr返回空结果
+        List<TbItem> emptyList = new ArrayList<>();
+        Mockito.when(solrTemplate.queryForHighlightPage(Mockito.any(), Mockito.eq(TbItem.class)))
+            .thenReturn(new HighlightPageImpl<>(emptyList));
+
+        HashOperations hashOps = Mockito.mock(HashOperations.class);
+        Mockito.when(redisTemplate.boundHashOps("itemCat")).thenReturn(hashOps);
+        Mockito.when(hashOps.keys("")).thenReturn(new ArrayList<>());
+
+        // 执行测试
+        Map<String, Object> result = itemSearchService.search(searchMap);
+
+        // 验证关键词已trim
+        assertEquals("关键词应去除空格", "手机", searchMap.get("keywords"));
+    }
+}

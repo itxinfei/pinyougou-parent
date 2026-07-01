@@ -260,6 +260,72 @@ public class UserServiceImplTest {
      */
     @Test
     public void testBCryptPasswordEncoding() {
+
+    /**
+     * 测试用户注册（用户名重复）
+     */
+    @Test
+    public void testAdd_DuplicateUsername() {
+        // 准备新用户数据
+        TbUser newUser = new TbUser();
+        newUser.setUsername("existinguser");
+        newUser.setPassword("plain_password");
+        newUser.setPhone("13900139000");
+
+        // Mock数据库查询返回已有用户
+        List<TbUser> existingUser = new ArrayList<>();
+        TbUser user = new TbUser();
+        user.setUsername("existinguser");
+        existingUser.add(user);
+        Mockito.when(userMapper.selectByExample(Mockito.any(TbUserExample.class))).thenReturn(existingUser);
+
+        // 执行测试（应该抛出异常或返回错误）
+        try {
+            userServiceImpl.add(newUser);
+            // 如果实现有重复检查，应该抛出异常
+            fail("应该抛出重复用户名异常");
+        } catch (Exception e) {
+            // 预期异常
+            assertTrue("异常信息应包含用户名重复", e.getMessage().contains("用户名"));
+        }
+    }
+
+    /**
+     * 测试短信验证码过期（Redis中不存在）
+     */
+    @Test
+    public void testCheckSmsCode_Expired() {
+        String phone = "13800138000";
+        String code = "123456";
+
+        // Mock Redis返回null（验证码已过期）
+        Mockito.when(redisTemplate.boundHashOps("smscode").get(phone)).thenReturn(null);
+
+        // 执行测试
+        boolean result = userServiceImpl.checkSmsCode(phone, code);
+
+        // 验证结果
+        assertFalse("过期验证码校验应失败", result);
+    }
+
+    /**
+     * 测试短信验证码为空
+     */
+    @Test
+    public void testCheckSmsCode_EmptyCode() {
+        String phone = "13800138000";
+        String emptyCode = "";
+        String correctCode = "123456";
+
+        // Mock Redis返回正确的验证码
+        Mockito.when(redisTemplate.boundHashOps("smscode").get(phone)).thenReturn(correctCode);
+
+        // 执行测试
+        boolean result = userServiceImpl.checkSmsCode(phone, emptyCode);
+
+        // 验证结果
+        assertFalse("空验证码校验应失败", result);
+    }
         // 准备用户
         TbUser user = new TbUser();
         user.setUsername("testuser");
