@@ -2,7 +2,7 @@
 SQLyog v10.2 
 MySQL - 5.5.49 : Database - pinyougoudb
 *********************************************************************
-*/
+*/
 
 /*!40101 SET NAMES utf8 */;
 
@@ -6452,6 +6452,26 @@ insert  into `tb_user`(`id`,`username`,`password`,`phone`,`email`,`created`,`upd
 insert  into `tb_user`(`id`,`username`,`password`,`phone`,`email`,`created`,`updated`,`source_type`,`nick_name`,`name`,`status`,`head_pic`,`qq`,`account_balance`,`is_mobile_check`,`is_email_check`,`sex`,`user_level`,`points`,`experience_value`,`birthday`,`last_login_time`) values (13,'nezha','1a100d2c0dab19c4430e7d73762b3423','17338118923',NULL,'2017-10-08 12:23:27','2017-10-08 12:23:27',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 insert  into `tb_user`(`id`,`username`,`password`,`phone`,`email`,`created`,`updated`,`source_type`,`nick_name`,`name`,`status`,`head_pic`,`qq`,`account_balance`,`is_mobile_check`,`is_email_check`,`sex`,`user_level`,`points`,`experience_value`,`birthday`,`last_login_time`) values (14,'litianwang','b0baee9d279d34fa1dfd71aadb908c3f','17338118923',NULL,'2017-10-08 12:28:25','2017-10-08 12:28:25',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 insert  into `tb_user`(`id`,`username`,`password`,`phone`,`email`,`created`,`updated`,`source_type`,`nick_name`,`name`,`status`,`head_pic`,`qq`,`account_balance`,`is_mobile_check`,`is_email_check`,`sex`,`user_level`,`points`,`experience_value`,`birthday`,`last_login_time`) values (15,'taiba','97d84aa49109e72a54980e79802844be','17338118923',NULL,'2017-10-08 12:34:53','2017-10-08 12:34:53',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+
+/*Table structure for table `tb_refund` */
+
+DROP TABLE IF EXISTS `tb_refund`;
+
+CREATE TABLE `tb_refund` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '退款ID',
+  `order_id` bigint(20) NOT NULL COMMENT '订单ID',
+  `refund_fee` decimal(20,2) DEFAULT NULL COMMENT '退款金额',
+  `reason` varchar(500) COLLATE utf8_bin DEFAULT NULL COMMENT '退款原因：1-买家取消订单 2-买家退货退款 3-卖家同意退款 4-系统自动退款',
+  `status` varchar(1) COLLATE utf8_bin DEFAULT NULL COMMENT '退款状态：0-待处理 1-退款成功 2-退款失败',
+  `transaction_id` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '交易流水号',
+  `response_content` text COLLATE utf8_bin COMMENT '退款响应内容',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `finish_time` datetime DEFAULT NULL COMMENT '退款完成时间',
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='退款记录表';
+
+/*Data for the table `tb_refund` */
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
