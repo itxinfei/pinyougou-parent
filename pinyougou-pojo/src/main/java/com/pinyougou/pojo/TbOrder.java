@@ -55,6 +55,11 @@ public class TbOrder implements Serializable{
 
     private String sellerId;
 
+    /**
+     * 取消原因
+     */
+    private String cancelReason;
+
     public Long getOrderId() {
         return orderId;
     }
@@ -253,5 +258,12 @@ public class TbOrder implements Serializable{
 
     public void setSellerId(String sellerId) {
         this.sellerId = sellerId == null ? null : sellerId.trim();
+    }
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason == null ? null : cancelReason.trim();
     }
 }
