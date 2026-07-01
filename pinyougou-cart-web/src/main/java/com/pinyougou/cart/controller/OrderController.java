@@ -1,5 +1,6 @@
 package com.pinyougou.cart.controller;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,9 @@ public class OrderController {
 
 	@Reference
 	private OrderService orderService;
+
+	@Reference
+	private RefundService refundService;
 	
 	/**
 	 * 返回全部列表

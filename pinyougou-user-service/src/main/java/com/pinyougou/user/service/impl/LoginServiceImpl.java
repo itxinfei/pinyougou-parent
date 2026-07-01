@@ -297,6 +297,38 @@ public class LoginServiceImpl implements LoginService {
     }
 
     /**
+     * 登出（作废Token）
+     */
+    @Override
+    public Map<String, Object> logout(String token) {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        try {
+            // 1. 从token中解析出用户名
+            String username = jwtUtils.getUsernameFromToken(token);
+
+            // 2. 删除Redis中的token（作废）
+            redisTemplate.delete("token:" + username);
+
+            // 3. 可选：将token加入黑名单（用于强制登出）
+            // 设置过期时间为token的剩余有效期
+            redisTemplate.boundValueOps("token:blacklist:" + token).set("1", 30, java.util.concurrent.TimeUnit.MINUTES);
+
+            resultMap.put("success", true);
+            resultMap.put("message", "登出成功");
+
+            logger.info("用户登出成功: " + username);
+
+        } catch (Exception e) {
+            logger.error("登出失败", e);
+            resultMap.put("success", false);
+            resultMap.put("message", "登出失败");
+        }
+
+        return resultMap;
+    }
+
+    /**
      * 根据用户名查询用户
      */
     private TbUser getUserByUsername(String username) {

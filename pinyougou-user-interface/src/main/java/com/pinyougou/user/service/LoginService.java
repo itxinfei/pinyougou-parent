@@ -45,4 +45,12 @@ public interface LoginService {
      * @return 注册结果
      */
     public Map<String, Object> register(TbUser user, String smscode);
+
+    /**
+     * 登出（作废Token）
+     *
+     * @param token JWT Token
+     * @return 登出结果
+     */
+    public Map<String, Object> logout(String token);
 }

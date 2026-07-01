@@ -2,10 +2,13 @@ package com.pinyougou.user.controller;
 
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
+import com.pinyougou.pojo.TbUser;
 import com.pinyougou.user.service.LoginService;
 
 import entity.Result;
@@ -75,9 +78,25 @@ public class LoginController {
      */
     @RequestMapping("/register")
     public Result register(String userJson, String smscode) {
-        // TODO: 这里需要解析JSON字符串为TbUser对象
-        // 暂时用简单方式实现
-        return new Result(false, "功能开发中");
+        try {
+            // 解析JSON字符串为TbUser对象
+            TbUser user = JSON.parseObject(userJson, TbUser.class);
+
+            // 验证必要字段
+            if (user.getUsername() == null || user.getPassword() == null) {
+                return new Result(false, "用户名和密码不能为空");
+            }
+
+            // 调用注册服务
+            Map<String, Object> result = loginService.register(user, smscode);
+
+            boolean success = (boolean) result.get("success");
+            String message = (String) result.get("message");
+
+            return new Result(success, message);
+        } catch (Exception e) {
+            return new Result(false, "注册失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -108,11 +127,15 @@ public class LoginController {
      */
     @RequestMapping("/logout")
     public Result logout(String token) {
-        // 将Token加入黑名单
         try {
-            // TODO: 实现Token黑名单逻辑（存入Redis，过期时间等于Token剩余有效期）
-            return new Result(true, "登出成功");
+            Map<String, Object> result = loginService.logout(token);
+
+            boolean success = (boolean) result.get("success");
+            String message = (String) result.get("message");
+
+            return new Result(success, message);
         } catch (Exception e) {
+            logger.error("登出失败", e);
             return new Result(false, "登出失败");
         }
     }
