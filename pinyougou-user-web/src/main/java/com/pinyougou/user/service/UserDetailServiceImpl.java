@@ -18,10 +18,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Logger logger = Logger.getLogger(UserDetailServiceImpl.class);
 		logger.info("经过认证类:"+username);
-		
-		List<GrantedAuthority> authorities=new ArrayList();
+
+		List<GrantedAuthority> authorities=new ArrayList<GrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-		
+
 		return new User(username,"",authorities);
 	}
 

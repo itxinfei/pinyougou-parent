@@ -85,6 +85,7 @@
         <ik.version>2012_u6</ik.version>
         <jedis.version>2.8.1</jedis.version>
         <spring-data-redis.version>1.7.2.RELEASE</spring-data-redis.version>
+        <jjwt.version>0.9.0</jjwt.version>
     </properties>
 
     <!--依赖坐标-->
@@ -104,6 +105,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
@@ -308,6 +314,12 @@
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
+            </dependency>
+            <!-- JWT -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -27,6 +27,7 @@ import com.pinyougou.mapper.TbUserMapper;
 import com.pinyougou.pojo.TbUser;
 import com.pinyougou.pojo.TbUserExample;
 import com.pinyougou.pojo.TbUserExample.Criteria;
+import com.pinyougou.user.service.LoginService;
 import com.pinyougou.user.service.UserService;
 
 import entity.PageResult;
@@ -40,6 +41,7 @@ import entity.PageResult;
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
+
 
     @Autowired
     private TbUserMapper userMapper;
