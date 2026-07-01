@@ -584,7 +584,7 @@ redis-cli ping
 - 🐙 GitHub: [@itxinfei](https://github.com/itxinfei)
 - 📚 Gitee: [@itxinfei](https://gitee.com/itxinfei)
 - 📧 Email: [747011882@qq.com](mailto:747011882@qq.com)
-- 💬 QQ群: 863662849
+- 💬 QQ群: [661543188](https://gitee.com/link?target=https%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Fk%3DgNgch-wCkfUu-QbI7DZSudrax2BN7vY0%26jump_from%3Dwebapi%26authKey%3DQHSRnxQvu%2Bh5S3AXGn%2FDSHrVPiFQAYEk6bSlCE1lS276SFjQAUagV4FG7bHf0OSM)
 
 ---
 
