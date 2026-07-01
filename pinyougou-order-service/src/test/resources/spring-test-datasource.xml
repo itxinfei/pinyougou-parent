@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- ========== 集成测试配置 ========== -->
+    <!--
+        使用H2内存数据库进行集成测试
+        优势：
+        - 无需安装外部数据库
+        - 测试速度快
+        - 支持SQL标准
+        - 自动创建和销毁
+
+        测试结束后数据自动清空（通过@Transactional回滚）
+    -->
+
+    <!-- 数据源配置：H2内存数据库 -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <!-- H2驱动 -->
+        <property name="driverClassName" value="org.h2.Driver"/>
+        <!-- JDBC URL：内存数据库模式，自动创建DB -->
+        <property name="url" value="jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:schema.sql'"/>
+        <!-- 用户名 -->
+        <property name="username" value="sa"/>
+        <!-- 密码 -->
+        <property name="password" value=""/>
+    </bean>
+
+    <!-- H2控制台（可选，用于调试） -->
+    <!-- 访问：http://localhost:8080/h2-console -->
+    <!-- JDBC URL: jdbc:h2:mem:testdb -->
+    <bean class="org.h2.tools.Server">
+        <constructor-arg value="-tcp"/>
+        <constructor-arg value="-tcpAllowOthers"/>
+        <constructor-arg value="-tcpPort"/>
+        <constructor-arg value="9092"/>
+    </bean>
+
+</beans>
