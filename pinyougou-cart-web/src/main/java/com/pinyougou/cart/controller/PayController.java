@@ -54,8 +54,9 @@ public class PayController {
 				result=new Result(false, "支付发生错误");
 				break;
 			}
-			if(map.get("trade_state").equals("SUCCESS")){//支付成功
-				result=new Result(true, "支付成功");				
+			String tradeState = map.get("trade_state");
+			if("SUCCESS".equals(tradeState)){//支付成功
+				result=new Result(true, "支付成功");
 				orderService.updateOrderStatus(out_trade_no, map.get("transaction_id"));//修改订单状态
 				break;
 			}
