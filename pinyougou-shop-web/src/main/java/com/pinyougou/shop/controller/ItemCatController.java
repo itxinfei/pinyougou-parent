@@ -29,7 +29,7 @@ public class ItemCatController {
 	 * 返回全部列表
 	 * @return
 	 */
-	@RequestMapping("/findAll")
+	@GetMapping("/findAll")
 	public List<TbItemCat> findAll(){			
 		return itemCatService.findAll();
 	}
@@ -39,7 +39,7 @@ public class ItemCatController {
 	 * 返回全部列表
 	 * @return
 	 */
-	@RequestMapping("/findPage")
+	@GetMapping("/findPage")
 	public PageResult  findPage(int page,int rows){			
 		return itemCatService.findPage(page, rows);
 	}
@@ -49,7 +49,7 @@ public class ItemCatController {
 	 * @param itemCat
 	 * @return
 	 */
-	@RequestMapping("/add")
+	@PostMapping("/add")
 	public Result add(@RequestBody TbItemCat itemCat){
 		try {
 			itemCatService.add(itemCat);
@@ -65,7 +65,7 @@ public class ItemCatController {
 	 * @param itemCat
 	 * @return
 	 */
-	@RequestMapping("/update")
+	@PutMapping("/update")
 	public Result update(@RequestBody TbItemCat itemCat){
 		try {
 			itemCatService.update(itemCat);
@@ -81,7 +81,7 @@ public class ItemCatController {
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping("/findOne")
+	@GetMapping("/findOne")
 	public TbItemCat findOne(Long id){
 		return itemCatService.findOne(id);		
 	}
@@ -91,7 +91,7 @@ public class ItemCatController {
 	 * @param ids
 	 * @return
 	 */
-	@RequestMapping("/delete")
+	@DeleteMapping("/delete")
 	public Result delete(Long [] ids){
 		try {
 			itemCatService.delete(ids);
@@ -109,12 +109,12 @@ public class ItemCatController {
 	 * @param rows
 	 * @return
 	 */
-	@RequestMapping("/search")
+	@PostMapping("/search")
 	public PageResult search(@RequestBody TbItemCat itemCat, int page, int rows  ){
 		return itemCatService.findPage(itemCat, page, rows);		
 	}
 	
-	@RequestMapping("/findByParentId")
+	@GetMapping("/findByParentId")
 	public List<TbItemCat> findByParentId(Long parentId){
 		return itemCatService.findByParentId(parentId);
 	}

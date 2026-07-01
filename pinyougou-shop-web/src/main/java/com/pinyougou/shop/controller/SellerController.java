@@ -28,7 +28,7 @@ public class SellerController {
 	 * 返回全部列表
 	 * @return
 	 */
-	@RequestMapping("/findAll")
+	@GetMapping("/findAll")
 	public List<TbSeller> findAll(){			
 		return sellerService.findAll();
 	}
@@ -38,7 +38,7 @@ public class SellerController {
 	 * 返回全部列表
 	 * @return
 	 */
-	@RequestMapping("/findPage")
+	@GetMapping("/findPage")
 	public PageResult  findPage(int page,int rows){			
 		return sellerService.findPage(page, rows);
 	}
@@ -48,7 +48,7 @@ public class SellerController {
 	 * @param seller
 	 * @return
 	 */
-	@RequestMapping("/add")
+	@PostMapping("/add")
 	public Result add(@RequestBody TbSeller seller){
 		//密码加密
 		BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
@@ -69,7 +69,7 @@ public class SellerController {
 	 * @param seller
 	 * @return
 	 */
-	@RequestMapping("/update")
+	@PutMapping("/update")
 	public Result update(@RequestBody TbSeller seller){
 		try {
 			sellerService.update(seller);
@@ -85,7 +85,7 @@ public class SellerController {
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping("/findOne")
+	@GetMapping("/findOne")
 	public TbSeller findOne(String id){
 		return sellerService.findOne(id);		
 	}
@@ -95,7 +95,7 @@ public class SellerController {
 	 * @param ids
 	 * @return
 	 */
-	@RequestMapping("/delete")
+	@DeleteMapping("/delete")
 	public Result delete(String [] ids){
 		try {
 			sellerService.delete(ids);
@@ -113,7 +113,7 @@ public class SellerController {
 	 * @param rows
 	 * @return
 	 */
-	@RequestMapping("/search")
+	@PostMapping("/search")
 	public PageResult search(@RequestBody TbSeller seller, int page, int rows  ){
 		return sellerService.findPage(seller, page, rows);		
 	}

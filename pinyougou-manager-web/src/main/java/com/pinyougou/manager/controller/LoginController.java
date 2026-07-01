@@ -22,7 +22,7 @@ public class LoginController {
      *
      * @return
      */
-    @RequestMapping("/showName")
+    @GetMapping("/showName")
     @ResponseBody
     public Map showName(String username, String password) {
         Map map = new HashMap();
@@ -38,7 +38,7 @@ public class LoginController {
      *
      * @return
      */
-    @RequestMapping("/test")
+    @GetMapping("/test")
     @ResponseBody
     public String demo() {
         return "test_data";

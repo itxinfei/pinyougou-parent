@@ -30,7 +30,7 @@ public class SpecificationOptionController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbSpecificationOption> findAll() {
         return specificationOptionService.findAll();
     }
@@ -41,7 +41,7 @@ public class SpecificationOptionController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
+    @GetMapping("/findPage")
     public PageResult findPage(int page, int rows) {
         return specificationOptionService.findPage(page, rows);
     }
@@ -52,7 +52,7 @@ public class SpecificationOptionController {
      * @param specificationOption
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody TbSpecificationOption specificationOption) {
         try {
             specificationOptionService.add(specificationOption);
@@ -69,7 +69,7 @@ public class SpecificationOptionController {
      * @param specificationOption
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody TbSpecificationOption specificationOption) {
         try {
             specificationOptionService.update(specificationOption);
@@ -86,7 +86,7 @@ public class SpecificationOptionController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
+    @GetMapping("/findOne")
     public TbSpecificationOption findOne(Long id) {
         return specificationOptionService.findOne(id);
     }
@@ -97,7 +97,7 @@ public class SpecificationOptionController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(Long[] ids) {
         try {
             specificationOptionService.delete(ids);
@@ -116,7 +116,7 @@ public class SpecificationOptionController {
      * @param rows
      * @return
      */
-    @RequestMapping("/search")
+    @PostMapping("/search")
     public PageResult search(@RequestBody TbSpecificationOption specificationOption, int page, int rows) {
         return specificationOptionService.findPage(specificationOption, page, rows);
     }

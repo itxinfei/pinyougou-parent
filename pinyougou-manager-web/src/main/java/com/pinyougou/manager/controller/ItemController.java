@@ -30,7 +30,7 @@ public class ItemController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbItem> findAll() {
         return itemService.findAll();
     }
@@ -41,7 +41,7 @@ public class ItemController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
+    @GetMapping("/findPage")
     public PageResult findPage(int page, int rows) {
         return itemService.findPage(page, rows);
     }
@@ -52,7 +52,7 @@ public class ItemController {
      * @param item
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody TbItem item) {
         try {
             itemService.add(item);
@@ -69,7 +69,7 @@ public class ItemController {
      * @param item
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody TbItem item) {
         try {
             itemService.update(item);
@@ -86,7 +86,7 @@ public class ItemController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
+    @GetMapping("/findOne")
     public TbItem findOne(Long id) {
         return itemService.findOne(id);
     }
@@ -97,7 +97,7 @@ public class ItemController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(Long[] ids) {
         try {
             itemService.delete(ids);
@@ -116,7 +116,7 @@ public class ItemController {
      * @param rows
      * @return
      */
-    @RequestMapping("/search")
+    @PostMapping("/search")
     public PageResult search(@RequestBody TbItem item, int page, int rows) {
         return itemService.findPage(item, page, rows);
     }

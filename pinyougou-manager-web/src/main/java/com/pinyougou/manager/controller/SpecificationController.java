@@ -7,18 +7,25 @@ import com.pinyougou.sellergoods.service.SpecificationService;
 import entity.PageResult;
 import entity.Result;
 import org.apache.log4j.Logger;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 规格管理
+ * <p>
+ * 权限要求：管理员或运营人员
+ *
+ * @author Administrator
  */
 @RestController
 @RequestMapping("/specification")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
 public class SpecificationController {
 
     private static final Logger logger = Logger.getLogger(SpecificationController.class);
@@ -27,107 +34,121 @@ public class SpecificationController {
     private SpecificationService specificationService;
 
     /**
-     * 返回规格管理全部列表
+     * 查询所有规格
      *
-     * @return
+     * @return 规格列表
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbSpecification> findAll() {
         return specificationService.findAll();
     }
 
-
     /**
-     * 返回规格管理分页查询
+     * 分页查询规格
      *
-     * @return
+     * @param page 当前页码
+     * @param rows 每页大小
+     * @return 分页结果
      */
-    @RequestMapping("/findPage")
-    public PageResult findPage(int page, int rows) {
+    @GetMapping("/findPage")
+    public PageResult findPage(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "10") int rows) {
         return specificationService.findPage(page, rows);
     }
 
     /**
-     * 增加规格管理
+     * 添加规格
      *
-     * @param specification
-     * @return
+     * @param specification 规格信息（包含规格选项）
+     * @return 操作结果
      */
-    @RequestMapping("/add")
-    public Result add(@RequestBody Specification specification) {
+    @PostMapping("/add")
+    public Result add(@Valid @RequestBody Specification specification) {
         try {
             specificationService.add(specification);
+            logger.info("添加规格成功: " + specification.getSpecification().getName());
             return new Result(true, "增加成功");
         } catch (Exception e) {
-            logger.error("增加规格失败", e);
+            logger.error("添加规格失败", e);
             return new Result(false, "增加失败");
         }
     }
 
     /**
-     * 修改规格管理
+     * 修改规格
      *
-     * @param specification
-     * @return
+     * @param specification 规格信息
+     * @return 操作结果
      */
-    @RequestMapping("/update")
-    public Result update(@RequestBody Specification specification) {
+    @PutMapping("/update")
+    public Result update(@Valid @RequestBody Specification specification) {
         try {
             specificationService.update(specification);
+            logger.info("修改规格成功: id=" + specification.getSpecification().getId());
             return new Result(true, "修改成功");
         } catch (Exception e) {
-            logger.error("修改规格失败", e);
+            logger.error("修改规格失败: id=" + specification.getSpecification().getId(), e);
             return new Result(false, "修改失败");
         }
     }
 
     /**
-     * 获取规格管理实体
+     * 根据ID查询规格
      *
-     * @param id
-     * @return
+     * @param id 规格ID
+     * @return 规格信息
      */
-    @RequestMapping("/findOne")
-    public Specification findOne(Long id) {
+    @GetMapping("/findOne")
+    public Specification findOne(@RequestParam(required = true) Long id) {
         return specificationService.findOne(id);
     }
 
     /**
-     * 批量删除规格管理
+     * 批量删除规格
      *
-     * @param ids
-     * @return
+     * @param ids 规格ID数组
+     * @return 操作结果
      */
-    @RequestMapping("/delete")
-    public Result delete(Long[] ids) {
+    @DeleteMapping("/delete")
+    public Result delete(@RequestParam(required = true) Long[] ids) {
+        if (ids == null || ids.length == 0) {
+            return new Result(false, "请选择要删除的规格");
+        }
         try {
+            String idStr = Arrays.stream(ids)
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+            logger.info("批量删除规格: ids=" + idStr);
             specificationService.delete(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
-            logger.error("删除规格失败", e);
+            logger.error("批量删除规格失败", e);
             return new Result(false, "删除失败");
         }
     }
 
     /**
-     * 规格管理查询+分页
-     * @param specification
-     * @param page
-     * @param rows
-     * @return
+     * 条件查询+分页
+     *
+     * @param specification 查询条件
+     * @param page 当前页码
+     * @param rows 每页大小
+     * @return 分页结果
      */
-    @RequestMapping("/search")
-    public PageResult search(@RequestBody TbSpecification specification, int page, int rows) {
+    @PostMapping("/search")
+    public PageResult search(@RequestBody(required = false) TbSpecification specification,
+                             @RequestParam(defaultValue = "1") int page,
+                             @RequestParam(defaultValue = "10") int rows) {
         return specificationService.findPage(specification, page, rows);
     }
 
     /**
-     * 规格管理
-     * @return
+     * 查询下拉选项列表
+     *
+     * @return 选项列表
      */
-    @RequestMapping("/selectOptionList")
+    @GetMapping("/selectOptionList")
     public List<Map> selectOptionList() {
         return specificationService.selectOptionList();
     }
-
 }

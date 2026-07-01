@@ -31,7 +31,7 @@ public class GoodsController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbGoods> findAll() {
         List<TbGoods> all = goodsService.findAll();
         return all;
@@ -43,7 +43,7 @@ public class GoodsController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
+    @GetMapping("/findPage")
     public PageResult findPage(int page, int rows) {
         return goodsService.findPage(page, rows);
     }
@@ -54,7 +54,7 @@ public class GoodsController {
      * @param goods
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody Goods goods) {
         //获取商家ID
         String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -75,7 +75,7 @@ public class GoodsController {
      * @param goods
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody Goods goods) {
         try {
             goodsService.update(goods);
@@ -92,7 +92,7 @@ public class GoodsController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
+    @GetMapping("/findOne")
     public TbGoods findOne(Long id) {
         return goodsService.findById(id);
     }
@@ -103,7 +103,7 @@ public class GoodsController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(Long[] ids) {
         try {
             goodsService.delete(ids);
@@ -115,7 +115,7 @@ public class GoodsController {
     }
 
     //查询+分页
-    @RequestMapping("/search")
+    @PostMapping("/search")
     public PageResult search(@RequestBody TbGoods goods, int page, int rows) {
         //获取商家ID
         String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();

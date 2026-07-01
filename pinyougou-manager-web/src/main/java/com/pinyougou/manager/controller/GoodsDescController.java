@@ -30,7 +30,7 @@ public class GoodsDescController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbGoodsDesc> findAll() {
         return goodsDescService.findAll();
     }
@@ -41,7 +41,7 @@ public class GoodsDescController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
+    @GetMapping("/findPage")
     public PageResult findPage(int page, int rows) {
         return goodsDescService.findPage(page, rows);
     }
@@ -52,7 +52,7 @@ public class GoodsDescController {
      * @param goodsDesc
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody TbGoodsDesc goodsDesc) {
         try {
             goodsDescService.add(goodsDesc);
@@ -69,7 +69,7 @@ public class GoodsDescController {
      * @param goodsDesc
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody TbGoodsDesc goodsDesc) {
         try {
             goodsDescService.update(goodsDesc);
@@ -86,7 +86,7 @@ public class GoodsDescController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
+    @GetMapping("/findOne")
     public TbGoodsDesc findOne(Long id) {
         return goodsDescService.findOne(id);
     }
@@ -97,7 +97,7 @@ public class GoodsDescController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(Long[] ids) {
         try {
             goodsDescService.delete(ids);
@@ -116,7 +116,7 @@ public class GoodsDescController {
      * @param rows
      * @return
      */
-    @RequestMapping("/search")
+    @PostMapping("/search")
     public PageResult search(@RequestBody TbGoodsDesc goodsDesc, int page, int rows) {
         return goodsDescService.findPage(goodsDesc, page, rows);
     }

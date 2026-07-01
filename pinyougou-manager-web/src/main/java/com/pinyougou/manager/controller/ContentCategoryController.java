@@ -31,7 +31,7 @@ public class ContentCategoryController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbContentCategory> findAll() {
         return contentCategoryService.findAll();
     }
@@ -42,7 +42,7 @@ public class ContentCategoryController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
+    @GetMapping("/findPage")
     public PageResult findPage(int page, int rows) {
         return contentCategoryService.findPage(page, rows);
     }
@@ -53,7 +53,7 @@ public class ContentCategoryController {
      * @param contentCategory
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody TbContentCategory contentCategory) {
         try {
             contentCategoryService.add(contentCategory);
@@ -70,7 +70,7 @@ public class ContentCategoryController {
      * @param contentCategory
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody TbContentCategory contentCategory) {
         try {
             contentCategoryService.update(contentCategory);
@@ -87,7 +87,7 @@ public class ContentCategoryController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
+    @GetMapping("/findOne")
     public TbContentCategory findOne(Long id) {
         return contentCategoryService.findOne(id);
     }
@@ -98,7 +98,7 @@ public class ContentCategoryController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(Long[] ids) {
         try {
             contentCategoryService.delete(ids);
@@ -117,7 +117,7 @@ public class ContentCategoryController {
      * @param rows
      * @return
      */
-    @RequestMapping("/search")
+    @PostMapping("/search")
     public PageResult search(@RequestBody TbContentCategory contentCategory, int page, int rows) {
         return contentCategoryService.findPage(contentCategory, page, rows);
     }

@@ -30,7 +30,7 @@ public class TypeTemplateController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbTypeTemplate> findAll() {
         return typeTemplateService.findAll();
     }
@@ -41,7 +41,7 @@ public class TypeTemplateController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
+    @GetMapping("/findPage")
     public PageResult findPage(int page, int rows) {
         return typeTemplateService.findPage(page, rows);
     }
@@ -52,7 +52,7 @@ public class TypeTemplateController {
      * @param typeTemplate
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody TbTypeTemplate typeTemplate) {
         try {
             typeTemplateService.add(typeTemplate);
@@ -69,7 +69,7 @@ public class TypeTemplateController {
      * @param typeTemplate
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody TbTypeTemplate typeTemplate) {
         try {
             typeTemplateService.update(typeTemplate);
@@ -86,7 +86,7 @@ public class TypeTemplateController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
+    @GetMapping("/findOne")
     public TbTypeTemplate findOne(Long id) {
         return typeTemplateService.findOne(id);
     }
@@ -97,7 +97,7 @@ public class TypeTemplateController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(Long[] ids) {
         try {
             typeTemplateService.delete(ids);
@@ -109,7 +109,7 @@ public class TypeTemplateController {
     }
 
     //查询+分页
-    @RequestMapping("/search")
+    @PostMapping("/search")
     public PageResult search(@RequestBody TbTypeTemplate typeTemplate, int page, int rows) {
         return typeTemplateService.findPage(typeTemplate, page, rows);
     }
