@@ -10,6 +10,7 @@
 out/
 gen/
 *.iws
+*.ipr
 
 # Eclipse
 .project
@@ -33,7 +34,8 @@ nbactions.xml
 # 构建输出
 # ============================================
 
-# Maven
+# Maven - 所有模块的 target 目录
+*/target/
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -145,10 +147,15 @@ yarn-error.log*
 # Superpowers 工作区（本地AI辅助开发文档）
 docs/superpowers/
 
+# Claude Code 本地配置
+.claude/
+.claude.json
+
 # 本地开发笔记
 *.md.bak
 TODO.md
 NOTES.md
+CHANGELOG.local.md
 
 # ============================================
 # 部署和发布
@@ -164,21 +171,60 @@ docker-compose.override.yml
 .dockerignore
 
 # ============================================
+# 备份文件
+# ============================================
+
+*.sql.bak
+*.sql.gz
+*.zip
+*.tar.gz
+
+# ============================================
+# Web 应用构建产物
+# ============================================
+
+# Tomcat 工作目录
+tomcat/
+tomcat7/
+tomcat8/
+tomcat9/
+
+# Jetty 工作目录
+jetty/
+
+# JBoss
+.jboss/
+jboss/
+
+# Web 资源编译输出
+**/src/main/webapp/WEB-INF/classes/
+**/src/main/webapp/WEB-INF/lib/
+**/src/main/webapp/static/
+**/src/main/webapp/templates/
+
+# ============================================
+# 数据库迁移
+# ============================================
+
+# Flyway
+flyway.properties
+
+# Liquibase
+liquibase.properties
+
+# ============================================
 # 其他
 # ============================================
 
-# 数据库备份
+# 数据库备份文件
 *.sql.bak
 *.sql.gz
 
-# 前端构建产物
-pinyougou-*/src/main/webapp/WEB-INF/classes/
-pinyougou-*/src/main/webapp/WEB-INF/lib/
+# 证书文件
+*.p12
+*.jks
+*.keystore
 
-# Servlet 容器工作目录
-jetty/
-tomcat/
-
-# 备份文件
-*.orig
-*.rej
+# SSH 密钥
+*.pem
+*.key
