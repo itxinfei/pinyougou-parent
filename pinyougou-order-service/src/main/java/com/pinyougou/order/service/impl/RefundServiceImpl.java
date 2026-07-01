@@ -218,7 +218,14 @@ public class RefundServiceImpl implements RefundService {
             criteria.andOrderIdEqualTo(orderId);
             criteria.andStatusEqualTo("0"); // 待处理
 
-            TbRefund refund = refundMapper.selectByExample(example).get(0);
+            List<TbRefund> refundList = refundMapper.selectByExample(example);
+            if (refundList == null || refundList.isEmpty()) {
+                resultMap.put("success", false);
+                resultMap.put("message", "未找到待处理的退款记录");
+                return resultMap;
+            }
+
+            TbRefund refund = refundList.get(0);
 
             // 3. 调用微信退款接口
             Map<String, Object> refundResult = weixinRefund(order, refund.getRefundFee().doubleValue());
@@ -284,7 +291,14 @@ public class RefundServiceImpl implements RefundService {
             criteria.andOrderIdEqualTo(orderId);
             criteria.andStatusEqualTo("0");
 
-            TbRefund refund = refundMapper.selectByExample(example).get(0);
+            List<TbRefund> refundList = refundMapper.selectByExample(example);
+            if (refundList == null || refundList.isEmpty()) {
+                resultMap.put("success", false);
+                resultMap.put("message", "未找到待处理的退款记录");
+                return resultMap;
+            }
+
+            TbRefund refund = refundList.get(0);
 
             // 3. 更新退款记录
             refund.setStatus("2"); // 退款失败
@@ -321,7 +335,14 @@ public class RefundServiceImpl implements RefundService {
             TbRefundExample.Criteria criteria = example.createCriteria();
             criteria.andOrderIdEqualTo(orderId);
 
-            TbRefund refund = refundMapper.selectByExample(example).get(0);
+            List<TbRefund> refundList = refundMapper.selectByExample(example);
+            if (refundList == null || refundList.isEmpty()) {
+                resultMap.put("success", false);
+                resultMap.put("message", "未找到退款记录");
+                return resultMap;
+            }
+
+            TbRefund refund = refundList.get(0);
 
             resultMap.put("success", true);
             resultMap.put("refund", refund);
