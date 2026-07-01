@@ -1,0 +1,14 @@
+# ============================================
+# JWT 配置（安全相关，必须修改默认值！）
+# ============================================
+
+# JWT签名密钥（必须修改！建议32位以上随机字符串）
+# 生成方式：openssl rand -hex 32
+# 或使用在线工具：https://www.random.org/strings/
+jwt.secret=CHANGE_THIS_TO_YOUR_OWN_SECURE_RANDOM_KEY_AT_LEAST_32_CHARS
+
+# Access Token 有效期（秒，默认2小时）
+jwt.expiration=7200
+
+# Refresh Token 有效期（秒，默认7天）
+jwt.refreshExpiration=604800

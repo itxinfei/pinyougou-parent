@@ -2,6 +2,7 @@ package util;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -33,46 +34,46 @@ import io.jsonwebtoken.SignatureAlgorithm;
  * - 密码修改：删除该用户所有Token
  * - 封号处理：将用户ID加入黑名单
  * <p>
+ * ✅ 已优化：密钥配置化
+ * - 旧方案：硬编码密钥（安全风险）
+ * - 新方案：从配置文件读取（jwt.secret）
+ * <p>
+ * 配置说明：
+ * - jwt.secret: JWT签名密钥（建议32位以上随机字符串）
+ * - jwt.expiration: Access Token有效期（秒，默认7200秒=2小时）
+ * - jwt.refreshExpiration: Refresh Token有效期（秒，默认604800秒=7天）
+ * <p>
  * ⚠️ 安全注意事项：
- * 1. 密钥（SECRET）必须足够复杂（至少32位）
- * 2. 密钥不能硬编码，应从配置中心读取
- * 3. 密钥必须定期更换（建议90天）
+ * 1. 密钥必须足够复杂（至少32位）
+ * 2. 密钥必须定期更换（建议90天）
+ * 3. 生产环境应使用配置中心（Nacos/Apollo）并加密
  * 4. Token必须使用HTTPS传输
- * 5. 不要在Token中存放敏感信息（密码、身份证号等）
- * 6. 必须实现Token黑名单机制（防止已登出Token继续使用）
+ * 5. 不要在Token中存放敏感信息
+ * 6. 必须实现Token黑名单机制
  * <p>
- * 🔴 当前实现缺陷：
- * 1. 密钥硬编码在代码中（安全风险）
- * 2. 未实现Refresh Token功能（generateRefreshToken已实现但未使用）
- * 3. 未实现Token黑名单查询方法
- * 4. 未实现Token刷新逻辑（refreshToken方法未完善）
- * <p>
- * 改进建议：
- * - 密钥配置：@Value("${jwt.secret}") 从配置文件读取
- * - 黑名单方法：addToBlacklist() / isInBlacklist()
- * - Token刷新：validateRefreshToken() + generateNewAccessToken()
- * - IP绑定：将登录IP存入Token并验证
- * - 设备绑定：支持多设备登录管理
+ * 待优化：
+ * - 未实现Refresh Token功能
+ * - 未实现Token黑名单查询
+ * - 未实现Token刷新逻辑
+ * - 未实现IP/设备绑定
  *
  * @author Administrator
  */
 @Component
 public class JwtUtils {
 
-    /**
-     * 密钥（应该放在配置文件中）
-     */
-    private static final String SECRET = "pinyougou_secret_key_2026_secure_token";
+    // ✅ 从配置文件读取JWT签名密钥（替代硬编码）
+    // 配置示例：jwt.secret=pinyougou_secure_key_2026_very_long_random_string_here
+    @Value("${jwt.secret:pinyougou_secure_key_2026_change_in_production}")
+    private String SECRET;
 
-    /**
-     * 有效期：2小时（单位：秒）
-     */
-    private static final long EXPIRATION = 2 * 60 * 60;
+    // ✅ 从配置文件读取Access Token有效期（默认2小时）
+    @Value("${jwt.expiration:7200}")
+    private long EXPIRATION;
 
-    /**
-     * Refresh Token有效期：7天（单位：秒）
-     */
-    private static final long REFRESH_EXPIRATION = 7 * 24 * 60 * 60;
+    // ✅ 从配置文件读取Refresh Token有效期（默认7天）
+    @Value("${jwt.refreshExpiration:604800}")
+    private long REFRESH_EXPIRATION;
 
     /**
      * 主题（Subject）

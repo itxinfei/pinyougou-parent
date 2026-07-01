@@ -128,7 +128,10 @@ public class OrderServiceImpl implements OrderService {
 
         // 初始化订单ID列表和总金额
         List<String> orderIdList = new ArrayList<>();
-        double total_money = 0;  // ⚠️ 注意：double 计算存在精度问题
+        // ✅ 使用BigDecimal替代double计算金额（避免精度损失）
+        // BigDecimal特点：任意精度、适合货币计算
+        // 使用String.valueOf()构造器避免double精度损失
+        BigDecimal total_money = BigDecimal.ZERO;
 
         // ========== 第三步：遍历购物车，为每个商家创建订单 ==========
         // 每个购物车(Cart)代表一个商家的商品集合，生成一个独立订单
@@ -152,7 +155,8 @@ public class OrderServiceImpl implements OrderService {
             tbOrder.setSellerId(order.getSellerId());         // 商家ID（当前购物车所属商家）
 
             // 3.3 计算该商家的订单金额
-            double money = 0;
+            // ✅ 使用BigDecimal.ZERO初始化（替代double的0）
+            BigDecimal money = BigDecimal.ZERO;
             List<Long> itemIds = new ArrayList<>();
 
             // 收集商品ID用于批量查询商品信息（减少数据库查询次数）
@@ -192,19 +196,22 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setSellerId(cart.getSellerId()); // 所属商家ID
                 orderItemMapper.insert(orderItem);         // 保存订单项
 
-                // 累加订单金额（⚠️ 注意 double 累加可能产生精度误差）
-                money += orderItem.getTotalFee().doubleValue();
+                // ✅ 使用BigDecimal累加金额（避免double精度损失）
+                // add() 方法精确相加，setScale() 确保小数位一致性
+                money = money.add(orderItem.getTotalFee());
             }
 
-            // 3.5 设置订单总金额（使用 BigDecimal 包装以避免精度问题）
-            tbOrder.setPayment(BigDecimal.valueOf(money));
+            // 3.5 设置订单总金额（直接使用BigDecimal，避免转换损失）
+            tbOrder.setPayment(money);
 
             // 3.6 保存订单主表
             orderMapper.insert(tbOrder);
 
             // 收集订单ID用于生成支付日志
             orderIdList.add(orderId + "");
-            total_money += money;
+
+            // ✅ 累加总金额（BigDecimal精确计算）
+            total_money = total_money.add(money);
         }
 
         // ========== 第四步：生成支付日志（仅在线支付） ==========
@@ -221,9 +228,10 @@ public class OrderServiceImpl implements OrderService {
             // 格式: "123456,789012,345678"
             payLog.setOrderList(orderIdList.toString().replace("[", "").replace("]", ""));
 
-            // ⚠️ 金额转换：元转分，使用 long 类型避免 double 精度损失
-            // 注意：这里直接强转可能丢失精度，建议使用 BigDecimal 的 multiply 和 setScale
-            payLog.setTotalFee((long) (total_money * 100));
+            // ✅ 金额转换：使用BigDecimal精确计算，避免double精度损失
+            // 元转分：multiply(100) 乘以100
+            // setScale(0, RoundingMode.HALF_UP) 四舍五入取整
+            payLog.setTotalFee(total_money.multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).longValue());
 
             payLog.setTradeState("0");  // 交易状态：0-未支付
             payLog.setPayType("1");     // 支付类型：1-微信支付

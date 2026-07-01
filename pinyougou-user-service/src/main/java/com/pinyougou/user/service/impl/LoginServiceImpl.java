@@ -1,5 +1,6 @@
 package com.pinyougou.user.service.impl;
 
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +11,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.pinyougou.exception.ValidationException;
 import com.pinyougou.mapper.TbUserMapper;
 import com.pinyougou.pojo.TbUser;
 import com.pinyougou.pojo.TbUserExample;
@@ -23,14 +26,21 @@ import entity.Result;
 import util.JwtUtils;
 
 /**
- * 登录服务实现类（简化版 - 不使用Spring Security）
- *
+ * 登录服务实现类
+ * <p>
+ * ✅ 已优化：密码加密方式
+ * - 旧方案：MD5（易被彩虹表破解）
+ * - 新方案：BCrypt（自动加盐、工作因子可调）
+ * <p>
  * @author Administrator
  */
 @Service
 public class LoginServiceImpl implements LoginService {
 
     private static final Logger logger = Logger.getLogger(LoginServiceImpl.class);
+
+    // ✅ 使用BCrypt密码验证器
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     private UserService userService;
@@ -49,28 +59,32 @@ public class LoginServiceImpl implements LoginService {
      * <p>
      * 认证流程：
      * 1. 根据用户名查询用户（仅查询状态为正常的用户）
-     * 2. 验证密码（MD5加密后比对）
+     * 2. ✅ 验证密码（BCrypt加密比对）
      * 3. 生成JWT Token
      * 4. 将Token存入Redis（用于登出时作废和防伪造）
      * 5. 返回用户基本信息
      * <p>
      * 安全机制：
      * - 密码明文传输风险：必须使用HTTPS
-     * - 密码加密：MD5（⚠️ 不安全，建议升级为 BCrypt）
+     * - ✅ 密码加密：BCrypt（自动加盐，抗彩虹表攻击）
      * - Token防伪造：Redis中存储有效Token列表
      * - 状态检查：只允许状态为 "1" 的正常用户登录
      * <p>
-     * ⚠️ 安全缺陷：
-     * 1. MD5加密强度不足（易被彩虹表破解）
-     * 2. 没有登录失败次数限制（易被暴力破解）
-     * 3. 没有验证码机制（易被机器批量登录）
-     * 4. Token没有做IP绑定（Token被盗后可跨IP使用）
+     * ✅ 已修复：
+     * 1. 密码加密方式：MD5 -> BCrypt
+     * 2. 使用BCrypt的matches()方法验证密码
+     * <p>
+     * ⚠️ 待优化：
+     * - 没有登录失败次数限制（易被暴力破解）
+     * - 没有验证码机制（易被机器批量登录）
+     * - Token没有做IP绑定（Token被盗后可跨IP使用）
+     * - 没有登录日志记录（无法追踪异常登录）
      * <p>
      * 改进建议：
-     * - 密码加密：MD5 -> BCrypt（带盐值）
      * - 增加验证码：连续失败3次后要求输入验证码
      * - 增加登录日志：记录登录IP、时间、设备
      * - Token绑定IP：防止Token被盗用
+     * - 失败锁定：连续失败5次锁定账号30分钟
      *
      * @param username 用户名
      * @param password 明文密码（前端应加密传输）
@@ -97,9 +111,10 @@ public class LoginServiceImpl implements LoginService {
 
             TbUser user = userList.get(0);
 
-            // 2. 验证密码（MD5加密后比对）
-            String md5Password = DigestUtils.md5Hex(password);
-            if (!user.getPassword().equals(md5Password)) {
+            // 2. 验证密码（BCrypt加密比对）
+            // BCrypt特点：自动加盐，matches()方法自动提取salt并验证
+            // 工作因子默认为10（编码后的哈希值长度为60字符）
+            if (!passwordEncoder.matches(password, user.getPassword())) {
                 resultMap.put("success", false);
                 resultMap.put("message", "用户名或密码错误");
                 return resultMap;
@@ -200,7 +215,8 @@ public class LoginServiceImpl implements LoginService {
                 user = new TbUser();
                 user.setPhone(phone);
                 user.setUsername("user_" + phone); // 生成用户名
-                user.setPassword(DigestUtils.md5Hex(UUID.randomUUID().toString())); // 随机密码
+                // ✅ 使用BCrypt加密随机密码（替代MD5）
+                user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                 user.setNickName("用户" + phone.substring(phone.length() - 4)); // 昵称
                 user.setStatus("1"); // 正常状态
                 user.setSourceType("1"); // 注册来源
