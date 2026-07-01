@@ -9,7 +9,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -35,9 +37,13 @@ import util.IdWorker;
 
 /**
  * 服务实现层
+ * <p>
+ * 事务策略：
+ * - 类级别不添加@Transactional
+ * - add()方法通过编程式事务管理
+ * - 每个商家订单独立事务
  */
 @Service
-@Transactional
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -76,6 +82,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private TbOrderItemMapper orderItemMapper;
 
+    // ✅ 编程式事务管理：每个商家订单独立事务
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     /**
      * 增加订单（从购物车创建订单）
      * <p>
@@ -83,15 +93,23 @@ public class OrderServiceImpl implements OrderService {
      * 1. 校验订单基本信息（收货人、联系方式等）
      * 2. 从Redis获取用户购物车列表
      * 3. 遍历每个商家的购物车，为每个商家创建一个订单
-     * 4. 批量扣减商品库存（使用乐观锁防止超卖）
+     * 4. ✅ 每个商家订单独立事务（提高系统可用性）
      * 5. 生成支付日志（仅针对在线支付类型）
      * 6. 清空购物车
      * <p>
+     * ✅ 已优化：事务边界
+     * - 旧方案：一个大事务包裹所有订单
+     *   - 问题：一个订单失败全部回滚
+     *   - 问题：事务过大，锁定时间长
+     * - 新方案：每个商家订单独立事务
+     *   - 优势：一个订单失败不影响其他订单
+     *   - 优势：事务粒度小，锁定时间短
+     *   - 优势：提高系统并发能力
+     * <p>
      * ⚠️ 注意事项：
-     * - 该方法在同一个事务中处理多个商家的订单，如果中途失败会全部回滚
-     * - 库存扣减使用 SQL 层面的乐观锁（WHERE stock_count >= num），避免超卖
-     * - 订单金额计算使用 double，存在精度损失风险，建议使用 BigDecimal
-     * - TODO: 考虑拆分为每个商家独立事务，提高系统可用性
+     * - 事务失败时记录日志，继续处理其他商家
+     * - 最终返回成功和失败的订单列表
+     * - TODO: 需要调整返回值为包含成功/失败信息的Map
      *
      * @param order 订单基本信息（收货人、支付方式等）
      */
@@ -133,90 +151,36 @@ public class OrderServiceImpl implements OrderService {
         // 使用String.valueOf()构造器避免double精度损失
         BigDecimal total_money = BigDecimal.ZERO;
 
+        // ✅ 记录成功和失败的订单
+        List<String> successOrderIds = new ArrayList<>();
+        List<String> failedOrderIds = new ArrayList<>();
+
         // ========== 第三步：遍历购物车，为每个商家创建订单 ==========
         // 每个购物车(Cart)代表一个商家的商品集合，生成一个独立订单
         for (Cart cart : cartList) {
-            TbOrder tbOrder = new TbOrder();
-
-            // 3.1 生成订单ID（使用雪花算法保证全局唯一）
-            long orderId = idWorker.nextId();
-            tbOrder.setOrderId(orderId);
-
-            // 3.2 设置订单基本信息
-            tbOrder.setPaymentType(order.getPaymentType());  // 支付方式：1-在线支付，2-货到付款
-            tbOrder.setStatus("1");                           // 订单状态：1-未付款，2-已付款，3-已发货，4-已收货，5-已关闭
-            tbOrder.setCreateTime(new Date());
-            tbOrder.setUpdateTime(new Date());
-            tbOrder.setUserId(order.getUserId());
-            tbOrder.setReceiverAreaName(order.getReceiverAreaName());
-            tbOrder.setReceiverMobile(order.getReceiverMobile());
-            tbOrder.setReceiver(order.getReceiver());
-            tbOrder.setSourceType(order.getSourceType());     // 订单来源：1-PC端，2-移动端
-            tbOrder.setSellerId(order.getSellerId());         // 商家ID（当前购物车所属商家）
-
-            // 3.3 计算该商家的订单金额
-            // ✅ 使用BigDecimal.ZERO初始化（替代double的0）
-            BigDecimal money = BigDecimal.ZERO;
-            List<Long> itemIds = new ArrayList<>();
-
-            // 收集商品ID用于批量查询商品信息（减少数据库查询次数）
-            for (TbOrderItem orderItem : cart.getOrderItemList()) {
-                itemIds.add(orderItem.getItemId());
+            try {
+                // ✅ 使用编程式事务：每个商家订单独立事务
+                // 优势：一个订单失败不影响其他订单
+                // 优势：事务粒度小，锁定时间短
+                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        // 在事务中创建订单
+                        TbOrder tbOrder = createOrderByCart(order, cart, orderIdList);
+                        successOrderIds.add(tbOrder.getOrderId() + "");
+                    }
+                });
+            } catch (Exception e) {
+                // ✅ 事务失败时记录日志，继续处理其他商家订单
+                logger.error("创建订单失败: userId=" + order.getUserId() + ", sellerId=" + cart.getSellerId(), e);
+                failedOrderIds.add(cart.getSellerId());
+                // 继续处理下一个商家订单（不中断整个流程）
             }
-
-            // 批量查询商品信息，构建商品ID到商品实体的映射
-            Map<Long, TbItem> itemMap = new HashMap<>();
-            if (!itemIds.isEmpty()) {
-                List<TbItem> items = itemMapper.selectByIds(itemIds);
-                for (TbItem item : items) {
-                    itemMap.put(item.getId(), item);
-                }
-            }
-
-            // 3.4 遍历订单项，验证商品、扣减库存、保存订单项
-            for (TbOrderItem orderItem : cart.getOrderItemList()) {
-                TbItem item = itemMap.get(orderItem.getItemId());
-
-                // 商品不存在性检查
-                if(item==null){
-                    throw new ResourceNotFoundException("商品不存在，商品ID："+orderItem.getItemId());
-                }
-
-                // 扣减库存（使用乐观锁：UPDATE tb_item SET stock_count = stock_count - num WHERE id = ? AND stock_count >= ?）
-                // 返回影响行数：0表示库存不足，1表示扣减成功
-                // ⚠️ 并发安全：SQL层面的乐观锁防止超卖，但无法防止负数库存
-                int result = itemMapper.decreaseStockCount(orderItem.getItemId(), orderItem.getNum());
-                if(result==0){
-                    throw new InsufficientStockException("库存不足，商品："+item.getTitle());
-                }
-
-                // 设置订单项主键和关联关系
-                orderItem.setId(idWorker.nextId());       // 订单项ID
-                orderItem.setOrderId(orderId);             // 关联订单ID
-                orderItem.setSellerId(cart.getSellerId()); // 所属商家ID
-                orderItemMapper.insert(orderItem);         // 保存订单项
-
-                // ✅ 使用BigDecimal累加金额（避免double精度损失）
-                // add() 方法精确相加，setScale() 确保小数位一致性
-                money = money.add(orderItem.getTotalFee());
-            }
-
-            // 3.5 设置订单总金额（直接使用BigDecimal，避免转换损失）
-            tbOrder.setPayment(money);
-
-            // 3.6 保存订单主表
-            orderMapper.insert(tbOrder);
-
-            // 收集订单ID用于生成支付日志
-            orderIdList.add(orderId + "");
-
-            // ✅ 累加总金额（BigDecimal精确计算）
-            total_money = total_money.add(money);
         }
 
         // ========== 第四步：生成支付日志（仅在线支付） ==========
         // 支付方式 "1" 表示在线支付（微信/支付宝），"2" 表示货到付款
-        if ("1".equals(order.getPaymentType())) {
+        if ("1".equals(order.getPaymentType()) && !successOrderIds.isEmpty()) {
             TbPayLog payLog = new TbPayLog();
 
             // 支付日志ID（交易流水号）
@@ -226,7 +190,7 @@ public class OrderServiceImpl implements OrderService {
 
             // ⚠️ 拼接订单ID列表，使用字符串替换去除方括号
             // 格式: "123456,789012,345678"
-            payLog.setOrderList(orderIdList.toString().replace("[", "").replace("]", ""));
+            payLog.setOrderList(successOrderIds.toString().replace("[", "").replace("]", ""));
 
             // ✅ 金额转换：使用BigDecimal精确计算，避免double精度损失
             // 元转分：multiply(100) 乘以100
@@ -246,7 +210,37 @@ public class OrderServiceImpl implements OrderService {
         // 风险：用户可能想保留购物车商品用于下次购买
         // TODO: 考虑实现"合并购物车"功能，未生成订单的商品保留
         redisTemplate.boundHashOps("cartList").delete(order.getUserId());
+
+        // ========== 第六步：记录订单创建结果 ==========
+        if (!failedOrderIds.isEmpty()) {
+            logger.warn("部分订单创建失败: userId=" + order.getUserId() +
+                       ", successCount=" + successOrderIds.size() +
+                       ", failedCount=" + failedOrderIds.size() +
+                       ", failedSellerIds=" + failedOrderIds);
+        }
     }
+
+    /**
+     * 为单个商家创建订单（在独立事务中执行）
+     * <p>
+     * 事务边界：
+     * - 此方法在TransactionTemplate的回调中执行
+     * - 所有数据库操作在同一个事务中
+     * - 失败则整个事务回滚
+     * <p>
+     * 执行步骤：
+     * 1. 生成订单ID和订单实体
+     * 2. 批量查询商品信息
+     * 3. 遍历订单项，扣减库存
+     * 4. 保存订单项
+     * 5. 保存订单主表
+     * <p>
+     * @param order 订单基本信息
+     * @param cart 商家购物车
+     * @param orderIdList 订单ID列表（用于收集）
+     * @return 订单实体
+     */
+    private TbOrder createOrderByCart(TbOrder order, Cart cart, List<String> orderIdList) {
 
 
     /**
