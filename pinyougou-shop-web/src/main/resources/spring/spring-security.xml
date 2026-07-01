@@ -50,10 +50,6 @@
     <authentication-manager>
         <!-- 认证的提供者 -->
         <authentication-provider user-service-ref="userDetailsService">
-            <!-- <user-service>
-                <user name="admin" password="123456" authorities="ROLE_ADMIN"/>
-                <user name="wc" password="123456" authorities="ROLE_ADMIN"/>
-            </user-service> -->
             <password-encoder ref="bcryptEncoder"/>
         </authentication-provider>
     </authentication-manager>

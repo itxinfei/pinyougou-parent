@@ -1,6 +1,7 @@
 package util;
 
-import exception.ValidationException;
+import com.pinyougou.exception.ValidationException;
+import org.apache.log4j.Logger;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -25,6 +26,9 @@ import java.net.NetworkInterface;
  * @author Polim
  */
 public class IdWorker {
+
+    private static final Logger logger = Logger.getLogger(IdWorker.class);
+
     // 时间起始标记点，作为基准，一般取系统的最近时间（一旦确定不能变动）
     private final static long twepoch = 1288834974657L;
     // 机器标识位数
@@ -153,7 +157,7 @@ public class IdWorker {
                 id = id % (maxDatacenterId + 1);
             }
         } catch (Exception e) {
-            System.out.println(" getDatacenterId: " + e.getMessage());
+            logger.error("获取数据中心ID失败", e);
         }
         return id;
     }
@@ -165,7 +169,7 @@ public class IdWorker {
     	
     	for(int i=0;i<100;i++){
     		long nextId = idWorker.nextId();
-        	System.out.println(nextId);
+        	logger.info("生成的ID：" + nextId);
     	}
     	
     	

@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.sellergoods.service.SellerService;
 import entity.PageResult;
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/seller")
 public class SellerController {
+
+    private static final Logger logger = Logger.getLogger(SellerController.class);
 
     @Reference
     private SellerService sellerService;
@@ -79,7 +82,7 @@ public class SellerController {
             sellerService.updateStatus(sellerId, status);
             return new Result(true, "成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("更新商家状态失败", e);
         }
         return new Result(false, "更新失败");
     }

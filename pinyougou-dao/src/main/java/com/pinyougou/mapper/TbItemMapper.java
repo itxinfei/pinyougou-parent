@@ -30,4 +30,6 @@ public interface TbItemMapper {
     int updateByPrimaryKeySelective(TbItem record);
 
     int updateByPrimaryKey(TbItem record);
+
+    int decreaseStockCount(@Param("itemId") Long itemId, @Param("num") Integer num);
 }

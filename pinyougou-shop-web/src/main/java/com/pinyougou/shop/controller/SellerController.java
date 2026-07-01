@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.sellergoods.service.SellerService;
 import entity.PageResult;
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/seller")
 public class SellerController {
+
+	private static final Logger logger = Logger.getLogger(SellerController.class);
 
 	@Reference
 	private SellerService sellerService;
@@ -56,7 +59,7 @@ public class SellerController {
 			sellerService.add(seller);
 			return new Result(true, "增加成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("增加商家失败", e);
 			return new Result(false, "增加失败");
 		}
 	}
@@ -72,7 +75,7 @@ public class SellerController {
 			sellerService.update(seller);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("修改商家失败", e);
 			return new Result(false, "修改失败");
 		}
 	}	
@@ -98,7 +101,7 @@ public class SellerController {
 			sellerService.delete(ids);
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("删除商家失败", e);
 			return new Result(false, "删除失败");
 		}
 	}

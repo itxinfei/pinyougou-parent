@@ -7,6 +7,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,8 @@ import com.pinyougou.search.service.ItemSearchService;
 
 @Component
 public class ItemSearchListener implements MessageListener {
+
+    private static final Logger logger = Logger.getLogger(ItemSearchListener.class);
 
     @Autowired
     private ItemSearchService itemSearchService;
@@ -28,14 +31,13 @@ public class ItemSearchListener implements MessageListener {
         TextMessage textMessage = (TextMessage) message;
         try {
             String text = textMessage.getText();//json字符串
-            System.out.println("监听到消息:" + text);
+            logger.info("监听到消息:" + text);
 
             List<TbItem> itemList = JSON.parseArray(text, TbItem.class);
             itemSearchService.importList(itemList);
-            System.out.println("导入到solr索引库");
+            logger.info("导入到solr索引库");
         } catch (JMSException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("商品搜索索引导入监听处理失败", e);
         }
     }
 }

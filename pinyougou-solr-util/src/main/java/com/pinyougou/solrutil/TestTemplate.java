@@ -1,6 +1,7 @@
 package com.pinyougou.solrutil;
 
 import com.pinyougou.pojo.TbItem;
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +42,9 @@ public class TestTemplate {
      */
     @Test
     public void testFindOne() {
+        Logger logger = Logger.getLogger(TestTemplate.class);
         TbItem item = solrTemplate.getById(1, TbItem.class);
-        System.out.println(item.getTitle());
+        logger.info(item.getTitle());
     }
 
 

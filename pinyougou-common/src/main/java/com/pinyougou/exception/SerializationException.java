@@ -1,4 +1,4 @@
-package exception;
+package com.pinyougou.exception;
 
 public class SerializationException extends BusinessException {
     public SerializationException(String message) {

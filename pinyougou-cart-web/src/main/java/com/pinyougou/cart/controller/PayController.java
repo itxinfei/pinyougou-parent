@@ -3,6 +3,7 @@ package com.pinyougou.cart.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,8 @@ import util.IdWorker;
 @RestController
 @RequestMapping("/pay")
 public class PayController {
+
+	private static final Logger logger = Logger.getLogger(PayController.class);
 	
 	@Reference
 	private WeixinPayService weixinPayService;
@@ -60,8 +63,7 @@ public class PayController {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("支付状态查询中断", e);
 			}
 			
 			x++;

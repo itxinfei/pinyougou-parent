@@ -83,7 +83,7 @@ public class CartServiceImpl implements CartService {
 					throw new InsufficientStockException("购买数量超过库存，当前库存："+item.getStockCount());
 				}
 				orderItem.setNum(newNum);
-				orderItem.setTotalFee( new BigDecimal(orderItem.getPrice().doubleValue()*orderItem.getNum() ) );
+				orderItem.setTotalFee(orderItem.getPrice().multiply(new BigDecimal(orderItem.getNum())));
 				if(orderItem.getNum()<=0){
 					cart.getOrderItemList().remove(orderItem);					
 				}
@@ -143,7 +143,7 @@ public class CartServiceImpl implements CartService {
 		orderItem.setPrice(item.getPrice());
 		orderItem.setSellerId(item.getSellerId());
 		orderItem.setTitle(item.getTitle());
-		orderItem.setTotalFee(  new BigDecimal(item.getPrice().doubleValue()*num) );
+		orderItem.setTotalFee(item.getPrice().multiply(new BigDecimal(num)));
 		return orderItem;
 	}
 	

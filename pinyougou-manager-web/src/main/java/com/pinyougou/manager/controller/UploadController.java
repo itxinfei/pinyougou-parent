@@ -1,5 +1,6 @@
 package com.pinyougou.manager.controller;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,8 @@ import util.FastDFSClient;
 @Controller
 @RequestMapping("/upload")
 public class UploadController {
+
+    private static final Logger logger = Logger.getLogger(UploadController.class);
 
     @Value("${FILE_SERVER_URL}")
     private String file_server_url;
@@ -34,10 +37,10 @@ public class UploadController {
 
             String url = file_server_url + ":8888/" + path;//8888查看端口，默认为80,不需要加。
 
-            System.out.println("图片服务器地址：" + url);
+            logger.info("图片服务器地址：" + url);
             return new Result(true, url);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("上传图片失败", e);
             return new Result(false, "上传失败！");
         }
 

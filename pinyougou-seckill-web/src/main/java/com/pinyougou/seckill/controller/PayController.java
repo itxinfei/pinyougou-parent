@@ -1,5 +1,6 @@
 package com.pinyougou.seckill.controller;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,8 +59,8 @@ public class PayController {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger logger = Logger.getLogger(PayController.class);
+				logger.error("支付状态查询中断", e);
 			}
 			
 			x++;

@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbSeckillOrder;
 import com.pinyougou.seckill.service.SeckillOrderService;
 import entity.PageResult;
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/seckillOrder")
 public class SeckillOrderController {
+
+	private static final Logger logger = Logger.getLogger(SeckillOrderController.class);
 
 	@Reference
 	private SeckillOrderService seckillOrderService;
@@ -53,7 +56,7 @@ public class SeckillOrderController {
 			seckillOrderService.add(seckillOrder);
 			return new Result(true, "增加成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("增加秒杀订单失败", e);
 			return new Result(false, "增加失败");
 		}
 	}
@@ -69,7 +72,7 @@ public class SeckillOrderController {
 			seckillOrderService.update(seckillOrder);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("修改秒杀订单失败", e);
 			return new Result(false, "修改失败");
 		}
 	}	
@@ -95,7 +98,7 @@ public class SeckillOrderController {
 			seckillOrderService.delete(ids);
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("删除秒杀订单失败", e);
 			return new Result(false, "删除失败");
 		}
 	}
@@ -126,10 +129,10 @@ public class SeckillOrderController {
 			return new Result(true, "提交订单成功");
 			
 		}catch (RuntimeException e) {
-			e.printStackTrace();
+			logger.error("提交秒杀订单运行时异常", e);
 			return new Result(false, e.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("提交秒杀订单失败", e);
 			return new Result(false, "提交订单失败");
 		}
 		

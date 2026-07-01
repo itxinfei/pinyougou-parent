@@ -2,6 +2,7 @@ package com.pinyougou.service;
 
 import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.sellergoods.service.SellerService;
+import org.apache.log4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -25,7 +26,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("经过了UserDetailsServiceImpl");
+        Logger logger = Logger.getLogger(UserDetailsServiceImpl.class);
+        logger.info("经过了UserDetailsServiceImpl");
         //构建角色列表
         List<GrantedAuthority> grantAuths = new ArrayList();
         grantAuths.add(new SimpleGrantedAuthority("ROLE_SELLER"));

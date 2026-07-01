@@ -1,4 +1,4 @@
-package exception;
+package com.pinyougou.exception;
 
 public class InsufficientStockException extends BusinessException {
     public InsufficientStockException(String message) {

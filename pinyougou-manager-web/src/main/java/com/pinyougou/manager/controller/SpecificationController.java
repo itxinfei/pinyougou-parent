@@ -6,6 +6,7 @@ import com.pinyougou.pojo.group.Specification;
 import com.pinyougou.sellergoods.service.SpecificationService;
 import entity.PageResult;
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/specification")
 public class SpecificationController {
+
+    private static final Logger logger = Logger.getLogger(SpecificationController.class);
 
     @Reference
     private SpecificationService specificationService;
@@ -56,7 +59,7 @@ public class SpecificationController {
             specificationService.add(specification);
             return new Result(true, "增加成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("增加规格失败", e);
             return new Result(false, "增加失败");
         }
     }
@@ -73,7 +76,7 @@ public class SpecificationController {
             specificationService.update(specification);
             return new Result(true, "修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("修改规格失败", e);
             return new Result(false, "修改失败");
         }
     }
@@ -101,7 +104,7 @@ public class SpecificationController {
             specificationService.delete(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除规格失败", e);
             return new Result(false, "删除失败");
         }
     }

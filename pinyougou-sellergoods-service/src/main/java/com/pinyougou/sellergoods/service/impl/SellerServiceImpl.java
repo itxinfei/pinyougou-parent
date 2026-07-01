@@ -8,6 +8,7 @@ import com.pinyougou.pojo.TbSeller;
 import com.pinyougou.pojo.TbSellerExample;
 import com.pinyougou.sellergoods.service.SellerService;
 import entity.PageResult;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,8 @@ import java.util.List;
 @Service
 @Transactional
 public class SellerServiceImpl implements SellerService {
+
+    private static final Logger logger = Logger.getLogger(SellerServiceImpl.class);
 
     @Autowired
     private TbSellerMapper tbSellerMapper;
@@ -118,7 +121,7 @@ public class SellerServiceImpl implements SellerService {
     @Override
     public void updateStatus(String sellerId, String status) {
         TbSeller seller = tbSellerMapper.selectByPrimaryKey(sellerId);
-        System.out.println(seller);
+        logger.info("商家信息：" + seller);
         seller.setStatus(status);
         tbSellerMapper.updateByPrimaryKeySelective(seller);
     }

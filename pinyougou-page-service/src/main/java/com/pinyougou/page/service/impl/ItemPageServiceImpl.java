@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,8 @@ import freemarker.template.TemplateNotFoundException;
 
 @Service
 public class ItemPageServiceImpl implements ItemPageService {
+
+    private static final Logger logger = Logger.getLogger(ItemPageServiceImpl.class);
 
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
@@ -68,9 +71,15 @@ public class ItemPageServiceImpl implements ItemPageService {
             Map dataModel = new HashMap<>();
             //1.商品主表数据
             TbGoods goods = goodsMapper.selectByPrimaryKey(goodsId);
+            if (goods == null) {
+                return false;
+            }
             dataModel.put("goods", goods);
             //2.商品扩展表数据
             TbGoodsDesc goodsDesc = goodsDescMapper.selectByPrimaryKey(goodsId);
+            if (goodsDesc == null) {
+                return false;
+            }
             dataModel.put("goodsDesc", goodsDesc);
             //3.读取商品分类
 
@@ -98,8 +107,7 @@ public class ItemPageServiceImpl implements ItemPageService {
             return true;
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("生成商品详情页失败", e);
             return false;
         }
 
@@ -117,8 +125,7 @@ public class ItemPageServiceImpl implements ItemPageService {
             }
             return true;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("删除商品详情页失败", e);
             return false;
         }
     }

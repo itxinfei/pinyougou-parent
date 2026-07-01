@@ -1,34 +1,29 @@
 package com.pinyougou.search.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.search.service.ItemSearchService;
-import org.apache.log4j.Logger;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.pinyougou.search.service.ItemSearchService;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+
 @RestController
 @RequestMapping("/itemsearch")
 public class ItemSearchController {
-
-    private static final Logger logger = Logger.getLogger(ItemSearchController.class);
 
     @Reference(timeout = 5000)
     private ItemSearchService itemSearchService;
 
     @RequestMapping("/search")
     public Map search(@RequestBody Map searchMap) {
-        logger.info("搜索参数: " + searchMap.toString());
-        Map search = itemSearchService.search(searchMap);
-        logger.info("搜索结果: " + search.toString());
         return itemSearchService.search(searchMap);
     }
 

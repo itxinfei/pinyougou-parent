@@ -8,6 +8,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * 
@@ -15,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public final class CookieUtil {
+
+    private static final Logger logger = Logger.getLogger(CookieUtil.class);
 
     /**
      * 得到Cookie的值, 不编码
@@ -52,7 +56,7 @@ public final class CookieUtil {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error("Cookie解码失败", e);
         }
         return retValue;
     }
@@ -78,7 +82,7 @@ public final class CookieUtil {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-        	 e.printStackTrace();
+        	 logger.error("Cookie解码失败", e);
         }
         return retValue;
     }
@@ -149,7 +153,7 @@ public final class CookieUtil {
                 cookie.setMaxAge(cookieMaxage);
             if (null != request) {// 设置域名的cookie
             	String domainName = getDomainName(request);
-            	System.out.println(domainName);
+            	logger.debug("Cookie域名：" + domainName);
                 if (!"localhost".equals(domainName)) {
                 	cookie.setDomain(domainName);
                 }
@@ -157,7 +161,7 @@ public final class CookieUtil {
             cookie.setPath("/");
             response.addCookie(cookie);
         } catch (Exception e) {
-        	 e.printStackTrace();
+        	logger.error("设置Cookie失败", e);
         }
     }
 
@@ -179,7 +183,7 @@ public final class CookieUtil {
                 cookie.setMaxAge(cookieMaxage);
             if (null != request) {// 设置域名的cookie
             	String domainName = getDomainName(request);
-            	System.out.println(domainName);
+            	logger.debug("Cookie域名：" + domainName);
                 if (!"localhost".equals(domainName)) {
                 	cookie.setDomain(domainName);
                 }
@@ -187,7 +191,7 @@ public final class CookieUtil {
             cookie.setPath("/");
             response.addCookie(cookie);
         } catch (Exception e) {
-        	 e.printStackTrace();
+        	logger.error("设置Cookie失败", e);
         }
     }
 

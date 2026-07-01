@@ -475,6 +475,11 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <update id="decreaseStockCount">
+    update tb_item
+    set stock_count = stock_count - #{num}
+    where id = #{itemId} and stock_count >= #{num}
+  </update>
   <update id="updateByPrimaryKey" parameterType="com.pinyougou.pojo.TbItem" >
     update tb_item
     set title = #{title,jdbcType=VARCHAR},

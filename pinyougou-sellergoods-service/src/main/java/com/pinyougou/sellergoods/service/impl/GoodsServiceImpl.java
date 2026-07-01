@@ -12,6 +12,7 @@ import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -192,41 +193,39 @@ public class GoodsServiceImpl implements GoodsService {
         PageHelper.startPage(pageNum, pageSize);
 
         TbGoodsExample example = new TbGoodsExample();
-        /*Criteria criteria = example.createCriteria();
+        TbGoodsExample.Criteria criteria = example.createCriteria();
 
         criteria.andIsDeleteIsNull();
 
-        if(goods!=null){
-            if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
+        if (goods != null) {
+            if (goods.getSellerId() != null && goods.getSellerId().length() > 0) {
                 criteria.andSellerIdEqualTo(goods.getSellerId());
             }
-            if(goods.getGoodsName()!=null && goods.getGoodsName().length()>0){
-                criteria.andGoodsNameLike("%"+goods.getGoodsName()+"%");
+            if (goods.getGoodsName() != null && goods.getGoodsName().length() > 0) {
+                criteria.andGoodsNameLike("%" + goods.getGoodsName() + "%");
             }
-            if(goods.getAuditStatus()!=null && goods.getAuditStatus().length()>0){
-                criteria.andAuditStatusLike("%"+goods.getAuditStatus()+"%");
+            if (goods.getAuditStatus() != null && goods.getAuditStatus().length() > 0) {
+                criteria.andAuditStatusLike("%" + goods.getAuditStatus() + "%");
             }
-            if(goods.getIsMarketable()!=null && goods.getIsMarketable().length()>0){
-                criteria.andIsMarketableLike("%"+goods.getIsMarketable()+"%");
+            if (goods.getIsMarketable() != null && goods.getIsMarketable().length() > 0) {
+                criteria.andIsMarketableLike("%" + goods.getIsMarketable() + "%");
             }
-            if(goods.getCaption()!=null && goods.getCaption().length()>0){
-                criteria.andCaptionLike("%"+goods.getCaption()+"%");
+            if (goods.getCaption() != null && goods.getCaption().length() > 0) {
+                criteria.andCaptionLike("%" + goods.getCaption() + "%");
             }
-            if(goods.getSmallPic()!=null && goods.getSmallPic().length()>0){
-                criteria.andSmallPicLike("%"+goods.getSmallPic()+"%");
+            if (goods.getSmallPic() != null && goods.getSmallPic().length() > 0) {
+                criteria.andSmallPicLike("%" + goods.getSmallPic() + "%");
             }
-            if(goods.getIsEnableSpec()!=null && goods.getIsEnableSpec().length()>0){
-                criteria.andIsEnableSpecLike("%"+goods.getIsEnableSpec()+"%");
+            if (goods.getIsEnableSpec() != null && goods.getIsEnableSpec().length() > 0) {
+                criteria.andIsEnableSpecLike("%" + goods.getIsEnableSpec() + "%");
             }
-            if(goods.getIsDelete()!=null && goods.getIsDelete().length()>0){
-                criteria.andIsDeleteLike("%"+goods.getIsDelete()+"%");
+            if (goods.getIsDelete() != null && goods.getIsDelete().length() > 0) {
+                criteria.andIsDeleteLike("%" + goods.getIsDelete() + "%");
             }
-
         }
 
-        Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);
-        return new PageResult(page.getTotal(), page.getResult());*/
-        return null;
+        Page<TbGoods> page = (Page<TbGoods>) goodsMapper.selectByExample(example);
+        return new PageResult(page.getTotal(), page.getResult());
     }
 
     @Override
@@ -242,11 +241,15 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public List<TbItem> findItemListByGoodsIdListAndStatus(Long[] goodsIds, String status) {
-        return null;
+        TbItemExample example = new TbItemExample();
+        TbItemExample.Criteria criteria = example.createCriteria();
+        criteria.andGoodsIdIn(Arrays.asList(goodsIds));
+        criteria.andStatusEqualTo(status);
+        return itemMapper.selectByExample(example);
     }
 
     @Override
     public TbGoods findById(Long id) {
-        return null;
+        return goodsMapper.selectByPrimaryKey(id);
     }
 }

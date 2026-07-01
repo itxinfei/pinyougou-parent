@@ -12,6 +12,7 @@ import javax.jms.Message;
 import javax.jms.Session;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,6 +38,8 @@ import entity.PageResult;
  */
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
 
     @Autowired
     private TbUserMapper userMapper;
@@ -184,7 +187,7 @@ public class UserServiceImpl implements UserService {
     public void createSmsCode(final String phone) {
         //1.生成一个6位随机数（验证码）
         final String smscode = (long) (Math.random() * 1000000) + "";
-        System.out.println("验证码：" + smscode);
+        logger.info("验证码：" + smscode);
 
         //2.将验证码放入redis
         redisTemplate.boundHashOps("smscode").put(phone, smscode);

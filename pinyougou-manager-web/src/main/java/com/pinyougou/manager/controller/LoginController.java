@@ -30,7 +30,6 @@ public class LoginController {
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         map.put("username", user);
         //后台输出用户
-        //System.out.println(map.toString());
         return map;
     }
 

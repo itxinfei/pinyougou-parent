@@ -5,6 +5,7 @@ import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.pojo.TbItemExample.Criteria;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -18,6 +19,8 @@ import java.util.Map;
 @Component
 @SuppressWarnings("unchecked")
 public class SolrUtil {
+
+    private static final Logger logger = Logger.getLogger(SolrUtil.class);
 
     @Autowired
     private TbItemMapper itemMapper;
@@ -34,10 +37,10 @@ public class SolrUtil {
         Criteria criteria = example.createCriteria();
         criteria.andStatusEqualTo("1");//审核通过的才导入的
         List<TbItem> itemList = itemMapper.selectByExample(example);
-        System.out.println("---商品列表---");
+        logger.info("---商品列表---");
         for (TbItem item : itemList) {
             //打印商品列表
-            System.out.println(item.getId() + " " + item.getTitle() + " " + item.getPrice() + "" + item.getUpdateTime());
+            logger.info(item.getId() + " " + item.getTitle() + " " + item.getPrice() + "" + item.getUpdateTime());
             //设置编码UTF-8
             String spec = item.getSpec();
             spec.getBytes("UTF-8");
@@ -46,7 +49,7 @@ public class SolrUtil {
         }
         solrTemplate.saveBeans(itemList);
         solrTemplate.commit();
-        System.out.println("---结束---");
+        logger.info("---结束---");
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {

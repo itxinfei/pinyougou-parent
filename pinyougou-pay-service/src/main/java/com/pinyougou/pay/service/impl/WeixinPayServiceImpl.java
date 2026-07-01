@@ -3,6 +3,7 @@ package com.pinyougou.pay.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.alibaba.dubbo.config.annotation.Service;
@@ -13,6 +14,8 @@ import util.HttpClient;
 
 @Service
 public class WeixinPayServiceImpl implements WeixinPayService {
+
+    private static final Logger logger = Logger.getLogger(WeixinPayServiceImpl.class);
 
     @Value("${appid}")
     private String appid;
@@ -46,7 +49,7 @@ public class WeixinPayServiceImpl implements WeixinPayService {
 
         try {
             String xmlParam = WXPayUtil.generateSignedXml(param, partnerkey);
-            System.out.println("请求的参数：" + xmlParam);
+            logger.info("请求的参数：" + xmlParam);
 
             //2.发送请求
             HttpClient httpClient = new HttpClient("https://api.mch.weixin.qq.com/pay/unifiedorder");
@@ -58,7 +61,7 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             String xmlResult = httpClient.getContent();
 
             Map<String, String> mapResult = WXPayUtil.xmlToMap(xmlResult);
-            System.out.println("微信返回结果" + mapResult);
+            logger.info("微信返回结果" + mapResult);
             Map map = new HashMap<>();
             map.put("code_url", mapResult.get("code_url"));//生成支付二维码的链接
             map.put("out_trade_no", out_trade_no);
@@ -67,8 +70,7 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             return map;
 
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("创建微信支付订单失败", e);
             return new HashMap();
         }
 
@@ -99,12 +101,11 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             //3.获取结果
             String xmlResult = httpClient.getContent();
             Map<String, String> map = WXPayUtil.xmlToMap(xmlResult);
-            System.out.println("调动查询API返回结果：" + xmlResult);
+            logger.info("调动查询API返回结果：" + xmlResult);
 
             return map;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("查询微信支付状态失败", e);
             return null;
         }
 

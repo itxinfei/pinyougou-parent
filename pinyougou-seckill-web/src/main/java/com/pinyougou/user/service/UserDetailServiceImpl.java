@@ -1,5 +1,6 @@
 package com.pinyougou.user.service;
 
+import org.apache.log4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -14,7 +15,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("经过认证类:" + username);
+        Logger logger = Logger.getLogger(UserDetailServiceImpl.class);
+        logger.info("经过认证类:" + username);
 
         List<GrantedAuthority> authorities = new ArrayList();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));

@@ -1,6 +1,7 @@
 package com.pinyougou.shop.controller;
 
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,8 @@ import util.FastDFSClient;
 @RestController
 @RequestMapping("/upload")
 public class UploadController {
+
+    private static final Logger logger = Logger.getLogger(UploadController.class);
 
     @Value("${FILE_SERVER_URL}")
     private String file_server_url;
@@ -34,7 +37,7 @@ public class UploadController {
 
             return new Result(true, url);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("上传文件失败", e);
             return new Result(false, "上传失败！");
         }
 

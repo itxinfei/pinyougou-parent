@@ -6,6 +6,7 @@ import com.pinyougou.pojo.group.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/goods")
 public class GoodsController {
+
+    private static final Logger logger = Logger.getLogger(GoodsController.class);
 
     @Reference
     private GoodsService goodsService;
@@ -56,7 +59,7 @@ public class GoodsController {
             goodsService.update(goods);
             return new Result(true, "修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("修改商品失败", e);
             return new Result(false, "修改失败");
         }
     }
@@ -81,7 +84,12 @@ public class GoodsController {
      */
     @RequestMapping("/delete")
     public Result delete(final Long[] ids) {
-        return null;
+        try {
+            goodsService.delete(ids);
+            return new Result(true, "删除成功");
+        } catch (Exception e) {
+            return new Result(false, "删除失败");
+        }
     }
 
     /**
@@ -109,17 +117,22 @@ public class GoodsController {
      */
     @RequestMapping("/updateStatus")
     public Result updateStatus(final Long[] ids, String status) {
-        return null;
+        try {
+            goodsService.updateStatus(ids, status);
+            return new Result(true, "修改成功");
+        } catch (Exception e) {
+            return new Result(false, "修改失败");
+        }
     }
 
-    /**
-     * 批量修改 is_Delete属性值状态
-     *
-     * @param ids
-     */
     @RequestMapping("/updateIsDelete")
     public Result updateIsDelete(final Long[] ids) {
-        return null;
+        try {
+            goodsService.delete(ids);
+            return new Result(true, "操作成功");
+        } catch (Exception e) {
+            return new Result(false, "操作失败");
+        }
     }
 
     @RequestMapping("/genHtml")

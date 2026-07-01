@@ -18,6 +18,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Consts;
+import org.apache.log4j.Logger;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -49,6 +50,9 @@ import org.apache.http.util.EntityUtils;
  * @author Administrator
  */
 public class HttpClient {
+
+    private static final Logger logger = Logger.getLogger(HttpClient.class);
+
     private String url;
     private Map<String, String> param;
     private int statusCode;
@@ -169,7 +173,7 @@ public class HttpClient {
                 response.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("HTTP请求失败", e);
         } finally {
             httpClient.close();
         }

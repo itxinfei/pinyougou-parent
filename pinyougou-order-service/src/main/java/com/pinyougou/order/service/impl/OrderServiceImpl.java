@@ -145,13 +145,11 @@ public class OrderServiceImpl implements OrderService {
                 if(item==null){
                     throw new ResourceNotFoundException("商品不存在，商品ID："+orderItem.getItemId());
                 }
-                if(item.getStockCount()==null||item.getStockCount()<orderItem.getNum()){
-                    throw new InsufficientStockException("库存不足，商品："+item.getTitle()+"，当前库存："+(item.getStockCount()==null?0:item.getStockCount())+"，需求数量："+orderItem.getNum());
+                int result = itemMapper.decreaseStockCount(orderItem.getItemId(), orderItem.getNum());
+                if(result==0){
+                    throw new InsufficientStockException("库存不足，商品："+item.getTitle());
                 }
-                
-                item.setStockCount(item.getStockCount()-orderItem.getNum());
-                itemMapper.updateByPrimaryKeySelective(item);
-                
+
                 orderItem.setId(idWorker.nextId());
                 orderItem.setOrderId(orderId);
                 orderItem.setSellerId(cart.getSellerId());
@@ -159,7 +157,7 @@ public class OrderServiceImpl implements OrderService {
                 money += orderItem.getTotalFee().doubleValue();
             }
 
-            tbOrder.setPayment(new BigDecimal(money));
+            tbOrder.setPayment(BigDecimal.valueOf(money));
 
             orderMapper.insert(tbOrder);
 

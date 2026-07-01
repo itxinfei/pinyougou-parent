@@ -1,4 +1,4 @@
-package exception;
+package com.pinyougou.exception;
 
 public class ResourceNotFoundException extends BusinessException {
     public ResourceNotFoundException(String message) {

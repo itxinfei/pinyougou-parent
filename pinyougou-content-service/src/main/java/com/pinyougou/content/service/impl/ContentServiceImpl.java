@@ -10,6 +10,7 @@ import com.pinyougou.pojo.TbContent;
 import com.pinyougou.pojo.TbContentExample;
 import com.pinyougou.pojo.TbContentExample.Criteria;
 import entity.PageResult;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +23,10 @@ import java.util.List;
  * @author Administrator
  */
 @Service
-//@Transactional
+@Transactional
 public class ContentServiceImpl implements ContentService {
+
+    private static final Logger logger = Logger.getLogger(ContentServiceImpl.class);
 
     @Autowired
     private TbContentMapper contentMapper;
@@ -147,7 +150,7 @@ public class ContentServiceImpl implements ContentService {
     public List<TbContent> findByCategoryId(Long categoryId) {
         List<TbContent> list = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
         if (list == null) {
-            System.out.println("从数据库中查询数据并放入缓存 ");
+            logger.info("从数据库中查询数据并放入缓存");
             TbContentExample example = new TbContentExample();
             Criteria criteria = example.createCriteria();
             criteria.andCategoryIdEqualTo(categoryId);//指定条件:分类ID
@@ -156,7 +159,7 @@ public class ContentServiceImpl implements ContentService {
             list = contentMapper.selectByExample(example);
             redisTemplate.boundHashOps("content").put(categoryId, list);//放入缓存
         } else {
-            System.out.println("从缓存中查询数据 ");
+            logger.info("从缓存中查询数据");
         }
         return list;
     }

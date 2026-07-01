@@ -6,6 +6,7 @@ import com.pinyougou.pojo.group.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
 import entity.Result;
+import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/goods")
 public class GoodsController {
+
+    private static final Logger logger = Logger.getLogger(GoodsController.class);
 
     @Reference
     private GoodsService goodsService;
@@ -61,7 +64,7 @@ public class GoodsController {
             goodsService.add(goods);
             return new Result(true, "增加成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("增加商品失败", e);
             return new Result(false, "增加失败");
         }
     }
@@ -78,7 +81,7 @@ public class GoodsController {
             goodsService.update(goods);
             return new Result(true, "修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("修改商品失败", e);
             return new Result(false, "修改失败");
         }
     }
@@ -106,7 +109,7 @@ public class GoodsController {
             goodsService.delete(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除商品失败", e);
             return new Result(false, "删除失败");
         }
     }
@@ -116,7 +119,7 @@ public class GoodsController {
     public PageResult search(@RequestBody TbGoods goods, int page, int rows) {
         //获取商家ID
         String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println(sellerId);
+        logger.info("商家ID：" + sellerId);
         //添加查询条件
         goods.setSellerId(sellerId);
         return goodsService.findPage(goods, page, rows);

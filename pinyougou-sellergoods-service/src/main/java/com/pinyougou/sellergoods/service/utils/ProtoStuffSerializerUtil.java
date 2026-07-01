@@ -4,8 +4,8 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
-import exception.SerializationException;
-import exception.ValidationException;
+import com.pinyougou.exception.SerializationException;
+import com.pinyougou.exception.ValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

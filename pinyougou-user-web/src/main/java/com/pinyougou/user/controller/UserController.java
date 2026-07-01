@@ -2,6 +2,7 @@ package com.pinyougou.user.controller;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,8 @@ import util.PhoneFormatCheckUtils;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    private static final Logger logger = Logger.getLogger(UserController.class);
 
     @Reference
     private UserService userService;
@@ -62,7 +65,7 @@ public class UserController {
             userService.add(user);
             return new Result(true, "增加成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("增加用户失败", e);
             return new Result(false, "增加失败");
         }
     }
@@ -79,7 +82,7 @@ public class UserController {
             userService.update(user);
             return new Result(true, "修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("修改用户失败", e);
             return new Result(false, "修改失败");
         }
     }
@@ -107,7 +110,7 @@ public class UserController {
             userService.delete(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除用户失败", e);
             return new Result(false, "删除失败");
         }
     }
@@ -140,7 +143,7 @@ public class UserController {
             userService.createSmsCode(phone);
             return new Result(true, "验证码发送成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("发送验证码失败", e);
             return new Result(false, "验证码发送失败");
         }
     }

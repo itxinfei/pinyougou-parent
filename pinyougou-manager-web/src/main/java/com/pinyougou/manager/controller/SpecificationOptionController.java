@@ -2,6 +2,7 @@ package com.pinyougou.manager.controller;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,8 @@ import entity.Result;
 @RestController
 @RequestMapping("/specificationOption")
 public class SpecificationOptionController {
+
+    private static final Logger logger = Logger.getLogger(SpecificationOptionController.class);
 
     @Reference
     private SpecificationOptionService specificationOptionService;
@@ -55,7 +58,7 @@ public class SpecificationOptionController {
             specificationOptionService.add(specificationOption);
             return new Result(true, "增加成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("增加规格选项失败", e);
             return new Result(false, "增加失败");
         }
     }
@@ -72,7 +75,7 @@ public class SpecificationOptionController {
             specificationOptionService.update(specificationOption);
             return new Result(true, "修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("修改规格选项失败", e);
             return new Result(false, "修改失败");
         }
     }
@@ -100,7 +103,7 @@ public class SpecificationOptionController {
             specificationOptionService.delete(ids);
             return new Result(true, "删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("删除规格选项失败", e);
             return new Result(false, "删除失败");
         }
     }
