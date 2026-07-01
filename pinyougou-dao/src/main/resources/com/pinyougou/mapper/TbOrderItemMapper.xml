@@ -288,3 +288,9 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>
+<!-- 恢复库存 -->
+<update id="restoreStockCount">
+    UPDATE tb_item
+    SET stock_count = stock_count + #{num}
+    WHERE id = #{itemId}
+</update>

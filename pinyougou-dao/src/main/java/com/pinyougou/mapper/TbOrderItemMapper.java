@@ -28,4 +28,5 @@ public interface TbOrderItemMapper {
     int updateByPrimaryKeySelective(TbOrderItem record);
 
     int updateByPrimaryKey(TbOrderItem record);
+    int restoreStockCount(@Param("itemId") Long itemId, @Param("num") Integer num);
 }

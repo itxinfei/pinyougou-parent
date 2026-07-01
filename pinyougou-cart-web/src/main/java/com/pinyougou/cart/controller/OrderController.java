@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbOrder;
 import com.pinyougou.order.service.OrderService;
+import com.pinyougou.order.service.RefundService;
 
 import entity.PageResult;
 import entity.Result;
@@ -118,7 +119,64 @@ public class OrderController {
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbOrder order, int page, int rows  ){
-		return orderService.findPage(order, page, rows);		
+		return orderService.findPage(order, page, rows);
 	}
-	
+
+	/**
+	 * 取消订单
+	 * @param orderId 订单ID
+	 * @param reason 取消原因
+	 * @return 取消结果
+	 */
+	@RequestMapping("/cancel")
+	public Result cancel(Long orderId, String reason) {
+		try {
+			Map<String, Object> result = refundService.cancelOrder(orderId, reason);
+			boolean success = (boolean) result.get("success");
+			String message = (String) result.get("message");
+			return new Result(success, message);
+		} catch (Exception e) {
+			logger.error("取消订单失败", e);
+			return new Result(false, "取消订单失败");
+		}
+	}
+
+	/**
+	 * 申请退款
+	 * @param orderId 订单ID
+	 * @param reason 退款原因
+	 * @param refundFee 退款金额
+	 * @return 退款结果
+	 */
+	@RequestMapping("/applyRefund")
+	public Result applyRefund(Long orderId, String reason, Double refundFee) {
+		try {
+			Map<String, Object> result = refundService.applyRefund(orderId, reason, refundFee);
+			boolean success = (boolean) result.get("success");
+			String message = (String) result.get("message");
+			return new Result(success, message);
+		} catch (Exception e) {
+			logger.error("申请退款失败", e);
+			return new Result(false, "申请退款失败");
+		}
+	}
+
+	/**
+	 * 确认退款
+	 * @param orderId 订单ID
+	 * @return 退款结果
+	 */
+	@RequestMapping("/confirmRefund")
+	public Result confirmRefund(Long orderId) {
+		try {
+			Map<String, Object> result = refundService.confirmRefund(orderId);
+			boolean success = (boolean) result.get("success");
+			String message = (String) result.get("message");
+			return new Result(success, message);
+		} catch (Exception e) {
+			logger.error("确认退款失败", e);
+			return new Result(false, "确认退款失败");
+		}
+	}
+
 }

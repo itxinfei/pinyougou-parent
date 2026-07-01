@@ -32,4 +32,5 @@ public interface TbItemMapper {
     int updateByPrimaryKey(TbItem record);
 
     int decreaseStockCount(@Param("itemId") Long itemId, @Param("num") Integer num);
+    int restoreStockCount(@Param("itemId") Long itemId, @Param("num") Integer num);
 }

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pinyougou.mapper.TbRefundMapper">
+  <resultMap id="BaseResultMap" type="com.pinyougou.pojo.TbRefund">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="refund_fee" jdbcType="DECIMAL" property="refundFee" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="transaction_id" jdbcType="VARCHAR" property="transactionId" />
+    <result column="response_content" jdbcType="VARCHAR" property="responseContent" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="finish_time" jdbcType="TIMESTAMP" property="finishTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    ${whereClause}
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      ${whereClause}
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, order_id, refund_fee, reason, status, transaction_id, response_content, create_time, finish_time
+  </sql>
+  <select id="selectByExample" parameterType="com.pinyougou.pojo.TbRefundExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    '<include refid="Base_Column_List" />
+    from tb_refund
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_refund
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_refund
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.pinyougou.pojo.TbRefundExample">
+    delete from tb_refund
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pinyougou.pojo.TbRefund">
+    insert into tb_refund (id, order_id, refund_fee, reason, status, transaction_id, response_content, create_time, finish_time)
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{refundFee,jdbcType=DECIMAL}, #{reason,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{transactionId,jdbcType=VARCHAR}, #{responseContent,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{finishTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pinyougou.pojo.TbRefund">
+    insert into tb_refund
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="refundFee != null">
+        refund_fee,
+      </if>
+      <if test="reason != null">
+        reason,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="transactionId != null">
+        transaction_id,
+      </if>
+      <if test="responseContent != null">
+        response_content,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="finishTime != null">
+        finish_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="refundFee != null">
+        #{refundFee,jdbcType=DECIMAL},
+      </if>
+      <if test="reason != null">
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="transactionId != null">
+        #{transactionId,jdbcType=VARCHAR},
+      </if>
+      <if test="responseContent != null">
+        #{responseContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishTime != null">
+        #{finishTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_refund
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderId != null">
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.refundFee != null">
+        refund_fee = #{record.refundFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.reason != null">
+        reason = #{record.reason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=CHAR},
+      </if>
+      <if test="record.transactionId != null">
+        transaction_id = #{record.transactionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.responseContent != null">
+        response_content = #{record.responseContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.finishTime != null">
+        finish_time = #{record.finishTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_refund
+    set order_id = #{record.orderId,jdbcType=BIGINT},
+      refund_fee = #{record.refundFee,jdbcType=DECIMAL},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=CHAR},
+      transaction_id = #{record.transactionId,jdbcType=VARCHAR},
+      response_content = #{record.responseContent,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      finish_time = #{record.finishTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.pinyougou.pojo.TbRefund">
+    update tb_refund
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="refundFee != null">
+        refund_fee = #{refundFee,jdbcType=DECIMAL},
+      </if>
+      <if test="reason != null">
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="transactionId != null">
+        transaction_id = #{transactionId,jdbcType=VARCHAR},
+      </if>
+      <if test="responseContent != null">
+        response_content = #{responseContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishTime != null">
+        finish_time = #{finishTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.pinyougou.pojo.TbRefund">
+    update tb_refund
+    set order_id = #{orderId,jdbcType=BIGINT},
+      refund_fee = #{refundFee,jdbcType=DECIMAL},
+      reason = #{reason,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      transaction_id = #{transactionId,jdbcType=VARCHAR},
+      response_content = #{record.responseContent,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      finish_time = #{finishTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
