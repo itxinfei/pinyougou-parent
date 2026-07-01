@@ -4,7 +4,7 @@ import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbOrderItem;
 import com.pinyougou.pojo.group.Cart;
-import org.junit.Before;
+import com.pinyougou.cart.testutil.CartServiceTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -30,9 +30,10 @@ import static org.junit.Assert.*;
  * - 购物车合并（mergeCartList）
  *
  * @author Administrator
+ * @since 1.0-SNAPSHOT
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CartServiceImplTest {
+public class CartServiceImplTest extends CartServiceTestBase {
 
     @Mock
     private TbItemMapper itemMapper;
@@ -51,16 +52,11 @@ public class CartServiceImplTest {
      */
     @Before
     public void setUp() {
+        // 调用父类初始化Mock
+        initMocks();
+
         // 准备测试商品数据
-        testItem = new TbItem();
-        testItem.setId(1001L);
-        testItem.setGoodsId(2001L);
-        testItem.setTitle("测试商品");
-        testItem.setPrice(new BigDecimal("99.99"));
-        testItem.setStockCount(100);
-        testItem.setStatus("1");
-        testItem.setSellerId("seller_001");
-        testItem.setSeller("测试商家");
+        testItem = createTestItem();
 
         // 准备购物车列表
         cartList = new ArrayList<>();
@@ -1013,9 +1009,8 @@ public class CartServiceImplTest {
         // Mock商品查询
         Mockito.when(itemMapper.selectByPrimaryKey(itemId)).thenReturn(testItem);
 
-        // Mock Redis锁获取失败（setIfAbsent返回false）
-        Mockito.when(redisTemplate.opsForValue().setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
-            .thenReturn(false);
+        // Mock Redis锁获取失败
+        mockLockFailed(redisTemplate);
 
         // 第一次调用应该返回空列表（获取锁失败）
         List<Cart> result1 = cartService.addGoodsToCartList("user_001", new ArrayList<>(), itemId, num);
@@ -1023,9 +1018,8 @@ public class CartServiceImplTest {
         assertEquals("锁失败时应返回空列表", 0, result1.size());
 
         // 第二次调用锁获取成功
-        Mockito.when(redisTemplate.opsForValue().setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
-            .thenReturn(true);
-        Mockito.doNothing().when(redisTemplate).delete(Mockito.anyString());
+        mockLockAcquired(redisTemplate);
+        mockRedisDelete(redisTemplate);
 
         List<Cart> result2 = cartService.addGoodsToCartList("user_001", new ArrayList<>(), itemId, num);
         assertEquals("锁成功时应添加到购物车", 1, result2.size());
