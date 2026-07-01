@@ -1,0 +1,1288 @@
+/* =====================================================
+   品优购 - 京东风格优化样式
+   优化内容：
+   1. 颜色优化 - 京东红色主题 #f10215
+   2. 间距优化 - 更合理的间距系统
+   3. 阴影优化 - 细腻的阴影效果
+   4. 圆角优化 - 统一的圆角设计
+   5. 字体优化 - 清晰的字体层次
+   ===================================================== */
+
+/* ========== 全局样式 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    background-color: #f8f8f8;
+}
+
+a {
+    text-decoration: none;
+    color: #666;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #f10215;
+}
+
+ul, li {
+    list-style: none;
+}
+
+/* ========== 工具类 ========== */
+.container {
+    width: 1190px;
+    margin: 0 auto;
+}
+
+.clearfix::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+/* ========== 顶部导航栏 - 京东风格 ========== */
+.top {
+    background: #f8f8f8;
+    border-bottom: 1px solid #e3e4e5;
+    height: 30px;
+    line-height: 30px;
+    color: #999;
+    font-size: 12px;
+}
+
+.top .container {
+    position: relative;
+}
+
+.shortcut {
+    height: 30px;
+}
+
+.shortcut ul {
+    display: flex;
+    align-items: center;
+}
+
+.shortcut ul li {
+    list-style: none;
+    padding: 0 10px;
+    position: relative;
+}
+
+.shortcut ul li.f-item {
+    cursor: pointer;
+}
+
+.shortcut ul li.f-item:hover {
+    color: #f10215;
+}
+
+.shortcut ul li.space {
+    width: 1px;
+    height: 12px;
+    background: #ddd;
+    padding: 0;
+}
+
+/* 下拉菜单 */
+.shortcut .service {
+    position: absolute;
+    top: 30px;
+    right: -12px;
+    width: 120px;
+    background: #fff;
+    border: 1px solid #e3e4e5;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+}
+
+.shortcut .service li {
+    padding: 8px 15px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.shortcut .service li:last-child {
+    border-bottom: none;
+}
+
+.shortcut .service li a {
+    display: block;
+    color: #666;
+}
+
+.shortcut .service li:hover {
+    background: #f5f5f5;
+}
+
+.shortcut .service li a:hover {
+    color: #f10215;
+}
+
+/* ========== 头部 - 京东风格 ========== */
+.header {
+    background: #fff;
+    height: 140px;
+    position: relative;
+    border-bottom: 2px solid #f10215;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.header .container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.Logo {
+    width: 190px;
+    height: 120px;
+    position: relative;
+    margin-right: 50px;
+}
+
+.logo-bd {
+    display: block;
+    width: 190px;
+    height: 120px;
+    background: url(../img/Logo.png) no-repeat center;
+    background-size: contain;
+}
+
+/* 搜索区域 */
+.searchArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.search {
+    width: 600px;
+    position: relative;
+}
+
+.search form {
+    display: flex;
+    border: 2px solid #f10215;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.search .input-append {
+    flex: 1;
+    display: flex;
+}
+
+.search input[type="text"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+.search button {
+    background: #f10215;
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+.search button:hover {
+    background: #e1251b;
+}
+
+/* 热词 */
+.hotwords {
+    width: 100%;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.hotwords ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+}
+
+.hotwords ul li {
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+}
+
+.hotwords ul li:hover {
+    color: #f10215;
+}
+
+.hotwords ul li:first-child {
+    color: #f10215;
+    font-weight: 500;
+}
+
+/* 购物车区域 */
+.shopArea {
+    width: 200px;
+    position: absolute;
+    right: 0;
+}
+
+.shopcar {
+    position: relative;
+}
+
+.shopcar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #e3e4e5;
+    border-radius: 16px;
+    padding: 8px 20px;
+    color: #f10215;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.shopcar a:hover {
+    border-color: #f10215;
+    box-shadow: 0 2px 8px rgba(241, 2, 21, 0.2);
+}
+
+.shopcar .car {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url(../img/icons.png) no-repeat;
+    margin-right: 8px;
+}
+
+.shopnum {
+    position: absolute;
+    top: -8px;
+    right: 30px;
+    background: #f10215;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* ========== 导航栏 - 京东风格 ========== */
+.NavList {
+    background: #f10215;
+    height: 40px;
+    line-height: 40px;
+}
+
+.navArea ul.nav {
+    display: flex;
+    height: 40px;
+}
+
+.navArea ul.nav li {
+    position: relative;
+}
+
+.navArea ul.nav li a {
+    display: block;
+    padding: 0 25px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.navArea ul.nav li a:hover {
+    background: #c81623;
+    color: #fff;
+}
+
+.navArea ul.nav li.active a {
+    background: #c81623;
+}
+
+/* ========== 分类菜单 - 京东风格 ========== */
+.SortList {
+    width: 190px;
+    background: #f8f8f8;
+    float: left;
+    margin-right: 10px;
+}
+
+.all-sort {
+    background: #f10215;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 15px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.all-sort-list {
+    background: #fff;
+    border: 1px solid #e3e4e5;
+    border-top: none;
+}
+
+.all-sort-list .item {
+    position: relative;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 15px;
+    border-bottom: 1px solid #e3e4e5;
+    transition: all 0.2s;
+}
+
+.all-sort-list .item:hover {
+    background: #fff;
+}
+
+.all-sort-list .item h3 a {
+    color: #333;
+    font-size: 14px;
+}
+
+.all-sort-list .item h3 a:hover {
+    color: #f10215;
+}
+
+.all-sort-list .item span {
+    color: #999;
+    font-size: 12px;
+}
+
+/* ========== 轮播图区域 ========== */
+.bannerArea {
+    float: left;
+    width: 590px;
+    margin-right: 10px;
+}
+
+.sui-carousel {
+    position: relative;
+    width: 100%;
+    height: 460px;
+    overflow: hidden;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.carousel-indicators li {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.carousel-indicators li.active {
+    background: #fff;
+    width: 30px;
+    border-radius: 5px;
+}
+
+/* ========== 新闻区域 ========== */
+.news {
+    width: 330px;
+    float: left;
+    border: 1px solid #e3e4e5;
+    background: #fff;
+    margin-bottom: 10px;
+}
+
+.news h4 {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 15px;
+    border-bottom: 1px solid #e3e4e5;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.news ul.news-list {
+    padding: 10px 15px;
+}
+
+.news ul li {
+    line-height: 28px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+}
+
+.news ul li:hover {
+    color: #f10215;
+}
+
+/* ========== 生活服务 - 京东风格 ========== */
+.Lifeservice {
+    width: 330px;
+    border: 1px solid #e3e4e5;
+    background: #fff;
+    overflow: hidden;
+}
+
+.Lifeservice .yui3-g {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.Lifeservice .yui3-g > li {
+    width: 33.33%;
+    height: 70px;
+    text-align: center;
+    line-height: 70px;
+    border-right: 1px solid #e3e4e5;
+    border-bottom: 1px solid #e3e4e5;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.Lifeservice .yui3-g > li:hover {
+    background: #f5f5f5;
+}
+
+.Lifeservice .yui3-g > li:nth-child(3n) {
+    border-right: none;
+}
+
+.Lifeservice .yui3-g > li:nth-last-child(-n+3) {
+    border-bottom: none;
+}
+
+/* ========== 商品楼层 - 京东风格 ========== */
+.floors {
+    margin-top: 30px;
+}
+
+.floor {
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.floor .floor-header {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+    background: linear-gradient(90deg, #f10215 0%, #ff6b6b 100%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.floor .floor-header .floor-title {
+    font-size: 20px;
+}
+
+.floor-content {
+    padding: 20px;
+}
+
+/* 商品列表 */
+.jd-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 0;
+}
+
+.jd-list li {
+    width: calc(20% - 12px);
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #e3e4e5;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.jd-list li:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.jd-list li img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.jd-list li .info {
+    padding: 12px;
+}
+
+.jd-list li .title {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    height: 40px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.jd-list li .title:hover {
+    color: #f10215;
+}
+
+.jd-list li .price {
+    font-size: 18px;
+    color: #f10215;
+    font-weight: 700;
+}
+
+.jd-list li .price::before {
+    content: "¥";
+    font-size: 14px;
+}
+
+/* ========== 推荐区域 - 京东风格 ========== */
+.Recommend {
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.Recommend h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 15px;
+    padding-left: 10px;
+    border-left: 4px solid #f10215;
+}
+
+/* ========== 品牌区域 ========== */
+.brandArea {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.brandArea ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.brandArea ul li {
+    width: 120px;
+    height: 60px;
+    border: 1px solid #e3e4e5;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.brandArea ul li:hover {
+    border-color: #f10215;
+    box-shadow: 0 2px 8px rgba(241, 2, 21, 0.15);
+}
+
+.brandArea ul li img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 5px;
+}
+
+/* ========== 商品详情页 - 京东风格 ========== */
+.item-detail {
+    background: #fff;
+    padding: 30px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.item-info h1 {
+    font-size: 18px;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.item-info .subtitle {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 20px;
+}
+
+.item-info .price-box {
+    background: #f8f8f8;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.item-info .price {
+    font-size: 28px;
+    color: #f10215;
+    font-weight: 700;
+}
+
+.item-info .price::before {
+    content: "¥";
+    font-size: 18px;
+}
+
+/* ========== 购物车 - 京东风格 ========== */
+.cart-container {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.cart-header {
+    height: 50px;
+    line-height: 50px;
+    background: #f8f8f8;
+    padding: 0 30px;
+    border-bottom: 1px solid #e3e4e5;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.cart-item {
+    padding: 20px 30px;
+    border-bottom: 1px solid #e3e4e5;
+    transition: background 0.2s;
+}
+
+.cart-item:hover {
+    background: #f9f9f9;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+/* 商品图片 */
+.cart-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #e3e4e5;
+}
+
+/* 商品标题 */
+.cart-item .title {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.cart-item .title:hover {
+    color: #f10215;
+}
+
+/* 价格 */
+.cart-item .price {
+    font-size: 16px;
+    color: #f10215;
+    font-weight: 700;
+}
+
+.cart-item .price::before {
+    content: "¥";
+    font-size: 14px;
+}
+
+/* 数量输入框 */
+.cart-item input[type="number"] {
+    width: 60px;
+    height: 32px;
+    border: 1px solid #e3e4e5;
+    border-radius: 4px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.cart-item input[type="number"]:focus {
+    border-color: #f10215;
+}
+
+/* ========== 按钮样式 - 京东风格 ========== */
+.btn {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background: #f10215;
+    color: #fff;
+    border-color: #f10215;
+}
+
+.btn-primary:hover {
+    background: #e1251b;
+    border-color: #e1251b;
+    box-shadow: 0 2px 8px rgba(241, 2, 21, 0.3);
+}
+
+.btn-default {
+    background: #fff;
+    color: #333;
+    border-color: #e3e4e5;
+}
+
+.btn-default:hover {
+    border-color: #f10215;
+    color: #f10215;
+}
+
+.btn-danger {
+    background: #f10215;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #e1251b;
+}
+
+.btn-large {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+.btn-xlarge {
+    padding: 14px 40px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* ========== 表单样式 - 京东风格 ========== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    height: 40px;
+    padding: 0 15px;
+    border: 1px solid #e3e4e5;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.form-control:focus {
+    border-color: #f10215;
+    box-shadow: 0 0 0 2px rgba(241, 2, 21, 0.1);
+}
+
+textarea.form-control {
+    height: auto;
+    min-height: 100px;
+    padding: 10px 15px;
+    resize: vertical;
+}
+
+/* ========== 表格样式 - 京东风格 ========== */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.table th {
+    background: #f8f8f8;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 2px solid #e3e4e5;
+}
+
+.table td {
+    padding: 15px;
+    border-bottom: 1px solid #e3e4e5;
+    color: #666;
+}
+
+.table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+/* ========== 分页 - 京东风格 ========== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 20px 0;
+}
+
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 8px 15px;
+    border: 1px solid #e3e4e5;
+    background: #fff;
+    color: #333;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.pagination a:hover {
+    border-color: #f10215;
+    color: #f10215;
+}
+
+.pagination .current {
+    background: #f10215;
+    color: #fff;
+    border-color: #f10215;
+}
+
+/* ========== 标签 - 京东风格 ========== */
+.label {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.label-success {
+    background: #e8f5e9;
+    color: #4caf50;
+}
+
+.label-warning {
+    background: #fff3e0;
+    color: #ff9800;
+}
+
+.label-danger {
+    background: #ffebee;
+    color: #f10215;
+}
+
+.label-info {
+    background: #e3f2fd;
+    color: #2196f3;
+}
+
+/* ========== 卡片 - 京东风格 ========== */
+.card {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e3e4e5;
+}
+
+/* ========== 响应式工具 ========== */
+@media screen and (max-width: 1190px) {
+    .container {
+        width: 100%;
+        padding: 0 15px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .search {
+        width: 100%;
+    }
+
+    .shopArea {
+        display: none;
+    }
+
+    .navArea ul.nav li a {
+        padding: 0 15px;
+        font-size: 14px;
+    }
+}
+
+/* ========== 滚动条美化 ========== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ========== 工具提示 - 京东风格 ========== */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ========== 徽章 - 京东风格 ========== */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 10px;
+}
+
+.badge-primary {
+    background-color: #f10215;
+    color: #fff;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* ========== 空状态 - 京东风格 ========== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-state img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #999;
+}
+
+/* ========== 加载动画 - 京东风格 ========== */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #f10215;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========== 消息提示 - 京东风格 ========== */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: #f0fff4;
+    border-left-color: #52c41a;
+    color: #52c41a;
+}
+
+.alert-warning {
+    background: #fffbe6;
+    border-left-color: #faad14;
+    color: #faad14;
+}
+
+.alert-danger {
+    background: #fff2f0;
+    border-left-color: #f10215;
+    color: #f10215;
+}
+
+.alert-info {
+    background: #e6f7ff;
+    border-left-color: #1890ff;
+    color: #1890ff;
+}
+
+/* ========== 返回顶部 - 京东风格 ========== */
+.back-to-top {
+    position: fixed;
+    right: 30px;
+    bottom: 100px;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border: 1px solid #e3e4e5;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 38px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    z-index: 999;
+}
+
+.back-to-top:hover {
+    border-color: #f10215;
+    color: #f10215;
+    box-shadow: 0 4px 12px rgba(241, 2, 21, 0.2);
+}
+
+/* ========== 固定头部 - 京东风格 ========== */
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+/* ========== 标签页 - 京东风格 ========== */
+.nav-tabs {
+    display: flex;
+    border-bottom: 2px solid #e3e4e5;
+    margin-bottom: 20px;
+}
+
+.nav-tabs li {
+    position: relative;
+}
+
+.nav-tabs li a {
+    display: block;
+    padding: 12px 25px;
+    color: #333;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.nav-tabs li a:hover {
+    color: #f10215;
+    border-bottom-color: #f10215;
+}
+
+.nav-tabs li.active a {
+    color: #f10215;
+    border-bottom-color: #f10215;
+}
+
+/* ========== 面包屑 - 京东风格 ========== */
+.breadcrumb {
+    padding: 15px 0;
+    font-size: 13px;
+    color: #999;
+}
+
+.breadcrumb a {
+    color: #666;
+}
+
+.breadcrumb a:hover {
+    color: #f10215;
+}
+
+.breadcrumb span {
+    margin: 0 8px;
+    color: #ddd;
+}
+
+/* ========== 字体工具类 ========== */
+.text-primary {
+    color: #f10215;
+}
+
+.text-secondary {
+    color: #666;
+}
+
+.text-muted {
+    color: #999;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-normal {
+    font-weight: 400;
+}
+
+.font-size-12 {
+    font-size: 12px;
+}
+
+.font-size-14 {
+    font-size: 14px;
+}
+
+.font-size-16 {
+    font-size: 16px;
+}
+
+.font-size-18 {
+    font-size: 18px;
+}
+
+.font-size-24 {
+    font-size: 24px;
+}
+
+/* ========== 间距工具类 ========== */
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+.ml-10 { margin-left: 10px; }
+.ml-20 { margin-left: 20px; }
+.mr-10 { margin-right: 10px; }
+.mr-20 { margin-right: 20px; }
+
+.pt-10 { padding-top: 10px; }
+.pt-20 { padding-top: 20px; }
+.pb-10 { padding-bottom: 10px; }
+.pb-20 { padding-bottom: 20px; }
