@@ -1,8 +1,12 @@
 package util;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -12,66 +16,37 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * JWT工具类 - Token生成与验证
- * <p>
- * JWT结构说明：
- * - Header: 算法类型（HS512）
- * - Payload: 用户信息（username/issuedAt/expiration）
- * - Signature: 签名（防止篡改）
- * <p>
- * Token有效期策略：
- * - Access Token: 2小时（短期，安全性高）
- * - Refresh Token: 7天（长期，用于刷新Access Token）
- * <p>
- * 认证流程：
- * 1. 用户登录成功后生成Access Token和Refresh Token
- * 2. 客户端在请求头携带：Authorization: Bearer <token>
- * 3. 服务端验证Token有效性（签名、过期时间）
- * 4. Token过期前30分钟，客户端使用Refresh Token刷新
- * <p>
- * Token失效机制：
- * - 自然过期：Token到达expiration时间自动失效
- * - 主动登出：将Token从Redis删除或加入黑名单
- * - 密码修改：删除该用户所有Token
- * - 封号处理：将用户ID加入黑名单
- * <p>
- * ✅ 已优化：密钥配置化
- * - 旧方案：硬编码密钥（安全风险）
- * - 新方案：从配置文件读取（jwt.secret）
- * <p>
- * 配置说明：
- * - jwt.secret: JWT签名密钥（建议32位以上随机字符串）
- * - jwt.expiration: Access Token有效期（秒，默认7200秒=2小时）
- * - jwt.refreshExpiration: Refresh Token有效期（秒，默认604800秒=7天）
- * <p>
- * ⚠️ 安全注意事项：
- * 1. 密钥必须足够复杂（至少32位）
- * 2. 密钥必须定期更换（建议90天）
- * 3. 生产环境应使用配置中心（Nacos/Apollo）并加密
- * 4. Token必须使用HTTPS传输
- * 5. 不要在Token中存放敏感信息
- * 6. 必须实现Token黑名单机制
- * <p>
- * 待优化：
- * - 未实现Refresh Token功能
- * - 未实现Token黑名单查询
- * - 未实现Token刷新逻辑
- * - 未实现IP/设备绑定
  *
  * @author Administrator
  */
 @Component
 public class JwtUtils {
 
-    // ✅ 从配置文件读取JWT签名密钥（替代硬编码）
-    // 配置示例：jwt.secret=pinyougou_secure_key_2026_very_long_random_string_here
+    private static final Logger logger = Logger.getLogger(JwtUtils.class);
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    /**
+     * Token黑名单Redis Key前缀
+     */
+    private static final String BLACKLIST_PREFIX = "token:blacklist:";
+
+    /**
+     * ✅ 从配置文件读取JWT签名密钥（替代硬编码）
+     */
     @Value("${jwt.secret:pinyougou_secure_key_2026_change_in_production}")
     private String SECRET;
 
-    // ✅ 从配置文件读取Access Token有效期（默认2小时）
+    /**
+     * ✅ 从配置文件读取Access Token有效期（默认2小时）
+     */
     @Value("${jwt.expiration:7200}")
     private long EXPIRATION;
 
-    // ✅ 从配置文件读取Refresh Token有效期（默认7天）
+    /**
+     * ✅ 从配置文件读取Refresh Token有效期（默认7天）
+     */
     @Value("${jwt.refreshExpiration:604800}")
     private long REFRESH_EXPIRATION;
 
@@ -152,48 +127,129 @@ public class JwtUtils {
      * 1. 解析Token（验证签名和格式）
      * 2. 检查是否过期（expiration < now）
      * 3. 检查签发人（issuer）
+     * 4. 检查Token是否在黑名单中
      * <p>
      * 验证失败场景：
      * - Token格式错误或签名无效（解析失败）
      * - Token已过期
      * - 签发人不匹配
      * - Token被篡改
-     * <p>
-     * ⚠️ 注意事项：
-     * - 此方法不查询Redis黑名单（黑名单检查应在业务层单独实现）
-     * - 只验证Token本身的合法性，不验证用户状态
-     * - 建议在业务层增加：用户是否存在、是否被封禁、Token是否在黑名单
+     * - Token在黑名单中（已登出）
      * <p>
      * 性能优化：
      * - Token验证无需查询数据库（无IO操作）
+     * - 黑名单查询只需一次Redis查询
      * - 适合在高并发场景使用
-     * - 建议缓存公钥（当前使用对称加密HS512）
      *
      * @param token JWT Token
      * @return true-有效，false-无效
      */
     public boolean validateToken(String token) {
         try {
+            // 1. 验证Token签名和格式
             Claims claims = parseToken(token);
             if (claims == null) {
                 return false;
             }
 
-            // 检查是否过期
+            // 2. 检查是否过期
             Date expiration = claims.getExpiration();
             if (expiration == null || expiration.before(new Date())) {
                 return false;
             }
 
-            // 检查签发人
+            // 3. 检查签发人
             String issuer = claims.getIssuer();
             if (!ISSUER.equals(issuer)) {
+                return false;
+            }
+
+            // 4. 检查Token是否在黑名单
+            if (isTokenInBlacklist(token)) {
                 return false;
             }
 
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * 检查Token是否在黑名单中
+     * <p>
+     * 黑名单机制：
+     * - Key: token:blacklist:{token}
+     * - Value: "1"（任意值，仅用于标识存在）
+     * - 过期时间：Token剩余有效期
+     * <p>
+     * @param token JWT Token
+     * @return true-在黑名单中，false-不在黑名单中
+     */
+    public boolean isTokenInBlacklist(String token) {
+        try {
+            String blacklistKey = BLACKLIST_PREFIX + token;
+            return redisTemplate.hasKey(blacklistKey);
+        } catch (Exception e) {
+            logger.error("查询Token黑名单失败", e);
+            return false;
+        }
+    }
+
+    /**
+     * 将Token加入黑名单
+     * <p>
+     * 加入黑名单场景：
+     * - 用户主动登出
+     * - 管理员强制登出（踢人）
+     * - 密码修改后作废旧Token
+     * <p>
+     * @param token JWT Token
+     * @return true-加入成功，false-加入失败
+     */
+    public boolean addTokenToBlacklist(String token) {
+        try {
+            // 1. 解析Token
+            Claims claims = parseToken(token);
+            if (claims == null) {
+                return false;
+            }
+
+            // 2. 获取过期时间
+            Date expiration = claims.getExpiration();
+            if (expiration == null) {
+                return false;
+            }
+
+            // 3. 计算剩余有效期（秒）
+            long remainingTime = (expiration.getTime() - System.currentTimeMillis()) / 1000;
+            if (remainingTime <= 0) {
+                // Token已过期，无需加入黑名单
+                return false;
+            }
+
+            // 4. 加入黑名单，并设置过期时间
+            String blacklistKey = BLACKLIST_PREFIX + token;
+            redisTemplate.opsForValue().set(blacklistKey, "1", remainingTime, TimeUnit.SECONDS);
+
+            return true;
+        } catch (Exception e) {
+            logger.error("加入Token黑名单失败", e);
+            return false;
+        }
+    }
+
+    /**
+     * 根据用户名删除Token
+     *
+     * @param username 用户名
+     */
+    public void deleteTokenByUsername(String username) {
+        try {
+            String tokenKey = "token:" + username;
+            redisTemplate.delete(tokenKey);
+        } catch (Exception e) {
+            logger.error("删除Token失败: " + username, e);
         }
     }
 

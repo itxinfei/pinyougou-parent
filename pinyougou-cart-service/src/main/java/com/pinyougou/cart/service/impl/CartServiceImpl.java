@@ -325,16 +325,20 @@ public class CartServiceImpl implements CartService {
      * - 数量限制：合并后总数不超过999件
      * - 库存校验：合并时再次验证库存
      * <p>
-     * ⚠️ 性能问题：
-     * - 嵌套循环时间复杂度 O(n×m)
-     * - cartList2每件商品都要遍历整个cartList1
-     * - 建议：使用HashMap优化为 O(n+m)
+     * ✅ 已优化：性能提升
+     * - 原方案：嵌套循环 O(n×m) 时间复杂度
+     * - 新方案：HashMap索引 O(n+m) 时间复杂度
+     * - 优化效果：商品越多，性能提升越明显
      * <p>
-     * 改进建议：
-     * - 使用 HashMap<String, Cart> 存储cartList1（sellerId -> Cart）
-     * - 直接查找，避免遍历
+     * 优化方案：
+     * - 第一步：将cartList1转换为HashMap（sellerId -> Cart）
+     * - 第二步：遍历cartList2，直接查找Cart
+     * - 第三步：合并商品或新增商品
+     * <p>
+     * TODO: 继续优化
      * - 添加商品状态验证（过滤已下架商品）
-     * - 添加库存变化提醒
+     * - 添加库存变化提醒（库存不足时提示用户）
+     * - 合并后排序：按商家、按添加时间
      *
      * @param cartList1 登录用户的购物车（主购物车）
      * @param cartList2 未登录时的本地购物车（待合并）
@@ -342,12 +346,47 @@ public class CartServiceImpl implements CartService {
      */
     @Override
     public List<Cart> mergeCartList(List<Cart> cartList1, List<Cart> cartList2) {
-        // cartList1.addAll(cartList2);  不能简单合并
-        for(Cart cart:cartList2){
-            for( TbOrderItem orderItem :cart.getOrderItemList() ){
-                cartList1=addGoodsToCartList(cartList1,orderItem.getItemId(),orderItem.getNum());
+        // ========== 第一步：构建HashMap索引（优化查找性能） ==========
+        // 将cartList1转换为HashMap，key为sellerId，value为Cart对象
+        // 时间复杂度：O(n)，只遍历一次cartList1
+        Map<String, Cart> cartMap = new HashMap<>();
+        for (Cart cart : cartList1) {
+            cartMap.put(cart.getSellerId(), cart);
+        }
+
+        // ========== 第二步：遍历待合并的购物车 ==========
+        for (Cart cart2 : cartList2) {
+            String sellerId = cart2.getSellerId();
+            Cart cart1 = cartMap.get(sellerId);
+
+            if (cart1 == null) {
+                // ========== 商家不存在，直接添加整个购物车 ==========
+                cartList1.add(cart2);
+                cartMap.put(sellerId, cart2);
+            } else {
+                // ========== 商家已存在，合并商品 ==========
+                // 遍历待合并购物车中的商品
+                for (TbOrderItem orderItem2 : cart2.getOrderItemList()) {
+                    // 查找该商品是否已在购物车中
+                    TbOrderItem existingItem = searchOrderItemByItemId(cart1.getOrderItemList(), orderItem2.getItemId());
+
+                    if (existingItem == null) {
+                        // ========== 商品不存在，直接添加 ==========
+                        cart1.getOrderItemList().add(orderItem2);
+                    } else {
+                        // ========== 商品已存在，合并数量 ==========
+                        int newNum = existingItem.getNum() + orderItem2.getNum();
+                        if (newNum > 999) {
+                            logger.warn("合并后数量超过上限: itemId=" + orderItem2.getItemId() + ", num=" + newNum);
+                            newNum = 999; // 截断到上限
+                        }
+                        existingItem.setNum(newNum);
+                        existingItem.setTotalFee(existingItem.getPrice().multiply(new BigDecimal(newNum)));
+                    }
+                }
             }
         }
+
         return cartList1;
     }
 

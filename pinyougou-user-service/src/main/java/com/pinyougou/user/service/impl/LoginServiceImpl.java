@@ -1,11 +1,13 @@
 package com.pinyougou.user.service.impl;
 
 import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
@@ -28,10 +30,11 @@ import util.JwtUtils;
 /**
  * 登录服务实现类
  * <p>
- * ✅ 已优化：密码加密方式
- * - 旧方案：MD5（易被彩虹表破解）
- * - 新方案：BCrypt（自动加盐、工作因子可调）
- * <p>
+ * ✅ 已优化：
+ * 1. 密码加密：MD5 -> BCrypt
+ * 2. ✅ 登录失败次数限制（防暴力破解）
+ * 3. ✅ Token黑名单查询
+ *
  * @author Administrator
  */
 @Service
@@ -41,6 +44,11 @@ public class LoginServiceImpl implements LoginService {
 
     // ✅ 使用BCrypt密码验证器
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // ✅ 登录失败限制配置
+    private static final int MAX_LOGIN_FAILURE_COUNT = 5;      // 最大失败次数
+    private static final long LOCK_DURATION = 30 * 60;         // 锁定时间（30分钟）
+    private static final String LOGIN_FAILURE_PREFIX = "login:failure:";  // Redis Key前缀
 
     @Autowired
     private UserService userService;
@@ -58,24 +66,26 @@ public class LoginServiceImpl implements LoginService {
      * 用户名密码登录
      * <p>
      * 认证流程：
-     * 1. 根据用户名查询用户（仅查询状态为正常的用户）
-     * 2. ✅ 验证密码（BCrypt加密比对）
-     * 3. 生成JWT Token
-     * 4. 将Token存入Redis（用于登出时作废和防伪造）
-     * 5. 返回用户基本信息
+     * 1. ✅ 检查登录失败次数（防暴力破解）
+     * 2. 根据用户名查询用户（仅查询状态为正常的用户）
+     * 3. ✅ 验证密码（BCrypt加密比对）
+     * 4. ✅ 登录成功后清除失败计数
+     * 5. 生成JWT Token
+     * 6. 将Token存入Redis（用于登出时作废和防伪造）
+     * 7. 返回用户基本信息
      * <p>
      * 安全机制：
      * - 密码明文传输风险：必须使用HTTPS
      * - ✅ 密码加密：BCrypt（自动加盐，抗彩虹表攻击）
+     * - ✅ 登录失败次数限制：连续失败5次锁定30分钟
      * - Token防伪造：Redis中存储有效Token列表
      * - 状态检查：只允许状态为 "1" 的正常用户登录
      * <p>
      * ✅ 已修复：
      * 1. 密码加密方式：MD5 -> BCrypt
-     * 2. 使用BCrypt的matches()方法验证密码
+     * 2. ✅ 登录失败次数限制（MAX_LOGIN_FAILURE_COUNT = 5）
      * <p>
      * ⚠️ 待优化：
-     * - 没有登录失败次数限制（易被暴力破解）
      * - 没有验证码机制（易被机器批量登录）
      * - Token没有做IP绑定（Token被盗后可跨IP使用）
      * - 没有登录日志记录（无法追踪异常登录）
@@ -84,7 +94,6 @@ public class LoginServiceImpl implements LoginService {
      * - 增加验证码：连续失败3次后要求输入验证码
      * - 增加登录日志：记录登录IP、时间、设备
      * - Token绑定IP：防止Token被盗用
-     * - 失败锁定：连续失败5次锁定账号30分钟
      *
      * @param username 用户名
      * @param password 明文密码（前端应加密传输）
@@ -95,7 +104,22 @@ public class LoginServiceImpl implements LoginService {
         Map<String, Object> resultMap = new HashMap<>();
 
         try {
-            // 1. 根据用户名查询用户
+            // ========== 第一步：检查登录失败次数（防暴力破解） ==========
+            String failureKey = LOGIN_FAILURE_PREFIX + username;
+            Long failureCount = redisTemplate.boundValueOps(failureKey).increment(0);
+
+            if (failureCount != null && failureCount >= MAX_LOGIN_FAILURE_COUNT) {
+                // 获取剩余锁定时间
+                Long expireTime = redisTemplate.boundValueOps(failureKey).getExpire();
+                if (expireTime != null && expireTime > 0) {
+                    long remainMinutes = expireTime / 60;
+                    resultMap.put("success", false);
+                    resultMap.put("message", "登录失败次数过多，请" + remainMinutes + "分钟后再试");
+                    return resultMap;
+                }
+            }
+
+            // ========== 第二步：根据用户名查询用户 ==========
             TbUserExample example = new TbUserExample();
             Criteria criteria = example.createCriteria();
             criteria.andUsernameEqualTo(username);
@@ -104,29 +128,48 @@ public class LoginServiceImpl implements LoginService {
             List<TbUser> userList = userMapper.selectByExample(example);
 
             if (userList.isEmpty()) {
+                // 登录失败，增加失败计数
+                redisTemplate.boundValueOps(failureKey).increment(1);
+                if (failureCount != null && failureCount + 1 >= MAX_LOGIN_FAILURE_COUNT) {
+                    // 达到最大失败次数，锁定账号
+                    redisTemplate.boundValueOps(failureKey).expire(LOCK_DURATION, TimeUnit.SECONDS);
+                    resultMap.put("success", false);
+                    resultMap.put("message", "登录失败次数过多，账号已锁定30分钟");
+                    return resultMap;
+                }
+
                 resultMap.put("success", false);
-                resultMap.put("message", "用户名或密码错误");
+                resultMap.put("message", "用户名或密码错误，还有" + (MAX_LOGIN_FAILURE_COUNT - failureCount - 1) + "次机会");
                 return resultMap;
             }
 
             TbUser user = userList.get(0);
 
-            // 2. 验证密码（BCrypt加密比对）
-            // BCrypt特点：自动加盐，matches()方法自动提取salt并验证
-            // 工作因子默认为10（编码后的哈希值长度为60字符）
+            // ========== 第三步：验证密码 ==========
             if (!passwordEncoder.matches(password, user.getPassword())) {
+                // 密码错误，增加失败计数
+                redisTemplate.boundValueOps(failureKey).increment(1);
+                if (failureCount != null && failureCount + 1 >= MAX_LOGIN_FAILURE_COUNT) {
+                    // 达到最大失败次数，锁定账号
+                    redisTemplate.boundValueOps(failureKey).expire(LOCK_DURATION, TimeUnit.SECONDS);
+                    resultMap.put("success", false);
+                    resultMap.put("message", "密码错误次数过多，账号已锁定30分钟");
+                    return resultMap;
+                }
+
                 resultMap.put("success", false);
-                resultMap.put("message", "用户名或密码错误");
+                resultMap.put("message", "密码错误，还有" + (MAX_LOGIN_FAILURE_COUNT - failureCount - 1) + "次机会");
                 return resultMap;
             }
 
-            // 3. 生成JWT token
-            String token = jwtUtils.generateToken(username);
+            // ========== 第四步：登录成功，清除失败计数 ==========
+            redisTemplate.delete(failureKey);
 
-            // 4. 将token存入Redis（用于登出时作废）
+            // ========== 第五步：生成Token ==========
+            String token = jwtUtils.generateToken(username);
             redisTemplate.boundValueOps("token:" + username).set(token);
 
-            // 5. 返回用户信息
+            // ========== 第六步：返回用户信息 ==========
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("id", user.getId());
             userInfo.put("username", user.getUsername());

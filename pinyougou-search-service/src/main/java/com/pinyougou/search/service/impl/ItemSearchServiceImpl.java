@@ -220,14 +220,18 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             //获取高亮列表(高亮域的个数)
             List<Highlight> highlightList = entry.getHighlights();
 
-            for (Highlight h : highlightList) {
-                List<String> sns = h.getSnipplets();
-                logger.debug("高亮片段: " + sns);
-            }
+            // ✅ 空值检查：防止highlightList为null或空列表导致NPE
+            if (highlightList != null && !highlightList.isEmpty()) {
+                for (Highlight h : highlightList) {
+                    List<String> sns = h.getSnipplets();
+                    logger.debug("高亮片段: " + sns);
+                }
 
-            if (highlightList.size() > 0 && highlightList.get(0).getSnipplets().size() > 0) {
-                TbItem item = entry.getEntity();
-                item.setTitle(highlightList.get(0).getSnipplets().get(0));
+                // ✅ 检查高亮片段是否存在（防止getSnipplets返回空列表）
+                if (highlightList.get(0).getSnipplets() != null && !highlightList.get(0).getSnipplets().isEmpty()) {
+                    TbItem item = entry.getEntity();
+                    item.setTitle(highlightList.get(0).getSnipplets().get(0));
+                }
             }
         }
         map.put("rows", page.getContent());
@@ -319,18 +323,20 @@ public class ItemSearchServiceImpl implements ItemSearchService {
      * - 搜索页面左侧展示品牌筛选列表
      * - 搜索页面上方展示规格筛选选项（颜色、尺寸等）
      * <p>
-     * ⚠️ 注意事项：
+     * ✅ 已修复：空值检查
+     * - brandList != null && !brandList.isEmpty()
+     * - specList != null && !specList.isEmpty()
+     * <p>
+     * 注意事项：
      * - 如果Redis中不存在数据，返回空Map
-     * - brandList/specList 未做null检查（⚠️ 可能NPE）
      * - 未处理缓存穿透（分类不存在时直接返回空）
      * - 未处理缓存击穿（模板ID不存在时查询数据库）
      * - 未处理缓存雪崩（批量key同时过期）
      * <p>
      * 改进建议：
-     * - 空值检查：brandList != null && !brandList.isEmpty()
      * - 缓存降级：Redis失效时查询数据库
      * - 缓存预热：系统启动时预加载热门分类
-     * - 分布式锁：防止缓存击穿（使用 synchronized 或 Redis Lock）
+     * - 分布式锁：防止缓存击穿
      *
      * @param category 商品分类名称（如 "手机"、"电脑"）
      * @return 结果 Map（brandList: 品牌列表, specList: 规格列表）
@@ -342,13 +348,25 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         if (templateId != null) {
             //2.根据模板ID获取品牌列表
             List brandList = (List) redisTemplate.boundHashOps("brandList").get(templateId);
-            map.put("brandList", brandList);
-            logger.info("品牌列表条数：" + brandList.size());
+            // ✅ 空值检查：防止brandList为null导致NPE
+            if (brandList != null && !brandList.isEmpty()) {
+                map.put("brandList", brandList);
+                logger.info("品牌列表条数：" + brandList.size());
+            } else {
+                logger.warn("品牌列表为空: category=" + category + ", templateId=" + templateId);
+            }
 
             //3.根据模板ID获取规格列表
             List specList = (List) redisTemplate.boundHashOps("specList").get(templateId);
-            map.put("specList", specList);
-            logger.info("规格列表条数：" + specList.size());
+            // ✅ 空值检查：防止specList为null导致NPE
+            if (specList != null && !specList.isEmpty()) {
+                map.put("specList", specList);
+                logger.info("规格列表条数：" + specList.size());
+            } else {
+                logger.warn("规格列表为空: category=" + category + ", templateId=" + templateId);
+            }
+        } else {
+            logger.warn("分类模板ID不存在: category=" + category);
         }
 
         return map;
