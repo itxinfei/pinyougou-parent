@@ -2,6 +2,7 @@ package com.pinyougou.user.controller;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,8 @@ import entity.Result;
 @RestController
 @RequestMapping("/login")
 public class LoginController {
+
+    private static final Logger logger = Logger.getLogger(LoginController.class);
 
     @Reference
     private LoginService loginService;
