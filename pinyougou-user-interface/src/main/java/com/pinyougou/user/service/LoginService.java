@@ -6,6 +6,14 @@ import com.pinyougou.pojo.TbUser;
 
 /**
  * 用户登录服务接口
+ * <p>
+ * 核心功能：
+ * - 用户名密码登录
+ * - 手机号验证码登录
+ * - 图形验证码（防暴力破解）
+ * - Token验证和刷新
+ * - 用户注册
+ * - 登出
  *
  * @author Administrator
  */
@@ -53,4 +61,33 @@ public interface LoginService {
      * @return 登出结果
      */
     public Map<String, Object> logout(String token);
+
+    // ========== 图形验证码 ==========
+
+    /**
+     * 生成图形验证码
+     * <p>
+     * 用途：
+     * - 登录时防止暴力破解
+     * - 发送短信前验证
+     * <p>
+     * 实现方式：
+     * - 使用Kaptcha或EasyCaptcha生成
+     * - 验证码文本存入Redis（5分钟过期）
+     * - 验证码图片转为Base64返回
+     *
+     * @param key 唯一标识（用于Redis存储和验证）
+     * @return Base64编码的图片
+     */
+    public String generateCaptcha(String key);
+
+    /**
+     * 验证图形验证码
+     *
+     * @param key 唯一标识
+     * @param code 用户输入的验证码
+     * @return true-验证成功，false-验证失败
+     */
+    public boolean verifyCaptcha(String key, String code);
+
 }

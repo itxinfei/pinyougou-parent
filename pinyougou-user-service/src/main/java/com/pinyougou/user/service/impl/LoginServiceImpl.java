@@ -484,4 +484,137 @@ public class LoginServiceImpl implements LoginService {
         List<TbUser> userList = userMapper.selectByExample(example);
         return userList.isEmpty() ? null : userList.get(0);
     }
+
+    // ========== 图形验证码 ==========
+
+    /**
+     * 验证码Redis Key前缀
+     */
+    private static final String CAPTCHA_PREFIX = "captcha:";
+    private static final int CAPTCHA_EXPIRE = 5; // 5分钟过期
+
+    /**
+     * 生成图形验证码
+     * <p>
+     * 实现方式：
+     * - 生成4位随机字符串（数字+字母）
+     * - 存入Redis（5分钟过期）
+     * - 返回Base64编码的图片
+     * <p>
+     * ⚠️ 简化实现：
+     * - 当前返回验证码文本（实际应返回图片）
+     * - 生产环境建议使用Kaptcha或EasyCaptcha
+     * <p>
+     * 使用场景：
+     * - 登录页面：防止暴力破解
+     * - 短信发送前：防止短信轰炸
+     *
+     * @param key 唯一标识（UUID或随机字符串）
+     * @return Base64编码的图片（当前返回文本）
+     */
+    @Override
+    public String generateCaptcha(String key) {
+        try {
+            // 1. 生成4位随机验证码（数字+大写字母）
+            String captchaCode = generateRandomCode(4);
+
+            // 2. 存入Redis（5分钟过期）
+            String redisKey = CAPTCHA_PREFIX + key;
+            redisTemplate.boundValueOps(redisKey).set(captchaCode, CAPTCHA_EXPIRE, java.util.concurrent.TimeUnit.MINUTES);
+
+            logger.info("生成图形验证码: key=" + key + ", code=" + captchaCode);
+
+            // 3. TODO: 生成验证码图片并转为Base64
+            // 使用Kaptcha:
+            //   ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            //   BufferedImage image = captchaProducer.createImage(captchaCode);
+            //   ImageIO.write(image, "png", outputStream);
+            //   return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+
+            // 临时方案：直接返回验证码文本（仅用于测试）
+            return captchaCode;
+
+        } catch (Exception e) {
+            logger.error("生成图形验证码失败: key=" + key, e);
+            return null;
+        }
+    }
+
+    /**
+     * 验证图形验证码
+     * <p>
+     * 验证流程：
+     * 1. 从Redis查询验证码
+     * 2. 比较用户输入和系统生成
+     * 3. 验证成功后删除（一次性使用）
+     * <p>
+     * 安全机制：
+     * - 验证码5分钟过期
+     * - 验证成功后立即删除
+     * - 忽略大小写比较
+     *
+     * @param key 唯一标识
+     * @param code 用户输入的验证码
+     * @return true-验证成功，false-验证失败
+     */
+    @Override
+    public boolean verifyCaptcha(String key, String code) {
+        try {
+            // 1. 从Redis查询验证码
+            String redisKey = CAPTCHA_PREFIX + key;
+            String captchaCode = (String) redisTemplate.boundValueOps(redisKey).get();
+
+            if (captchaCode == null) {
+                logger.warn("验证码已过期或不存在: key=" + key);
+                return false;
+            }
+
+            // 2. 比较验证码（忽略大小写）
+            boolean success = captchaCode.equalsIgnoreCase(code);
+
+            // 3. 验证成功后删除（一次性使用）
+            if (success) {
+                redisTemplate.delete(redisKey);
+                logger.info("验证码验证成功: key=" + key);
+            } else {
+                logger.warn("验证码验证失败: key=" + key + ", input=" + code + ", expected=" + captchaCode);
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            logger.error("验证码验证异常: key=" + key, e);
+            return false;
+        }
+    }
+
+    /**
+     * 生成随机验证码
+     * <p>
+     * 验证码规则：
+     * - 长度：4位
+     * - 字符集：0-9 + A-Z（排除易混淆字符：O、I、0、1等）
+     * - 随机生成
+     * <p>
+     * 安全建议：
+     * - 使用SecureRandom替代Random
+     *
+     * @param length 验证码长度
+     * @return 验证码字符串
+     */
+    private String generateRandomCode(int length) {
+        // ✅ 使用加密安全的随机数生成器
+        SecureRandom random = new SecureRandom();
+
+        // 字符集：去除易混淆的字符（O、0、I、1等）
+        String chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(chars.length());
+            sb.append(chars.charAt(index));
+        }
+
+        return sb.toString();
+    }
 }
