@@ -1,68 +1,184 @@
 # Created by .ignore support plugin (hsz.mobi)
-### Example user template template
-### Example user template
 
-# IntelliJ project files
+# ============================================
+# IDE 配置
+# ============================================
+
+# IntelliJ IDEA
 .idea
 *.iml
-out
-gen
+out/
+gen/
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+*.tmp
+*.bak
+*.swp
+*~
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# NetBeans
+nb-configuration.xml
+nbactions.xml
+
+# ============================================
+# 构建输出
+# ============================================
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ============================================
+# 编译文件
+# ============================================
+
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.log
+*.exe
+*.dll
+*.so
+*.dylib
+
+# ============================================
+# 测试覆盖率
+# ============================================
+
+.jacoco.exec
+jacoco.exec
+coverage/
+*.exec
+
+# ============================================
+# 系统文件
+# ============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Linux
+*~
+
+# ============================================
+# 环境配置和敏感信息
+# ============================================
+
+# 配置文件（包含数据库密码等敏感信息）
+**/src/main/resources/config/
+**/src/main/resources/application.properties
+**/src/main/resources/application.yml
+**/src/main/resources/application.yaml
+**/src/main/resources/application-dev.properties
+**/src/main/resources/application-prod.properties
+**/src/main/resources/dubbox*.properties
+**/src/main/resources/redis*.properties
+**/src/main/resources/weixinpay.properties
+**/src/main/resources/sms.properties
+**/src/main/resources/db.properties
+**/src/main/resources/fdfs_client.conf
+
+# FastDFS 配置
+**/fastDFS/
+
+# ============================================
+# 日志文件
+# ============================================
+
 logs/
-pinyougou-cart-interface/src/main/resources/
-pinyougou-cart-interface/src/test/
-pinyougou-cart-interface/target/
-pinyougou-cart-service/src/test/
-pinyougou-cart-service/target/
-pinyougou-cart-web/src/test/
-pinyougou-cart-web/target/
-pinyougou-common/src/main/resources/spring/
-pinyougou-common/target/
-pinyougou-content-interface/target/
-pinyougou-content-service/target/
-pinyougou-dao/target/
-pinyougou-demo-security/src/main/java/
-pinyougou-demo-security/src/test/
-pinyougou-demo-security/target/
-pinyougou-manager-web/target/
-pinyougou-order-interface/src/main/resources/
-pinyougou-order-interface/src/test/
-pinyougou-order-interface/target/
-pinyougou-order-service/src/test/
-pinyougou-order-service/target/
-pinyougou-page-interface/src/main/resources/
-pinyougou-page-interface/src/test/
-pinyougou-page-interface/target/
-pinyougou-page-service/src/test/
-pinyougou-page-service/target/
-pinyougou-page-web/src/main/java/
-pinyougou-page-web/src/main/resources/
-pinyougou-page-web/src/test/
-pinyougou-page-web/target/
-pinyougou-pay-interface/src/main/resources/
-pinyougou-pay-interface/src/test/
-pinyougou-pay-interface/target/
-pinyougou-pay-service/src/test/
-pinyougou-pay-service/target/
-pinyougou-pojo/target/
-pinyougou-portal-web/target/
-pinyougou-search-interface/src/main/resources/
-pinyougou-search-interface/src/test/
-pinyougou-search-interface/target/
-pinyougou-search-service/src/test/
-pinyougou-search-service/target/
-pinyougou-search-web/src/test/
-pinyougou-search-web/target/
-pinyougou-seckill-interface/target/
-pinyougou-seckill-service/target/
-pinyougou-seckill-web/target/
-pinyougou-sellergoods-interface/target/
-pinyougou-sellergoods-service/target/
-pinyougou-shop-web/target/
-pinyougou-solr-util/target/
-pinyougou-user-interface/src/main/resources/
-pinyougou-user-interface/src/test/
-pinyougou-user-interface/target/
-pinyougou-user-service/src/test/
-pinyougou-user-service/target/
-pinyougou-user-web/src/test/
-pinyougou-user-web/target/
+*.log
+
+# ============================================
+# 临时文件
+# ============================================
+
+*.tmp
+*.temp
+*.cache
+*.pid
+
+# ============================================
+# 包管理工具
+# ============================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# 本地文档和工作区
+# ============================================
+
+# Superpowers 工作区（本地AI辅助开发文档）
+docs/superpowers/
+
+# 本地开发笔记
+*.md.bak
+TODO.md
+NOTES.md
+
+# ============================================
+# 部署和发布
+# ============================================
+
+# 部署脚本（包含服务器信息）
+deploy/
+deploy.sh
+deploy.bat
+
+# Docker（如果使用）
+docker-compose.override.yml
+.dockerignore
+
+# ============================================
+# 其他
+# ============================================
+
+# 数据库备份
+*.sql.bak
+*.sql.gz
+
+# 前端构建产物
+pinyougou-*/src/main/webapp/WEB-INF/classes/
+pinyougou-*/src/main/webapp/WEB-INF/lib/
+
+# Servlet 容器工作目录
+jetty/
+tomcat/
+
+# 备份文件
+*.orig
+*.rej
