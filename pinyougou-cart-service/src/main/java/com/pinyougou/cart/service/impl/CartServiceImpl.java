@@ -233,7 +233,7 @@ public class CartServiceImpl implements CartService {
      * @param sellerId 商家ID
      * @return 购物车对象，不存在返回null
      */
-    private Cart searchCartBySellerId(List<Cart> cartList,String sellerId){
+    Cart searchCartBySellerId(List<Cart> cartList,String sellerId){
         for(Cart cart:cartList){
             if(cart.getSellerId().equals(sellerId)){
                 return cart;
@@ -277,7 +277,7 @@ public class CartServiceImpl implements CartService {
      * @param num 购买数量
      * @return 订单项对象
      */
-    private TbOrderItem createOrderItem(TbItem item,Integer num){
+    TbOrderItem createOrderItem(TbItem item,Integer num){
         //创建新的购物车明细对象
         TbOrderItem orderItem=new TbOrderItem();
         orderItem.setGoodsId(item.getGoodsId());

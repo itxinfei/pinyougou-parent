@@ -360,7 +360,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
      * @param category 商品分类名称（如 "手机"、"电脑"）
      * @return 结果 Map（brandList: 品牌列表, specList: 规格列表）
      */
-    private Map searchBrandAndSpecList(String category) {
+    Map searchBrandAndSpecList(String category) {
         Map map = new HashMap();
         //1.根据商品分类名称得到模板ID
         Long templateId = (Long) redisTemplate.boundHashOps("itemCat").get(category);

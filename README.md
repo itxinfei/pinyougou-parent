@@ -10,11 +10,11 @@
   <img alt="Spring" src="https://img.shields.io/badge/Spring-4.2.5-b6ac?style=flat">
   <img alt="Dubbo" src="https://img.shields.io/badge/Dubbo-2.8.4-blue?style=flat">
 </p>
-
 <div align="center">
-  <h3>🎯 基于 Spring + Dubbo 的 B2B2C 电商平台学习Demo</h3>
+  <h3>🎯 基于 Spring + Dubbo 的 B2B2C 电商平台</h3>
   <p>适合 Java 后端开发者学习微服务架构、分布式系统设计</p>
 </div>
+
 
 ---
 
