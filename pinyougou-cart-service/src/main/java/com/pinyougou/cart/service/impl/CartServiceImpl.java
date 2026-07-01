@@ -2,7 +2,9 @@ package com.pinyougou.cart.service.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -95,11 +97,17 @@ public class CartServiceImpl implements CartService {
      */
     @Override
     public List<Cart> addGoodsToCartList(String userId, List<Cart> cartList, Long itemId, Integer num) {
-        // ✅ 分布式锁：按用户ID加锁（优化锁粒度）
+        // ========== 分布式锁 ==========
         // 锁键格式: lock:cart:{userId}
-        // 优势：不同用户互不影响，只有同一用户的并发操作才需要排队
+        // 注意：Spring Data Redis 1.7.x 的 setIfAbsent 不支持超时参数
+        // 需要分两步：先设置值，再设置过期时间
         String lockKey = CART_LOCK_PREFIX + userId;
-        Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1", CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
+        Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1");
+
+        // 如果获取锁成功，设置过期时间
+        if (locked != null && locked) {
+            redisTemplate.expire(lockKey, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
+        }
 
         // 尝试获取锁
         int waitCount = 0;
@@ -113,7 +121,10 @@ public class CartServiceImpl implements CartService {
                 Thread.currentThread().interrupt();
                 throw new ValidationException("操作被中断");
             }
-            locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1", CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
+            locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1");
+            if (locked != null && locked) {
+                redisTemplate.expire(lockKey, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
+            }
         }
 
         try {
@@ -419,16 +430,6 @@ public class CartServiceImpl implements CartService {
         }
 
         logger.info("购物车合并完成: userId=" + userId + ", 合并后大小=" + cartList1.size());
-        return cartList1;
-    }
-                        }
-                        existingItem.setNum(newNum);
-                        existingItem.setTotalFee(existingItem.getPrice().multiply(new BigDecimal(newNum)));
-                    }
-                }
-            }
-        }
-
         return cartList1;
     }
 
