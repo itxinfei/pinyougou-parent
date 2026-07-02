@@ -95,7 +95,14 @@ public class OrderController {
 	 */
 	@RequestMapping("/findOne")
 	public TbOrder findOne(Long id){
-		return orderService.findOne(id);		
+		TbOrder order = orderService.findOne(id);
+		// 校验订单所有权，防止IDOR
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (order != null && !username.equals(order.getUserId()) && !"anonymousUser".equals(username)) {
+			logger.warn("用户 " + username + " 尝试访问不属于自己的订单: " + id);
+			return null;
+		}
+		return order;
 	}
 	
 	/**
@@ -134,6 +141,16 @@ public class OrderController {
 	 */
 	@RequestMapping("/cancel")
 	public Result cancel(Long orderId, String reason) {
+		// 校验订单所有权
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		TbOrder order = orderService.findOne(orderId);
+		if (order == null) {
+			return new Result(false, "订单不存在");
+		}
+		if (!username.equals(order.getUserId())) {
+			logger.warn("用户 " + username + " 尝试取消不属于自己的订单: " + orderId);
+			return new Result(false, "无权操作此订单");
+		}
 		try {
 			Map<String, Object> result = refundService.cancelOrder(orderId, reason);
 			boolean success = (boolean) result.get("success");
@@ -154,6 +171,16 @@ public class OrderController {
 	 */
 	@RequestMapping("/applyRefund")
 	public Result applyRefund(Long orderId, String reason, Double refundFee) {
+		// 校验订单所有权
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		TbOrder order = orderService.findOne(orderId);
+		if (order == null) {
+			return new Result(false, "订单不存在");
+		}
+		if (!username.equals(order.getUserId())) {
+			logger.warn("用户 " + username + " 尝试退款不属于自己的订单: " + orderId);
+			return new Result(false, "无权操作此订单");
+		}
 		try {
 			Map<String, Object> result = refundService.applyRefund(orderId, reason, refundFee);
 			boolean success = (boolean) result.get("success");
@@ -172,6 +199,16 @@ public class OrderController {
 	 */
 	@RequestMapping("/confirmRefund")
 	public Result confirmRefund(Long orderId) {
+		// 校验订单所有权
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		TbOrder order = orderService.findOne(orderId);
+		if (order == null) {
+			return new Result(false, "订单不存在");
+		}
+		if (!username.equals(order.getUserId())) {
+			logger.warn("用户 " + username + " 尝试确认退款不属于自己的订单: " + orderId);
+			return new Result(false, "无权操作此订单");
+		}
 		try {
 			Map<String, Object> result = refundService.confirmRefund(orderId);
 			boolean success = (boolean) result.get("success");

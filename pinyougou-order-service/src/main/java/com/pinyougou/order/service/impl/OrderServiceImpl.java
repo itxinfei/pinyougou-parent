@@ -10,7 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.alibaba.dubbo.config.annotation.Service;
@@ -34,6 +34,7 @@ import com.pinyougou.order.service.OrderService;
 
 import entity.PageResult;
 import util.IdWorker;
+import org.apache.log4j.Logger;
 
 /**
  * 服务实现层
@@ -45,6 +46,8 @@ import util.IdWorker;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    private static final Logger logger = Logger.getLogger(OrderServiceImpl.class);
 
     @Autowired
     private TbOrderMapper orderMapper;
@@ -159,17 +162,12 @@ public class OrderServiceImpl implements OrderService {
         // 每个购物车(Cart)代表一个商家的商品集合，生成一个独立订单
         for (Cart cart : cartList) {
             try {
-                // ✅ 使用编程式事务：每个商家订单独立事务
-                // 优势：一个订单失败不影响其他订单
-                // 优势：事务粒度小，锁定时间短
-                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        // 在事务中创建订单
-                        TbOrder tbOrder = createOrderByCart(order, cart, orderIdList);
-                        successOrderIds.add(tbOrder.getOrderId() + "");
-                    }
+                TbOrder tbOrder = transactionTemplate.execute(status -> {
+                    return createOrderByCart(order, cart, orderIdList);
                 });
+                successOrderIds.add(tbOrder.getOrderId() + "");
+                // 累加总金额
+                total_money = total_money.add(tbOrder.getPayment());
             } catch (Exception e) {
                 // ✅ 事务失败时记录日志，继续处理其他商家订单
                 logger.error("创建订单失败: userId=" + order.getUserId() + ", sellerId=" + cart.getSellerId(), e);
@@ -241,7 +239,39 @@ public class OrderServiceImpl implements OrderService {
      * @return 订单实体
      */
     private TbOrder createOrderByCart(TbOrder order, Cart cart, List<String> orderIdList) {
+        TbOrder tbOrder = new TbOrder();
+        // 生成订单ID
+        Long orderId = idWorker.nextId();
+        tbOrder.setOrderId(orderId);
+        tbOrder.setUserId(order.getUserId());
+        tbOrder.setPaymentType(order.getPaymentType());
+        tbOrder.setReceiver(order.getReceiver());
+        tbOrder.setReceiverMobile(order.getReceiverMobile());
+        tbOrder.setReceiverAreaName(order.getReceiverAreaName());
+        tbOrder.setSellerId(cart.getSellerId());
+        tbOrder.setStatus("1"); // 未付款
+        tbOrder.setCreateTime(new Date());
 
+        // 计算总金额
+        BigDecimal totalPayment = BigDecimal.ZERO;
+        for (TbOrderItem item : cart.getOrderItemList()) {
+            item.setId(idWorker.nextId());
+            item.setOrderId(orderId);
+            item.setSellerId(cart.getSellerId());
+            // 金额 = 单价 × 数量
+            BigDecimal itemTotal = item.getPrice().multiply(new BigDecimal(item.getNum()));
+            item.setTotalFee(itemTotal);
+            totalPayment = totalPayment.add(itemTotal);
+            // 批量插入订单项
+            orderItemMapper.insert(item);
+        }
+        tbOrder.setPayment(totalPayment);
+
+        // 保存订单主表
+        orderMapper.insert(tbOrder);
+        orderIdList.add(orderId + "");
+        return tbOrder;
+    }
 
     /**
      * 修改

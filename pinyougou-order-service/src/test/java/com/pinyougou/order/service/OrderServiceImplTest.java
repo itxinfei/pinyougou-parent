@@ -1,6 +1,13 @@
-package com.pinyougou.order.service.impl;
+package com.pinyougou.order.service;
 
+import com.pinyougou.exception.ResourceNotFoundException;
+import com.pinyougou.mapper.TbItemMapper;
+import com.pinyougou.mapper.TbOrderItemMapper;
+import com.pinyougou.mapper.TbOrderMapper;
+import com.pinyougou.mapper.TbPayLogMapper;
+import com.pinyougou.order.service.impl.OrderServiceImpl;
 import com.pinyougou.pojo.TbOrder;
+import com.pinyougou.pojo.TbOrderExample;
 import com.pinyougou.pojo.TbPayLog;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,12 +170,12 @@ public class OrderServiceImplTest {
         orderList.add(testOrder);
         Mockito.when(orderMapper.selectByPrimaryKey(testOrder.getOrderId())).thenReturn(testOrder);
 
-        // Mock Redis - 使用HashOperations mock避免NPE
-        org.springframework.data.redis.core.HashOperations hashOps =
-            Mockito.mock(org.springframework.data.redis.core.HashOperations.class);
-        Mockito.when(redisTemplate.boundHashOps("payLog")).thenReturn(hashOps);
-        Mockito.when(hashOps.get(testPayLog.getUserId())).thenReturn(testPayLog);
-        Mockito.doNothing().when(hashOps).delete(Mockito.anyString());
+        // Mock Redis - 使用BoundHashOperations mock避免NPE
+        org.springframework.data.redis.core.BoundHashOperations boundHashOps =
+            Mockito.mock(org.springframework.data.redis.core.BoundHashOperations.class);
+        Mockito.when(redisTemplate.boundHashOps("payLog")).thenReturn(boundHashOps);
+        Mockito.when(boundHashOps.get(testPayLog.getUserId())).thenReturn(testPayLog);
+        Mockito.when(boundHashOps.delete(Mockito.anyString())).thenReturn(1L);
 
         // 执行测试
         orderService.updateOrderStatus(outTradeNo, transactionId);
@@ -289,7 +296,6 @@ public class OrderServiceImplTest {
                           .longValue();
         assertEquals("零金额转分应为0", 0L, totalFee.longValue());
     }
-}
 
     // ========== 补充的关键业务流程测试 ==========
 
@@ -368,3 +374,4 @@ public class OrderServiceImplTest {
         Mockito.when(orderMapper.selectByPrimaryKey(999999L)).thenReturn(null);
         orderService.findOne(999999L);
     }
+}

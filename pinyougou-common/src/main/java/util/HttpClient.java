@@ -116,11 +116,11 @@ public class HttpClient {
                     url.append("?");
                 else
                     url.append("&");
-                url.append(key).append("=").append(param.get(key));
+                url.append(key).append("=").append(java.net.URLEncoder.encode(param.get(key), "UTF-8"));
             }
             this.url = url.toString();
         }
-        HttpGet http = new HttpGet(url);
+        HttpGet http = new HttpGet(this.url);
         execute(http);
     }
 

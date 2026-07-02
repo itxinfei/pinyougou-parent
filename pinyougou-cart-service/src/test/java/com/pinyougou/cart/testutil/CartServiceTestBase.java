@@ -3,6 +3,7 @@ package com.pinyougou.cart.testutil;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbOrderItem;
 import com.pinyougou.pojo.group.Cart;
+import org.mockito.Mockito;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.math.BigDecimal;
@@ -128,7 +129,7 @@ public abstract class CartServiceTestBase extends ServiceTestBase {
      */
     protected void mockLockAcquired(RedisTemplate<String, Object> redisTemplate) {
         when(redisTemplate.opsForValue()
-            .setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
+            .setIfAbsent(Mockito.anyString(), Mockito.any()))
             .thenReturn(true);
     }
 
@@ -139,7 +140,7 @@ public abstract class CartServiceTestBase extends ServiceTestBase {
      */
     protected void mockLockFailed(RedisTemplate<String, Object> redisTemplate) {
         when(redisTemplate.opsForValue()
-            .setIfAbsent(Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.any()))
+            .setIfAbsent(Mockito.anyString(), Mockito.any()))
             .thenReturn(false);
     }
 

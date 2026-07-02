@@ -97,7 +97,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         map.put("categoryList", categoryList);
         //3.查询品牌和规格列表
         String category = (String) searchMap.get("category");
-        if (!category.equals("")) {
+        if (category != null && !category.equals("")) {
             map.putAll(searchBrandAndSpecList(category));
         } else {
             if (categoryList.size() > 0) {
@@ -313,9 +313,6 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         return list;
 
     }
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     /**
      * 根据商品分类查询品牌和规格列表

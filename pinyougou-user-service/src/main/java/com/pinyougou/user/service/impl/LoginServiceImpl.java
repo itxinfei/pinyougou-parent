@@ -424,7 +424,7 @@ public class LoginServiceImpl implements LoginService {
             }
 
             // 4. 密码加密
-            user.setPassword(DigestUtils.md5Hex(user.getPassword()));
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
             user.setStatus("1");
             user.setSourceType("1");
             user.setIsMobileCheck("1");

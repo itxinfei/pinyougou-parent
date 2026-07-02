@@ -124,6 +124,15 @@
             <artifactId>activemq-core</artifactId>
             <version>5.2.0</version>
         </dependency>
+        <!-- Validation -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
         <!-- 品优购子工程 -->
         <dependency>
             <groupId>com.pinyougou</groupId>

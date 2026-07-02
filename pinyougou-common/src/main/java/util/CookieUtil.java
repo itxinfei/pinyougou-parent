@@ -206,7 +206,12 @@ public final class CookieUtil {
             domainName = "";
         } else {
             serverName = serverName.toLowerCase();
-            serverName = serverName.substring(7);
+            // 移除协议前缀（http:// 或 https://）
+            if (serverName.startsWith("https://")) {
+                serverName = serverName.substring(8);
+            } else if (serverName.startsWith("http://")) {
+                serverName = serverName.substring(7);
+            }
             final int end = serverName.indexOf("/");
             serverName = serverName.substring(0, end);
             final String[] domains = serverName.split("\\.");

@@ -146,6 +146,7 @@ yarn-error.log*
 
 # Superpowers 工作区（本地AI辅助开发文档）
 docs/superpowers/
+docs/compose/
 
 # Claude Code 本地配置
 .claude/
@@ -161,6 +162,22 @@ CHANGELOG.local.md
 docs/接口测试*.md
 docs/测试*.md
 docs/项目优化完成*.md
+docs/project-review-report*.md
+
+# 子模块文档说明（不上传）
+**/通用*.md
+**/广告*.md
+**/商家*.md
+**/运营商*.md
+**/秒杀*.md
+**/广告展示*.md
+**/接口*.md
+**/*-9001.md
+**/*-9002.md
+**/*-9101.md
+**/*-9103.md
+**/*-9106.md
+**/INTEGRATION_TEST_README.md
 
 # 自动化测试脚本（本地使用，不上传）
 scripts/

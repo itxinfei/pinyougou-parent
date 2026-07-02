@@ -57,7 +57,7 @@ public class CartController {
 			List<Cart> cartList_redis = cartService.findCartListFromRedis(username);
 			if(cartList_cookie.size()>0){//判断当本地购物车中存在数据
 				//得到合并后的购物车
-				List<Cart> cartList = cartService.mergeCartList(cartList_cookie, cartList_redis);
+				List<Cart> cartList = cartService.mergeCartList(username, cartList_cookie, cartList_redis);
 				//将合并后的购物车存入redis 
 				cartService.saveCartListToRedis(username, cartList);
 				//本地购物车清除
@@ -84,7 +84,7 @@ public class CartController {
 			//提取购物车
 			List<Cart> cartList = findCartList();
 			//调用服务方法操作购物车
-			cartList = cartService.addGoodsToCartList(cartList, itemId, num);
+			cartList = cartService.addGoodsToCartList(name, cartList, itemId, num);
 			
 			if(name.equals("anonymousUser")){//如果未登录
 				//将新的购物车存入cookie

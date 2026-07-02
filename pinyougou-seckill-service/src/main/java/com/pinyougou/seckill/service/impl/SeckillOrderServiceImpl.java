@@ -157,12 +157,27 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         if (seckillGoods == null) {
             throw new ResourceNotFoundException("秒杀商品不存在，商品ID："+seckillId);
         }
-        if (seckillGoods.getStockCount() <= 0) {
+        Integer stockCount = seckillGoods.getStockCount();
+        if (stockCount == null || stockCount <= 0) {
             throw new InsufficientStockException("秒杀商品已经被抢光");
         }
-        seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
-        redisTemplate.boundHashOps("seckillGoods").put(seckillId, seckillGoods);
-        if (seckillGoods.getStockCount() == 0) {
+
+        // 原子扣减库存：使用Lua脚本确保读-减-写原子性，防止超卖
+        // 返回扣减后的库存数量，而非简单的0/1
+        String luaScript = "local stock = redis.call('HGET', KEYS[1], ARGV[1]) " +
+                "if stock == false or tonumber(stock) <= 0 then return -1 end " +
+                "local newStock = redis.call('HINCRBY', KEYS[1], ARGV[1], -1) return newStock";
+        Long remainingStock = (Long) redisTemplate.execute(
+                new org.springframework.data.redis.core.script.DefaultRedisScript<>(luaScript, Long.class),
+                java.util.Collections.singletonList("seckillGoods"),
+                String.valueOf(seckillId));
+        if (remainingStock == null || remainingStock < 0) {
+            throw new InsufficientStockException("秒杀商品已经被抢光");
+        }
+
+        // 扣减成功，更新本地对象
+        seckillGoods.setStockCount(remainingStock.intValue());
+        if (remainingStock == 0) {
             seckillGoodsMapper.updateByPrimaryKey(seckillGoods);
             redisTemplate.boundHashOps("seckillGoods").delete(seckillId);
             logger.info("商品同步到数据库...");

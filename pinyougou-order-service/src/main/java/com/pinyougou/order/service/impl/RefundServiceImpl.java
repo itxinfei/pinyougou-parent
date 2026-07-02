@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.pinyougou.exception.InsufficientStockException;
 import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.mapper.TbOrderItemMapper;
 import com.pinyougou.mapper.TbOrderMapper;
@@ -56,14 +57,15 @@ public class RefundServiceImpl implements RefundService {
     @Autowired
     private IdWorker idWorker;
 
-    // ========== 微信支付配置（⚠️ 安全问题） ==========
-    // ❌ 问题：配置硬编码在代码中，存在严重的安全风险
-    // ✅ 应该：从 application.properties 配置文件读取，并加密存储
-    // 🔒 生产环境必须：使用配置中心（Nacos/Apollo）并加密敏感信息
-    private static final String APP_ID = "wx8888888888888888";
-    private static final String MCH_ID = "1900000109";
-    private static final String KEY = "192006250b4c09247ec02edce69f6a2d";
-    private static final String REFUND_URL = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+    // ========== 微信支付配置（从配置文件读取） ==========
+    @org.springframework.beans.factory.annotation.Value("${weixin.appid:}")
+    private String appId;
+    @org.springframework.beans.factory.annotation.Value("${weixin.mch.id:}")
+    private String mchId;
+    @org.springframework.beans.factory.annotation.Value("${weixin.key:}")
+    private String key;
+    @org.springframework.beans.factory.annotation.Value("${weixin.refund.url:https://api.mch.weixin.qq.com/secapi/pay/refund}")
+    private String refundUrl;
 
     /**
      * 订单取消功能
@@ -100,16 +102,16 @@ public class RefundServiceImpl implements RefundService {
             }
 
             // 2. 检查订单状态
-            // ⚠️ 注意：状态值应该使用常量定义，避免魔法字符串
             String status = order.getStatus();
-            if ("TRADE_CLOSED".equals(status) || "TRADE_FINISHED".equals(status)) {
+            // 状态值与OrderServiceImpl保持一致："1"-未付款, "2"-已付款
+            if ("CLOSED".equals(status) || "FINISHED".equals(status)) {
                 resultMap.put("success", false);
                 resultMap.put("message", "订单状态不允许取消");
                 return resultMap;
             }
 
             // 3. 根据订单状态处理
-            if ("TRADE_SUCCESS".equals(status)) {
+            if ("2".equals(status)) {
                 // 已付款，需要走退款流程
                 resultMap.put("success", false);
                 resultMap.put("message", "订单已付款，请申请退款");
@@ -117,7 +119,7 @@ public class RefundServiceImpl implements RefundService {
             } else {
                 // 未付款，直接取消
                 // 3.1 更新订单状态
-                order.setStatus("TRADE_CLOSED");
+                order.setStatus("CLOSED");
                 order.setCloseTime(new Date());
                 order.setCancelReason(reason);
                 orderMapper.updateByPrimaryKey(order);
@@ -137,10 +139,12 @@ public class RefundServiceImpl implements RefundService {
             logger.error("订单取消失败（库存恢复异常）: " + orderId, e);
             resultMap.put("success", false);
             resultMap.put("message", "订单取消失败：库存恢复失败");
-        } catch (Exception e) {
+            throw e;
+        } catch (RuntimeException e) {
             logger.error("订单取消失败: " + orderId, e);
             resultMap.put("success", false);
             resultMap.put("message", "订单取消失败：" + e.getMessage());
+            throw e;
         }
 
         return resultMap;
@@ -187,7 +191,7 @@ public class RefundServiceImpl implements RefundService {
             }
 
             // 2. 检查订单状态
-            if (!"TRADE_SUCCESS".equals(order.getStatus())) {
+            if (!"2".equals(order.getStatus())) {
                 resultMap.put("success", false);
                 resultMap.put("message", "只有已付款订单才能申请退款");
                 return resultMap;
@@ -226,7 +230,7 @@ public class RefundServiceImpl implements RefundService {
             refundMapper.insert(refund);
 
             // 6. 更新订单状态为退款中
-            order.setStatus("REFUND_APPLY");
+            order.setStatus("REFUND");
             order.setCancelReason(reason);
             orderMapper.updateByPrimaryKey(order);
 
@@ -234,10 +238,11 @@ public class RefundServiceImpl implements RefundService {
             resultMap.put("message", "退款申请提交成功，等待审核");
             logger.info("退款申请成功: " + orderId + ", 金额: " + refundFee + ", 原因: " + reason);
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("退款申请失败: " + orderId, e);
             resultMap.put("success", false);
             resultMap.put("message", "退款申请失败：" + e.getMessage());
+            throw e;
         }
 
         return resultMap;
@@ -318,7 +323,7 @@ public class RefundServiceImpl implements RefundService {
             refundMapper.updateByPrimaryKey(refund);
 
             // 5. 更新订单状态
-            order.setStatus("TRADE_CLOSED");
+            order.setStatus("CLOSED");
             order.setCloseTime(new Date());
             orderMapper.updateByPrimaryKey(order);
 
@@ -332,10 +337,11 @@ public class RefundServiceImpl implements RefundService {
             resultMap.put("message", "退款成功");
             logger.info("退款成功: " + orderId + ", 金额: " + refund.getRefundFee());
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("退款失败: " + orderId, e);
             resultMap.put("success", false);
             resultMap.put("message", "退款失败：" + e.getMessage());
+            throw e;
         }
 
         return resultMap;
@@ -380,17 +386,18 @@ public class RefundServiceImpl implements RefundService {
             refundMapper.updateByPrimaryKey(refund);
 
             // 4. 恢复订单状态
-            order.setStatus("TRADE_SUCCESS");
+            order.setStatus("2");
             orderMapper.updateByPrimaryKey(order);
 
             resultMap.put("success", true);
             resultMap.put("message", "已拒绝退款申请");
             logger.info("拒绝退款: " + orderId + ", 原因: " + reason);
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.error("拒绝退款失败: " + orderId, e);
             resultMap.put("success", false);
             resultMap.put("message", "操作失败：" + e.getMessage());
+            throw e;
         }
 
         return resultMap;

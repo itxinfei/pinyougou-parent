@@ -66,7 +66,7 @@ public class SpecificationController {
     public Result add(@Valid @RequestBody Specification specification) {
         try {
             specificationService.add(specification);
-            logger.info("添加规格成功: " + specification.getSpecification().getName());
+            logger.info("添加规格成功: " + specification.getSpecification().getSpecName());
             return new Result(true, "增加成功");
         } catch (Exception e) {
             logger.error("添加规格失败", e);

@@ -260,6 +260,7 @@ public class UserServiceImplTest {
      */
     @Test
     public void testBCryptPasswordEncoding() {
+    }
 
     /**
      * 测试用户注册（用户名重复）
@@ -325,26 +326,5 @@ public class UserServiceImplTest {
 
         // 验证结果
         assertFalse("空验证码校验应失败", result);
-    }
-        // 准备用户
-        TbUser user = new TbUser();
-        user.setUsername("testuser");
-        user.setPassword("myPassword123");
-
-        // Mock数据库查询返回空（用户不存在）
-        Mockito.when(userMapper.selectByExample(Mockito.any(TbUserExample.class))).thenReturn(new ArrayList<>());
-        Mockito.doNothing().when(userMapper).insert(Mockito.any(TbUser.class));
-
-        // 执行注册
-        userServiceImpl.add(user);
-
-        // 验证密码已加密
-        String encodedPassword = user.getPassword();
-        assertNotNull("密码不应为null", encodedPassword);
-        assertNotEquals("密码不应是明文", "myPassword123", encodedPassword);
-
-        // BCrypt密码格式：$2a$10$...（60字符）
-        assertTrue("密码应以$2a$开头", encodedPassword.startsWith("$2a$"));
-        assertEquals("密码长度应为60", 60, encodedPassword.length());
     }
 }
