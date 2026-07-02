@@ -23,7 +23,7 @@
 
 ---
 
-## 项目简介
+## 一、项目简介
 
 品优购网上商城是一个完整的 B2B2C 电商平台 Demo，采用**微服务架构**设计，涵盖从商品管理到订单支付的全流程电商业务场景。适合 Java 后端开发者学习微服务架构、分布式系统设计。
 
@@ -36,7 +36,7 @@
 
 ---
 
-## 核心特性
+## 二、核心特性
 
 <table>
   <tr>
@@ -83,7 +83,7 @@
 
 ---
 
-## 架构设计
+## 三、架构设计
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -108,7 +108,7 @@
 
 ---
 
-## 技术栈
+## 四、技术栈
 
 | 技术 | 版本 | 用途 | 官网 |
 |------|------|------|------|
@@ -124,7 +124,7 @@
 
 ---
 
-## 项目结构
+## 五、项目结构
 
 ```
 pinyougou-parent/
@@ -149,7 +149,7 @@ pinyougou-parent/
 
 ---
 
-## 服务端口
+## 六、服务端口
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
@@ -170,7 +170,7 @@ pinyougou-parent/
 
 ---
 
-## 快速开始
+## 七、快速开始
 
 ### 环境要求
 
@@ -185,14 +185,14 @@ pinyougou-parent/
 
 ### 安装步骤
 
-**1. 克隆项目**
+**第一步：克隆项目**
 
 ```bash
 git clone https://gitee.com/itxinfei/pinyougou-parent.git
 cd pinyougou-parent
 ```
 
-**2. 导入数据库**
+**第二步：导入数据库**
 
 ```bash
 # 创建数据库
@@ -202,24 +202,24 @@ mysql -u root -p -e "CREATE DATABASE pinyougoudb DEFAULT CHARACTER SET utf8"
 mysql -u root -p pinyougoudb < docs/pinyougoudb-v1.3.sql
 ```
 
-**3. 编译项目**
+**第三步：编译项目**
 
 ```bash
 mvn clean install -DskipTests
 ```
 
-**4. 启动服务**
+**第四步：启动服务**
 
 ```
 启动顺序：
-1. 基础设施：Redis → MySQL → Solr → ActiveMQ
-2. Service层：商品 → 用户 → 订单 → 购物车 → 搜索 → 内容 → 页面 → 支付 → 秒杀
-3. Web层：运营后台 → 商家后台 → 用户中心 → 购物车 → 搜索 → 门户
+一、基础设施：Redis → MySQL → Solr → ActiveMQ
+二、Service层：商品 → 用户 → 订单 → 购物车 → 搜索 → 内容 → 页面 → 支付 → 秒杀
+三、Web层：运营后台 → 商家后台 → 用户中心 → 购物车 → 搜索 → 门户
 ```
 
 ---
 
-## 文档
+## 八、项目文档
 
 | 文档 | 说明 |
 |------|------|
@@ -229,7 +229,7 @@ mvn clean install -DskipTests
 
 ---
 
-## 更新日志
+## 九、更新日志
 
 ### v1.2.0 (2026-07-02)
 
@@ -253,7 +253,7 @@ mvn clean install -DskipTests
 
 ---
 
-## 贡献指南
+## 十、贡献指南
 
 欢迎 Fork 和 Star 本项目！
 
@@ -265,7 +265,7 @@ mvn clean install -DskipTests
 
 ---
 
-## 作者
+## 十一、作者
 
 **心飞为你飞**
 
@@ -274,7 +274,7 @@ mvn clean install -DskipTests
 
 ---
 
-## 许可证
+## 十二、许可证
 
 本项目采用 [Apache License 2.0](LICENSE) 许可证
 
