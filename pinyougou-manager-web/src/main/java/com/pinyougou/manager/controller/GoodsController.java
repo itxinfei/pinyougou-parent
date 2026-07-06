@@ -177,20 +177,4 @@ public class GoodsController {
             return new Result(false, "操作失败");
         }
     }
-
-    /**
-     * 生成商品详情页HTML
-     *
-     * @param goodsId 商品ID
-     */
-    @GetMapping("/genHtml")
-    public void genHtml(@RequestParam(required = true) Long goodsId) {
-        try {
-            logger.info("生成商品详情页: goodsId=" + goodsId);
-            // TODO: 实现商品详情页静态化
-            // itemPageService.genItemHtml(goodsId);
-        } catch (Exception e) {
-            logger.error("生成商品详情页失败: goodsId=" + goodsId, e);
-        }
-    }
 }

@@ -4,7 +4,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,28 +12,26 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/login")
-@SuppressWarnings("unchecked")//使用了未经检查或不安全的操作。
 public class LoginController {
+
     /**
-     * 账号登录功能
+     * 获取当前登录用户名
      *
-     * @return
+     * @return 用户名信息
      */
     @GetMapping("/showName")
     @ResponseBody
-    public Map showName(String username, String password) {
+    public Map showName() {
         Map map = new HashMap();
-        // 获得用户名信息:
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         map.put("username", user);
-        //后台输出用户
         return map;
     }
 
     /**
-     * 测试数据
+     * 测试接口
      *
-     * @return
+     * @return 测试数据
      */
     @GetMapping("/test")
     @ResponseBody
