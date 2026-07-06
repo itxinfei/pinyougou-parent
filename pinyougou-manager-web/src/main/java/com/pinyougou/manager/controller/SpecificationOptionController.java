@@ -3,6 +3,7 @@ package com.pinyougou.manager.controller;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbSpecificationOption;
@@ -13,9 +14,12 @@ import entity.Result;
 
 /**
  * 规格选项
+ * <p>
+ * 权限要求：管理员或运营人员
  */
 @RestController
 @RequestMapping("/specificationOption")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
 public class SpecificationOptionController {
 
     private static final Logger logger = Logger.getLogger(SpecificationOptionController.class);
@@ -40,7 +44,8 @@ public class SpecificationOptionController {
      * @return
      */
     @GetMapping("/findPage")
-    public PageResult findPage(int page, int rows) {
+    public PageResult findPage(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "10") int rows) {
         return specificationOptionService.findPage(page, rows);
     }
 
@@ -85,7 +90,7 @@ public class SpecificationOptionController {
      * @return
      */
     @GetMapping("/findOne")
-    public TbSpecificationOption findOne(Long id) {
+    public TbSpecificationOption findOne(@RequestParam(required = true) Long id) {
         return specificationOptionService.findOne(id);
     }
 
@@ -96,7 +101,7 @@ public class SpecificationOptionController {
      * @return
      */
     @DeleteMapping("/delete")
-    public Result delete(Long[] ids) {
+    public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             specificationOptionService.delete(ids);
             return new Result(true, "删除成功");
@@ -109,13 +114,15 @@ public class SpecificationOptionController {
     /**
      * 查询+分页
      *
-     * @param brand
+     * @param specificationOption
      * @param page
      * @param rows
      * @return
      */
     @PostMapping("/search")
-    public PageResult search(@RequestBody TbSpecificationOption specificationOption, int page, int rows) {
+    public PageResult search(@RequestBody TbSpecificationOption specificationOption,
+                             @RequestParam(defaultValue = "1") int page,
+                             @RequestParam(defaultValue = "10") int rows) {
         return specificationOptionService.findPage(specificationOption, page, rows);
     }
 

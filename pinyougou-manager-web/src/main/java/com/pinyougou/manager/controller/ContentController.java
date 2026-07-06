@@ -3,9 +3,8 @@ package com.pinyougou.manager.controller;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.content.service.ContentService;
@@ -16,9 +15,12 @@ import entity.Result;
 
 /**
  * 内容（广告）
+ * <p>
+ * 权限要求：管理员或运营人员
  */
 @RestController
 @RequestMapping("/content")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
 public class ContentController {
 
     private static final Logger logger = Logger.getLogger(ContentController.class);
@@ -31,7 +33,7 @@ public class ContentController {
      *
      * @return
      */
-    @RequestMapping("/findAll")
+    @GetMapping("/findAll")
     public List<TbContent> findAll() {
         return contentService.findAll();
     }
@@ -42,8 +44,9 @@ public class ContentController {
      *
      * @return
      */
-    @RequestMapping("/findPage")
-    public PageResult findPage(int page, int rows) {
+    @GetMapping("/findPage")
+    public PageResult findPage(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "10") int rows) {
         return contentService.findPage(page, rows);
     }
 
@@ -53,7 +56,7 @@ public class ContentController {
      * @param content
      * @return
      */
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public Result add(@RequestBody TbContent content) {
         try {
             contentService.add(content);
@@ -70,7 +73,7 @@ public class ContentController {
      * @param content
      * @return
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody TbContent content) {
         try {
             contentService.update(content);
@@ -87,8 +90,8 @@ public class ContentController {
      * @param id
      * @return
      */
-    @RequestMapping("/findOne")
-    public TbContent findOne(Long id) {
+    @GetMapping("/findOne")
+    public TbContent findOne(@RequestParam(required = true) Long id) {
         return contentService.findOne(id);
     }
 
@@ -98,8 +101,8 @@ public class ContentController {
      * @param ids
      * @return
      */
-    @RequestMapping("/delete")
-    public Result delete(Long[] ids) {
+    @DeleteMapping("/delete")
+    public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             contentService.delete(ids);
             return new Result(true, "删除成功");
@@ -117,8 +120,10 @@ public class ContentController {
      * @param rows
      * @return
      */
-    @RequestMapping("/search")
-    public PageResult search(@RequestBody TbContent content, int page, int rows) {
+    @PostMapping("/search")
+    public PageResult search(@RequestBody TbContent content,
+                             @RequestParam(defaultValue = "1") int page,
+                             @RequestParam(defaultValue = "10") int rows) {
         return contentService.findPage(content, page, rows);
     }
 

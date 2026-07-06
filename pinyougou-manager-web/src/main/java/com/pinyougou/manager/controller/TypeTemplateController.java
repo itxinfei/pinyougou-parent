@@ -6,6 +6,7 @@ import com.pinyougou.sellergoods.service.TypeTemplateService;
 import entity.PageResult;
 import entity.Result;
 import org.apache.log4j.Logger;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +14,12 @@ import java.util.List;
 /**
  * 模板管理
  * 类型模板：用于关联品牌和规格
+ * <p>
+ * 权限要求：管理员或运营人员
  */
 @RestController
 @RequestMapping("/typeTemplate")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
 public class TypeTemplateController {
 
     private static final Logger logger = Logger.getLogger(TypeTemplateController.class);
@@ -40,7 +44,8 @@ public class TypeTemplateController {
      * @return
      */
     @GetMapping("/findPage")
-    public PageResult findPage(int page, int rows) {
+    public PageResult findPage(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "10") int rows) {
         return typeTemplateService.findPage(page, rows);
     }
 
@@ -85,7 +90,7 @@ public class TypeTemplateController {
      * @return
      */
     @GetMapping("/findOne")
-    public TbTypeTemplate findOne(Long id) {
+    public TbTypeTemplate findOne(@RequestParam(required = true) Long id) {
         return typeTemplateService.findOne(id);
     }
 
@@ -96,7 +101,7 @@ public class TypeTemplateController {
      * @return
      */
     @DeleteMapping("/delete")
-    public Result delete(Long[] ids) {
+    public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             typeTemplateService.delete(ids);
             return new Result(true, "删除成功");
@@ -110,7 +115,9 @@ public class TypeTemplateController {
      * 模板管理 查询+分页
      */
     @PostMapping("/search")
-    public PageResult search(@RequestBody TbTypeTemplate typeTemplate, int page, int rows) {
+    public PageResult search(@RequestBody TbTypeTemplate typeTemplate,
+                             @RequestParam(defaultValue = "1") int page,
+                             @RequestParam(defaultValue = "10") int rows) {
         return typeTemplateService.findPage(typeTemplate, page, rows);
     }
 

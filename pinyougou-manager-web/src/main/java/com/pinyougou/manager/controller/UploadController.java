@@ -2,9 +2,7 @@ package com.pinyougou.manager.controller;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import entity.Result;
@@ -13,7 +11,7 @@ import util.FastDFSClient;
 /**
  * 图片上传
  */
-@Controller
+@RestController
 @RequestMapping("/upload")
 public class UploadController {
 
@@ -22,7 +20,7 @@ public class UploadController {
     @Value("${FILE_SERVER_URL}")
     private String file_server_url;
 
-    @RequestMapping("/uploadFile")
+    @PostMapping("/uploadFile")
     public Result uploadFile(MultipartFile file) {
 
         try {

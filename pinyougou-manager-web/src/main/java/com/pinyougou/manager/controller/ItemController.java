@@ -3,6 +3,7 @@ package com.pinyougou.manager.controller;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbItem;
@@ -13,9 +14,12 @@ import entity.Result;
 
 /**
  * 商品明细
+ * <p>
+ * 权限要求：管理员或运营人员
  */
 @RestController
 @RequestMapping("/item")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_OPERATOR')")
 public class ItemController {
 
     private static final Logger logger = Logger.getLogger(ItemController.class);
@@ -40,7 +44,8 @@ public class ItemController {
      * @return
      */
     @GetMapping("/findPage")
-    public PageResult findPage(int page, int rows) {
+    public PageResult findPage(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "10") int rows) {
         return itemService.findPage(page, rows);
     }
 
@@ -85,7 +90,7 @@ public class ItemController {
      * @return
      */
     @GetMapping("/findOne")
-    public TbItem findOne(Long id) {
+    public TbItem findOne(@RequestParam(required = true) Long id) {
         return itemService.findOne(id);
     }
 
@@ -96,7 +101,7 @@ public class ItemController {
      * @return
      */
     @DeleteMapping("/delete")
-    public Result delete(Long[] ids) {
+    public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             itemService.delete(ids);
             return new Result(true, "删除成功");
@@ -115,7 +120,9 @@ public class ItemController {
      * @return
      */
     @PostMapping("/search")
-    public PageResult search(@RequestBody TbItem item, int page, int rows) {
+    public PageResult search(@RequestBody TbItem item,
+                             @RequestParam(defaultValue = "1") int page,
+                             @RequestParam(defaultValue = "10") int rows) {
         return itemService.findPage(item, page, rows);
     }
 
