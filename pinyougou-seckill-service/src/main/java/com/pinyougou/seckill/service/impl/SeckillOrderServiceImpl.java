@@ -246,17 +246,17 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         if (seckillOrder != null) {
             //2.删除缓存中的订单
             redisTemplate.boundHashOps("seckillOrder").delete(userId);
-            //3.库存回退
-            TbSeckillGoods seckillGoods = (TbSeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(seckillOrder.getSeckillId());
-            if (seckillGoods != null) {
-                seckillGoods.setStockCount(seckillGoods.getStockCount() + 1);
-                redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(), seckillGoods);
-            } else {
-                seckillGoods = new TbSeckillGoods();
-                seckillGoods.setId(seckillOrder.getSeckillId());
-                seckillGoods.setStockCount(1);
-                redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(), seckillGoods);
-            }
+            //3.库存回退 - 使用Lua脚本保证原子性
+            String luaScript = "local stock = redis.call('HGET', KEYS[1], ARGV[1]) " +
+                    "if stock == false then " +
+                    "  redis.call('HSET', KEYS[1], ARGV[1], 1) " +
+                    "  return 1 " +
+                    "end " +
+                    "local newStock = redis.call('HINCRBY', KEYS[1], ARGV[1], 1) return newStock";
+            redisTemplate.execute(
+                    new org.springframework.data.redis.core.script.DefaultRedisScript<>(luaScript, Long.class),
+                    java.util.Collections.singletonList("seckillGoods"),
+                    String.valueOf(seckillOrder.getSeckillId()));
             logger.info("订单取消：" + orderId);
         }
     }

@@ -2,7 +2,6 @@ package com.pinyougou.sellergoods.service;
 
 import com.pinyougou.pojo.TbSeller;
 import entity.PageResult;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -77,5 +76,5 @@ public interface SellerService {
     /**
      * 公司名称+店铺名称搜索
      */
-    public PageResult search(@RequestBody TbSeller tbSeller, int page, int rows);
+    public PageResult search(TbSeller tbSeller, int page, int rows);
 }

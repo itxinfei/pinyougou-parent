@@ -108,6 +108,7 @@ public class HttpClient {
     }
 
     public void get() throws ClientProtocolException, IOException {
+        String requestUrl = this.url;
         if (param != null) {
             StringBuilder url = new StringBuilder(this.url);
             boolean isFirst = true;
@@ -118,9 +119,9 @@ public class HttpClient {
                     url.append("&");
                 url.append(key).append("=").append(java.net.URLEncoder.encode(param.get(key), "UTF-8"));
             }
-            this.url = url.toString();
+            requestUrl = url.toString();
         }
-        HttpGet http = new HttpGet(this.url);
+        HttpGet http = new HttpGet(requestUrl);
         execute(http);
     }
 

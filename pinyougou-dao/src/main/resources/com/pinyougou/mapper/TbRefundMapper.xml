@@ -28,7 +28,7 @@
     <if test="distinct">
       distinct
     </if>
-    '<include refid="Base_Column_List" />
+    <include refid="Base_Column_List" />
     from tb_refund
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -140,7 +140,7 @@
         transaction_id = #{record.transactionId,jdbcType=VARCHAR},
       </if>
       <if test="record.responseContent != null">
-        response_content = #{record.responseContent,jdbcType=VARCHAR},
+      response_content = #{responseContent,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=TIMESTAMP},

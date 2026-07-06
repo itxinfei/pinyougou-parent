@@ -26,6 +26,9 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     @Value("${partnerkey}")
     private String partnerkey;
 
+    @Value("${notifyurl}")
+    private String notifyUrl;
+
     /**
      * 生成二维码
      *
@@ -44,7 +47,7 @@ public class WeixinPayServiceImpl implements WeixinPayService {
         param.put("out_trade_no", out_trade_no);//交易订单号
         param.put("total_fee", total_fee);//金额（分）
         param.put("spbill_create_ip", "127.0.0.1");
-        param.put("notify_url", "http://www.itcast.cn");
+        param.put("notify_url", notifyUrl);
         param.put("trade_type", "NATIVE");//交易类型
 
         try {

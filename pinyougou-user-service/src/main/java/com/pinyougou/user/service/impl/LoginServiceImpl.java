@@ -196,7 +196,8 @@ public class LoginServiceImpl implements LoginService {
 
             // ========== 第五步：生成Token ==========
             String token = jwtUtils.generateToken(username);
-            redisTemplate.boundValueOps("token:" + username).set(token);
+            // Token设置过期时间，与JWT的EXPIRATION保持一致（默认30分钟）
+            redisTemplate.boundValueOps("token:" + username).set(token, 30, java.util.concurrent.TimeUnit.MINUTES);
 
             // ========== 第六步：返回用户信息 ==========
             Map<String, Object> userInfo = new HashMap<>();
@@ -304,7 +305,8 @@ public class LoginServiceImpl implements LoginService {
 
             // 4. 生成JWT token
             String token = jwtUtils.generateToken(user.getUsername());
-            redisTemplate.boundValueOps("token:" + user.getUsername()).set(token);
+            // Token设置过期时间，与JWT的EXPIRATION保持一致（默认30分钟）
+            redisTemplate.boundValueOps("token:" + user.getUsername()).set(token, 30, java.util.concurrent.TimeUnit.MINUTES);
 
             // 5. 返回用户信息
             Map<String, Object> userInfo = new HashMap<>();

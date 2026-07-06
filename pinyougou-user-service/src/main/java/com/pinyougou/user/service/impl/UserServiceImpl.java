@@ -165,9 +165,6 @@ public class UserServiceImpl implements UserService {
             if (user.getUsername() != null && user.getUsername().length() > 0) {
                 criteria.andUsernameLike("%" + user.getUsername() + "%");
             }
-            if (user.getPassword() != null && user.getPassword().length() > 0) {
-                criteria.andPasswordLike("%" + user.getPassword() + "%");
-            }
             if (user.getPhone() != null && user.getPhone().length() > 0) {
                 criteria.andPhoneLike("%" + user.getPhone() + "%");
             }
@@ -329,6 +326,8 @@ public class UserServiceImpl implements UserService {
         if (!systemcode.equals(code)) {
             return false;
         }
+        // 验证成功后删除验证码，防止重复使用
+        redisTemplate.boundHashOps("smscode").delete(phone);
         return true;
     }
 }

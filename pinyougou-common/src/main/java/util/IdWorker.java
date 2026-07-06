@@ -52,7 +52,7 @@ public class IdWorker {
     /* 上次生产id时间戳 */
     private static long lastTimestamp = -1L;
     // 0，并发控制
-    private long sequence = 0L;
+    private static long sequence = 0L;
 
     private final long workerId;
     // 数据标识id部分

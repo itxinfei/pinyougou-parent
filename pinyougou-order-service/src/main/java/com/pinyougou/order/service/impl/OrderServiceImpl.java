@@ -31,6 +31,7 @@ import com.pinyougou.pojo.TbOrderItem;
 import com.pinyougou.pojo.TbPayLog;
 import com.pinyougou.pojo.group.Cart;
 import com.pinyougou.order.service.OrderService;
+import org.springframework.transaction.annotation.Transactional;
 
 import entity.PageResult;
 import util.IdWorker;
@@ -387,6 +388,7 @@ public class OrderServiceImpl implements OrderService {
      * @param out_trade_no 支付流水号（对应TbPayLog的outTradeNo）
      * @param transaction_id 微信支付流水号（用于退款等后续操作）
      */
+    @Transactional
     @Override
     public void updateOrderStatus(String out_trade_no, String transaction_id) {
         // ========== 第一步：更新支付日志 ==========

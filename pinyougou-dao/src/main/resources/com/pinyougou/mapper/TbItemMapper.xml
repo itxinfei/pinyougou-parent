@@ -408,11 +408,6 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="restoreStockCount">
-    UPDATE tb_item
-    SET stock_count = stock_count + #{num}
-    WHERE id = #{itemId}
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.pinyougou.pojo.TbItem" >
     update tb_item
     <set >
@@ -485,20 +480,10 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="restoreStockCount">
-    UPDATE tb_item
-    SET stock_count = stock_count + #{num}
-    WHERE id = #{itemId}
-  </update>
   <update id="decreaseStockCount">
     update tb_item
     set stock_count = stock_count - #{num}
     where id = #{itemId} and stock_count >= #{num}
-  </update>
-  <update id="restoreStockCount">
-    UPDATE tb_item
-    SET stock_count = stock_count + #{num}
-    WHERE id = #{itemId}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.pinyougou.pojo.TbItem" >
     update tb_item
@@ -525,10 +510,5 @@
       spec = #{spec,jdbcType=VARCHAR},
       seller = #{seller,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
-  </update>
-  <update id="restoreStockCount">
-    UPDATE tb_item
-    SET stock_count = stock_count + #{num}
-    WHERE id = #{itemId}
   </update>
 </mapper>
