@@ -175,7 +175,7 @@
 					<div class="fl key">商品分类</div>
 					<div class="fl value">
 						<span ng-repeat="category in resultMap.categoryList" > 
-						   <a href="#" ng-click="addSearchItem('category',category)">{{category}}</a>
+						   <a href="javascript:void(0)" ng-click="addSearchItem('category',category)">{{category}}</a>
 						</span>						
 					</div>
 					<div class="fl ext"></div>
@@ -185,7 +185,7 @@
 					<div class="value logos">
 						<ul class="logo-list">
 							<li ng-repeat="brand in resultMap.brandList">
-								<a href="#" ng-click="addSearchItem('brand',brand.text)">{{brand.text}}</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('brand',brand.text)">{{brand.text}}</a>
 							</li>							
 						</ul>
 					</div>
@@ -199,7 +199,7 @@
 					<div class="fl value">
 						<ul class="type-list">
 							<li ng-repeat="option in spec.options">
-								<a href="#" ng-click="addSearchItem(spec.text,option.optionName)">{{option.optionName}}</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem(spec.text,option.optionName)">{{option.optionName}}</a>
 							</li>							
 						</ul>
 					</div>
@@ -211,22 +211,22 @@
 					<div class="fl value">
 						<ul class="type-list">
 							<li>
-								<a href="#" ng-click="addSearchItem('price','0-500')">0-500元</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('price','0-500')">0-500元</a>
 							</li>
 							<li>
-								<a href="#" ng-click="addSearchItem('price','500-1000')">500-1000元</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('price','500-1000')">500-1000元</a>
 							</li>
 							<li>
-								<a href="#" ng-click="addSearchItem('price','1000-1500')">1000-1500元</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('price','1000-1500')">1000-1500元</a>
 							</li>
 							<li>
-								<a href="#" ng-click="addSearchItem('price','1500-2000')">1500-2000元</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('price','1500-2000')">1500-2000元</a>
 							</li>
 							<li>
-								<a href="#" ng-click="addSearchItem('price','2000-3000')">2000-3000元 </a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('price','2000-3000')">2000-3000元 </a>
 							</li>
 							<li>
-								<a href="#" ng-click="addSearchItem('price','3000-*')">3000元以上</a>
+								<a href="javascript:void(0)" ng-click="addSearchItem('price','3000-*')">3000元以上</a>
 							</li>
 						</ul>
 					</div>
@@ -264,22 +264,22 @@
 					<div class="navbar-inner filter">
 						<ul class="sui-nav">
 							<li class="active">
-								<a href="#" ng-click="sortSearch('','')">综合</a>
+								<a href="javascript:void(0)" ng-click="sortSearch('','')">综合</a>
 							</li>
 							<li>
 								<a href="javascript:void(0)" ng-click="sortSearch('salesCount','DESC')">销量</a>
 							</li>
 							<li>
-								<a href="#" ng-click="sortSearch('updatetime','DESC')">新品</a>
+								<a href="javascript:void(0)" ng-click="sortSearch('updatetime','DESC')">新品</a>
 							</li>
 							<li>
 								<a href="javascript:void(0)" ng-click="sortSearch('commentCount','DESC')">评价</a>
 							</li>
 							<li>
-								<a href="#" ng-click="sortSearch('price','ASC')">价格↑</a>
+								<a href="javascript:void(0)" ng-click="sortSearch('price','ASC')">价格↑</a>
 							</li>
 							<li>
-								<a href="#" ng-click="sortSearch('price','DESC')">价格↓</a>
+								<a href="javascript:void(0)" ng-click="sortSearch('price','DESC')">价格↓</a>
 							</li>
 						</ul>
 					</div>
@@ -320,15 +320,15 @@
 					<div class="sui-pagination pagination-large">
 						<ul>
 							<li class="prev {{isTopPage()?'disabled':''}}">
-								<a href="#" ng-click="queryByPage(searchMap.pageNo-1)">«</a>
+								<a href="javascript:void(0)" ng-click="queryByPage(searchMap.pageNo-1)">«</a>
 							</li>
 							<li class="dotted" ng-if="firstDot==true"><span>...</span></li>
 							<li ng-repeat="page in pageLabel">
-								<a href="#" ng-click="queryByPage(page)">{{page}}</a>
+								<a href="javascript:void(0)" ng-click="queryByPage(page)">{{page}}</a>
 							</li>
 							<li class="dotted" ng-if="lastDot==true"><span>...</span></li>
 							<li class="next {{isEndPage()?'disabled':''}}">
-								<a href="#" ng-click="queryByPage(searchMap.pageNo+1)">»</a>
+								<a href="javascript:void(0)" ng-click="queryByPage(searchMap.pageNo+1)">»</a>
 							</li>
 						</ul>
 						<div><span>共{{resultMap.totalPages}}页&nbsp;</span><span>
