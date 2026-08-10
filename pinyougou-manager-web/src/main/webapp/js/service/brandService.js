@@ -4,8 +4,8 @@ app.service("brandService",function($http){
 		return $http.get("../brand/findAll.do");
 	}
 	
-	this.findByPage = function(page,rows){
-		return $http.get("../brand/findByPage.do?page="+page+"&rows="+rows);
+	this.findPage = function(page,rows){
+		return $http.get("../brand/findPage.do?page="+page+"&rows="+rows);
 	}
 	
 	this.save = function(entity){

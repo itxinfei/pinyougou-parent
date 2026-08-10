@@ -109,7 +109,7 @@ public class GoodsController {
     }
 
     /**
-     * 条件查询+分页（商家只能查询自己的商品）
+     * 条件查询+分页（管理员可查看所有商品）
      *
      * @param goods 查询条件
      * @param page  当前页码
@@ -120,11 +120,7 @@ public class GoodsController {
     public PageResult search(@RequestBody TbGoods goods,
                              @RequestParam(defaultValue = "1") int page,
                              @RequestParam(defaultValue = "10") int rows) {
-        // 获取当前登录用户（管理员或商家）
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.debug("查询商品: userId=" + userId);
-        // 商家只能查询自己的商品
-        goods.setSellerId(userId);
+        // 管理员可以查看所有商品，不需要按sellerId过滤
         return goodsService.findPage(goods, page, rows);
     }
 

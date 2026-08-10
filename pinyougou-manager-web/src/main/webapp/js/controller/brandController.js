@@ -12,9 +12,9 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 	}
 
 	// 分页查询
-	$scope.findByPage = function(page,rows){
+	$scope.findPage = function(page,rows){
 		// 向后台发送请求获取数据:
-		brandService.findByPage(page,rows).success(function(response){
+		brandService.findPage(page,rows).success(function(response){
 			$scope.paginationConf.totalItems = response.total;
 			$scope.list = response.rows;
 		}).error(function(){ alert('操作失败，请稍后重试'); });
