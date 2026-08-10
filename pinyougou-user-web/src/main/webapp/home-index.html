@@ -72,7 +72,7 @@
 								<!--searchAutoComplete-->
 								<div class="input-append">
 									<input type="text" id="autocomplete" class="input-error input-xxlarge" />
-									<button class="sui-btn btn-xlarge btn-danger" type="button">搜索</button>
+									<button class="sui-btn btn-xlarge btn-danger" type="button" onclick="var kw=document.getElementById('autocomplete').value;window.location.href='../search-web/search.html?keywords='+encodeURIComponent(kw)">搜索</button>
 								</div>
 							</form>
 						</div>

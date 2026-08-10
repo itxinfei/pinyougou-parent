@@ -58,8 +58,8 @@
 			<div class="fr search">
 				<form class="sui-form form-inline">
 					<div class="input-append">
-						<input type="text" class="input-error input-xxlarge" placeholder="品优购自营" />
-						<button class="sui-btn btn-xlarge btn-danger" type="button">搜索</button>
+						<input type="text" id="inputKeyword" class="input-error input-xxlarge" placeholder="品优购自营" />
+						<button class="sui-btn btn-xlarge btn-danger" type="button" onclick="var kw=document.getElementById('inputKeyword').value;window.location.href='../search-web/search.html?keywords='+encodeURIComponent(kw)">搜索</button>
 					</div>
 				</form>
 			</div>
