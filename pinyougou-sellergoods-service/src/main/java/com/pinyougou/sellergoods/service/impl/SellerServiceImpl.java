@@ -18,7 +18,6 @@ import java.util.List;
  * 商家审核
  */
 @Service
-@Transactional
 public class SellerServiceImpl implements SellerService {
 
     private static final Logger logger = Logger.getLogger(SellerServiceImpl.class);
@@ -58,6 +57,7 @@ public class SellerServiceImpl implements SellerService {
      * @return
      */
     @Override
+    @Transactional
     public void add(TbSeller seller) {
         tbSellerMapper.insert(seller);
     }
@@ -68,6 +68,7 @@ public class SellerServiceImpl implements SellerService {
      * @param seller
      */
     @Override
+    @Transactional
     public void update(TbSeller seller) {
         tbSellerMapper.updateByPrimaryKeySelective(seller);
     }
@@ -90,6 +91,7 @@ public class SellerServiceImpl implements SellerService {
      * @param ids
      */
     @Override
+    @Transactional
     public void delete(String[] ids) {
         tbSellerMapper.deleteByPrimaryKey(ids);
     }
@@ -119,6 +121,7 @@ public class SellerServiceImpl implements SellerService {
      * @param status
      */
     @Override
+    @Transactional
     public void updateStatus(String sellerId, String status) {
         TbSeller seller = tbSellerMapper.selectByPrimaryKey(sellerId);
         logger.info("商家信息：" + seller);

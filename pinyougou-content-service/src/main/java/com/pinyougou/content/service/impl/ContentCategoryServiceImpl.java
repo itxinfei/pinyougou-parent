@@ -48,6 +48,7 @@ public class ContentCategoryServiceImpl implements ContentCategoryService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbContentCategory contentCategory) {
         contentCategoryMapper.insert(contentCategory);
     }
@@ -57,6 +58,7 @@ public class ContentCategoryServiceImpl implements ContentCategoryService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbContentCategory contentCategory) {
         contentCategoryMapper.updateByPrimaryKey(contentCategory);
     }
@@ -76,6 +78,7 @@ public class ContentCategoryServiceImpl implements ContentCategoryService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             contentCategoryMapper.deleteByPrimaryKey(id);

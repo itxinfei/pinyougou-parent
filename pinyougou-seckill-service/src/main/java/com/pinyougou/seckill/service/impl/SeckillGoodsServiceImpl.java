@@ -12,6 +12,7 @@ import entity.PageResult;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -51,6 +52,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbSeckillGoods seckillGoods) {
         seckillGoodsMapper.insert(seckillGoods);
     }
@@ -60,6 +62,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbSeckillGoods seckillGoods) {
         seckillGoodsMapper.updateByPrimaryKey(seckillGoods);
     }
@@ -79,6 +82,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             seckillGoodsMapper.deleteByPrimaryKey(id);

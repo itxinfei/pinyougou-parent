@@ -1,6 +1,7 @@
 package com.pinyougou.order.service.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -161,14 +162,24 @@ public class OrderServiceImpl implements OrderService {
 
         // ========== 第三步：遍历购物车，为每个商家创建订单 ==========
         // 每个购物车(Cart)代表一个商家的商品集合，生成一个独立订单
+        // ✅ 收集成功创建的商家sellerId，用于后续精准清空购物车
+        List<String> successSellerIds = new ArrayList<>();
         for (Cart cart : cartList) {
             try {
-                TbOrder tbOrder = transactionTemplate.execute(status -> {
+                String sellerId = transactionTemplate.execute(status -> {
                     return createOrderByCart(order, cart, orderIdList);
                 });
-                successOrderIds.add(tbOrder.getOrderId() + "");
+                if (sellerId != null) {
+                    successSellerIds.add(sellerId);
+                    // ✅ 修复：将成功创建的订单ID添加到 successOrderIds（用于生成支付日志）
+                    if (!orderIdList.isEmpty()) {
+                        successOrderIds.add(orderIdList.get(orderIdList.size() - 1));
+                    }
+                }
                 // 累加总金额
-                total_money = total_money.add(tbOrder.getPayment());
+                // 注意：total_money 在成功时累加（从 createOrderByCart 返回的 tbOrder 中获取）
+                // 由于 createOrderByCart 现在返回 sellerId，需要另一种方式获取金额
+                // 这里重新计算：从 orderIdList 中查询已创建的订单
             } catch (Exception e) {
                 // ✅ 事务失败时记录日志，继续处理其他商家订单
                 logger.error("创建订单失败: userId=" + order.getUserId() + ", sellerId=" + cart.getSellerId(), e);
@@ -179,7 +190,15 @@ public class OrderServiceImpl implements OrderService {
 
         // ========== 第四步：生成支付日志（仅在线支付） ==========
         // 支付方式 "1" 表示在线支付（微信/支付宝），"2" 表示货到付款
-        if ("1".equals(order.getPaymentType()) && !successOrderIds.isEmpty()) {
+        // 从已创建的订单中计算总金额
+        if (!successOrderIds.isEmpty() && "1".equals(order.getPaymentType())) {
+            for (String orderIdStr : successOrderIds) {
+                TbOrder createdOrder = orderMapper.selectByPrimaryKey(Long.valueOf(orderIdStr));
+                if (createdOrder != null) {
+                    total_money = total_money.add(createdOrder.getPayment());
+                }
+            }
+            // 生成支付日志
             TbPayLog payLog = new TbPayLog();
 
             // 支付日志ID（交易流水号）
@@ -194,7 +213,7 @@ public class OrderServiceImpl implements OrderService {
             // ✅ 金额转换：使用BigDecimal精确计算，避免double精度损失
             // 元转分：multiply(100) 乘以100
             // setScale(0, RoundingMode.HALF_UP) 四舍五入取整
-            payLog.setTotalFee(total_money.multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).longValue());
+            payLog.setTotalFee(total_money.multiply(new BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).longValue());
 
             payLog.setTradeState("0");  // 交易状态：0-未支付
             payLog.setPayType("1");     // 支付类型：1-微信支付
@@ -204,11 +223,19 @@ public class OrderServiceImpl implements OrderService {
             redisTemplate.boundHashOps("payLog").put(order.getUserId(), payLog);
         }
 
-        // ========== 第五步：清空购物车 ==========
-        // ⚠️ 注意：如果订单创建失败会回滚，但如果成功则立即清空购物车
-        // 风险：用户可能想保留购物车商品用于下次购买
-        // TODO: 考虑实现"合并购物车"功能，未生成订单的商品保留
-        redisTemplate.boundHashOps("cartList").delete(order.getUserId());
+        // ========== 第五步：清空购物车（仅清空成功创建的商家商品） ==========
+        // ⚠️ 修复：只清空成功创建订单的商家购物车，失败商家的商品保留
+        if (!successSellerIds.isEmpty()) {
+            List<Cart> remainingCartList = new ArrayList<>();
+            for (Cart cart : cartList) {
+                if (!successSellerIds.contains(cart.getSellerId())) {
+                    // 该商家订单创建失败，保留其购物车商品
+                    remainingCartList.add(cart);
+                }
+            }
+            // 更新Redis中的购物车（仅保留失败商家的商品）
+            redisTemplate.boundHashOps("cartList").put(order.getUserId(), remainingCartList);
+        }
 
         // ========== 第六步：记录订单创建结果 ==========
         if (!failedOrderIds.isEmpty()) {
@@ -237,9 +264,9 @@ public class OrderServiceImpl implements OrderService {
      * @param order 订单基本信息
      * @param cart 商家购物车
      * @param orderIdList 订单ID列表（用于收集）
-     * @return 订单实体
+     * @return 成功时返回 sellerId，失败时返回 null
      */
-    private TbOrder createOrderByCart(TbOrder order, Cart cart, List<String> orderIdList) {
+    private String createOrderByCart(TbOrder order, Cart cart, List<String> orderIdList) {
         TbOrder tbOrder = new TbOrder();
         // 生成订单ID
         Long orderId = idWorker.nextId();
@@ -265,19 +292,27 @@ public class OrderServiceImpl implements OrderService {
             totalPayment = totalPayment.add(itemTotal);
             // 批量插入订单项
             orderItemMapper.insert(item);
+            // ✅ 修复：扣减商品库存（使用数据库层面的原子更新，防止超卖）
+            // SQL: update tb_item set stock_count = stock_count - ? where id = ? and stock_count >= ?
+            int affected = itemMapper.decreaseStockCount(item.getItemId(), item.getNum());
+            if (affected <= 0) {
+                // 库存不足，抛出异常触发事务回滚
+                throw new InsufficientStockException("商品库存不足，商品ID：" + item.getItemId());
+            }
         }
         tbOrder.setPayment(totalPayment);
 
         // 保存订单主表
         orderMapper.insert(tbOrder);
         orderIdList.add(orderId + "");
-        return tbOrder;
+        return cart.getSellerId();
     }
 
     /**
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbOrder order) {
         orderMapper.updateByPrimaryKey(order);
     }
@@ -297,6 +332,7 @@ public class OrderServiceImpl implements OrderService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             orderMapper.deleteByPrimaryKey(id);

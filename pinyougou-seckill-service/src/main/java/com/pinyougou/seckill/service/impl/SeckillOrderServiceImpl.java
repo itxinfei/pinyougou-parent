@@ -57,6 +57,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbSeckillOrder seckillOrder) {
         seckillOrderMapper.insert(seckillOrder);
     }
@@ -66,6 +67,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbSeckillOrder seckillOrder) {
         seckillOrderMapper.updateByPrimaryKey(seckillOrder);
     }
@@ -85,6 +87,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             seckillOrderMapper.deleteByPrimaryKey(id);
@@ -152,27 +155,33 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         if(userId==null||userId.trim().isEmpty()){
             throw new ValidationException("用户ID不能为空");
         }
-        
+
         TbSeckillGoods seckillGoods = (TbSeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(seckillId);
         if (seckillGoods == null) {
             throw new ResourceNotFoundException("秒杀商品不存在，商品ID："+seckillId);
         }
-        Integer stockCount = seckillGoods.getStockCount();
-        if (stockCount == null || stockCount <= 0) {
-            throw new InsufficientStockException("秒杀商品已经被抢光");
-        }
 
-        // 原子扣减库存：使用Lua脚本确保读-减-写原子性，防止超卖
-        // 返回扣减后的库存数量，而非简单的0/1
-        String luaScript = "local stock = redis.call('HGET', KEYS[1], ARGV[1]) " +
+        // ✅ 修复：检查重复秒杀 + 扣减库存合并为一个Lua脚本原子执行
+        // 避免先扣库存后发现重复导致库存回滚的竞态窗口
+        String seckillUserKey = "seckill:user:" + seckillId;
+        String luaScript =
+                "local userKey = KEYS[2] " +
+                "local userId = ARGV[2] " +
+                "if redis.call('SISMEMBER', userKey, userId) == 1 then return -2 end " +
+                "local stock = redis.call('HGET', KEYS[1], ARGV[1]) " +
                 "if stock == false or tonumber(stock) <= 0 then return -1 end " +
-                "local newStock = redis.call('HINCRBY', KEYS[1], ARGV[1], -1) return newStock";
+                "local newStock = redis.call('HINCRBY', KEYS[1], ARGV[1], -1) " +
+                "redis.call('SADD', userKey, userId) " +
+                "return newStock";
         Long remainingStock = (Long) redisTemplate.execute(
                 new org.springframework.data.redis.core.script.DefaultRedisScript<>(luaScript, Long.class),
-                java.util.Collections.singletonList("seckillGoods"),
-                String.valueOf(seckillId));
-        if (remainingStock == null || remainingStock < 0) {
+                java.util.Arrays.asList("seckillGoods", seckillUserKey),
+                String.valueOf(seckillId), userId);
+        if (remainingStock == null || remainingStock == -1) {
             throw new InsufficientStockException("秒杀商品已经被抢光");
+        }
+        if (remainingStock == -2) {
+            throw new ValidationException("您已经秒杀过该商品，请勿重复秒杀");
         }
 
         // 扣减成功，更新本地对象
@@ -182,6 +191,10 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
             redisTemplate.boundHashOps("seckillGoods").delete(seckillId);
             logger.info("商品同步到数据库...");
         }
+
+        // 设置秒杀用户记录过期时间（秒杀活动结束后7天自动清理）
+        redisTemplate.boundSetOps(seckillUserKey).expire(7, java.util.concurrent.TimeUnit.DAYS);
+
         TbSeckillOrder seckillOrder = new TbSeckillOrder();
         seckillOrder.setId(idWorker.nextId());
         seckillOrder.setSeckillId(seckillId);
@@ -219,12 +232,12 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         if(transactionId==null||transactionId.trim().isEmpty()){
             throw new ValidationException("交易ID不能为空");
         }
-        
+
         TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
         if (seckillOrder == null) {
             throw new ResourceNotFoundException("不存在订单，用户ID："+userId);
         }
-        if (seckillOrder.getId().longValue() != orderId.longValue()) {
+        if (!seckillOrder.getId().equals(orderId)) {
             throw new ValidationException("订单号不符，期望订单ID："+orderId+"，实际订单ID："+seckillOrder.getId());
         }
         seckillOrder.setPayTime(new Date());

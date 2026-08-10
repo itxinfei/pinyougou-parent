@@ -1,6 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pinyougou.mapper.TbTypeTemplateMapper;
@@ -19,11 +20,12 @@ import java.util.Map;
  * 模板管理
  */
 @Service
-@Transactional
 public class TypeTemplateServiceImpl implements TypeTemplateService {
 
     @Autowired
     private TbTypeTemplateMapper typeTemplateMapper;
+
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TypeTemplateServiceImpl.class);
 
     /**
      * 查询全部
@@ -47,6 +49,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbTypeTemplate typeTemplate) {
         typeTemplateMapper.insert(typeTemplate);
     }
@@ -56,6 +59,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbTypeTemplate typeTemplate) {
         typeTemplateMapper.updateByPrimaryKey(typeTemplate);
     }
@@ -72,6 +76,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             typeTemplateMapper.deleteByPrimaryKey(id);
@@ -105,7 +110,23 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 
     @Override
     public List<Map> findSpecList(Long id) {
-        return null;
+        if (id == null) {
+            return null;
+        }
+        // 查询类型模板
+        TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
+        if (typeTemplate == null || typeTemplate.getSpecIds() == null || typeTemplate.getSpecIds().trim().isEmpty()) {
+            return null;
+        }
+        // 解析 specIds JSON 数组
+        // specIds 格式：[{"id":27,"name":"内存"},{"id":28,"name":"颜色"}]
+        try {
+            List<Map> specList = JSON.parseArray(typeTemplate.getSpecIds(), Map.class);
+            return specList;
+        } catch (Exception e) {
+            logger.error("解析规格JSON失败: templateId=" + id + ", specIds=" + typeTemplate.getSpecIds(), e);
+            return null;
+        }
     }
 
 

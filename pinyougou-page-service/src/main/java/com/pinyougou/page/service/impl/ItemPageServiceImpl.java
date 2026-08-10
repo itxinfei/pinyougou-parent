@@ -43,6 +43,16 @@ public class ItemPageServiceImpl implements ItemPageService {
     @Value("${pagedir}")
     private String pagedir;
 
+    /**
+     * 获取规范化的页面输出路径（确保末尾有路径分隔符）
+     */
+    private String getPageDir() {
+        if (pagedir == null) {
+            return "";
+        }
+        return pagedir.endsWith(File.separator) ? pagedir : pagedir + File.separator;
+    }
+
 
     @Autowired
     private TbGoodsMapper goodsMapper;
@@ -100,10 +110,12 @@ public class ItemPageServiceImpl implements ItemPageService {
             List<TbItem> itemList = itemMapper.selectByExample(example);
             dataModel.put("itemList", itemList);
 
-            Writer out = new FileWriter(pagedir + goodsId + ".html");
-
-            template.process(dataModel, out);//输出
-            out.close();
+            // ✅ 使用 try-with-resources 确保文件流正确关闭
+            // ✅ 使用 getPageDir() 确保路径分隔符正确拼接
+            String filePath = getPageDir() + goodsId + ".html";
+            try (Writer out = new FileWriter(filePath)) {
+                template.process(dataModel, out);
+            }
             return true;
 
         } catch (Exception e) {
@@ -121,7 +133,7 @@ public class ItemPageServiceImpl implements ItemPageService {
     public boolean deleteItemHtml(Long[] goodsIds) {
         try {
             for (Long goodsId : goodsIds) {
-                new File(pagedir + goodsId + ".html").delete();
+                new File(getPageDir() + goodsId + ".html").delete();
             }
             return true;
         } catch (Exception e) {

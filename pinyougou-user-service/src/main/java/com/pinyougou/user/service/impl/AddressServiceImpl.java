@@ -3,6 +3,7 @@ package com.pinyougou.user.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -47,6 +48,7 @@ public class AddressServiceImpl implements AddressService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbAddress address) {
         addressMapper.insert(address);
     }
@@ -56,6 +58,7 @@ public class AddressServiceImpl implements AddressService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbAddress address) {
         addressMapper.updateByPrimaryKey(address);
     }
@@ -75,6 +78,7 @@ public class AddressServiceImpl implements AddressService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             addressMapper.deleteByPrimaryKey(id);

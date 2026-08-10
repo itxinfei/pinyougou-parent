@@ -23,7 +23,6 @@ import java.util.Map;
  * 规格管理
  */
 @Service
-@Transactional
 public class SpecificationServiceImpl implements SpecificationService {
 
     @Autowired
@@ -54,6 +53,7 @@ public class SpecificationServiceImpl implements SpecificationService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(Specification specification) {
         //获取规格实体
         TbSpecification tbspecification = specification.getSpecification();
@@ -71,6 +71,7 @@ public class SpecificationServiceImpl implements SpecificationService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(Specification specification) {
 
         //获取规格实体
@@ -122,6 +123,7 @@ public class SpecificationServiceImpl implements SpecificationService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             //删除规格表数据

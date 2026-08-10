@@ -19,7 +19,6 @@ import java.util.Map;
  * 品牌管理
  */
 @Service
-@Transactional
 public class BrandServiceImpl implements BrandService {
 
     @Autowired
@@ -39,6 +38,7 @@ public class BrandServiceImpl implements BrandService {
      * 保存品牌
      */
     @Override
+    @Transactional
     public void save(TbBrand brand) {
         brandMapper.insert(brand);
     }
@@ -60,6 +60,7 @@ public class BrandServiceImpl implements BrandService {
      * @param brand
      */
     @Override
+    @Transactional
     public void update(TbBrand brand) {
         brandMapper.updateByPrimaryKey(brand);
     }
@@ -70,6 +71,7 @@ public class BrandServiceImpl implements BrandService {
      * @param ids
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             brandMapper.deleteByPrimaryKey(id);

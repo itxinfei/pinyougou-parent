@@ -23,11 +23,25 @@ public class UploadController {
     @RequestMapping("/uploadFile")
     public Result uploadFile(MultipartFile file) {
 
+        // 参数校验
+        if (file == null || file.isEmpty()) {
+            return new Result(false, "请选择要上传的文件");
+        }
+
         try {
             // 获得文件名:
             String fileName = file.getOriginalFilename();
+            if (fileName == null || fileName.isEmpty()) {
+                return new Result(false, "文件名不能为空");
+            }
+
             // 获得文件的扩展名:
-            String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
+            int dotIndex = fileName.lastIndexOf(".");
+            if (dotIndex < 0) {
+                return new Result(false, "文件必须包含扩展名");
+            }
+            String extName = fileName.substring(dotIndex + 1);
+
             // 创建工具类
             util.FastDFSClient client = new FastDFSClient("classpath:fastDFS/fdfs_client.conf");
 

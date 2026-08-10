@@ -21,7 +21,6 @@ import java.util.Map;
  * 商品录入
  */
 @Service
-@Transactional
 public class GoodsServiceImpl implements GoodsService {
 
     @Autowired
@@ -65,6 +64,7 @@ public class GoodsServiceImpl implements GoodsService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(Goods goods) {
         goods.getGoods().setAuditStatus("0"); // 设置审核的状态
         goodsMapper.insert(goods.getGoods()); // 插入商品信息
@@ -106,9 +106,13 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     private void setValue(Goods goods, TbItem item) {
-        List<Map> imageList = JSON.parseArray(goods.getGoodsDesc().getItemImages(), Map.class);
-        if (imageList.size() > 0) {
-            item.setImage((String) imageList.get(0).get("url"));
+        // 解析商品图片列表（可能为空或null）
+        String itemImages = goods.getGoodsDesc().getItemImages();
+        if (itemImages != null && !itemImages.isEmpty()) {
+            List<Map> imageList = JSON.parseArray(itemImages, Map.class);
+            if (imageList != null && imageList.size() > 0) {
+                item.setImage((String) imageList.get(0).get("url"));
+            }
         }
 
         // 保存三级分类的ID:
@@ -119,20 +123,22 @@ public class GoodsServiceImpl implements GoodsService {
         item.setGoodsId(goods.getGoods().getId());
         item.setSellerId(goods.getGoods().getSellerId());
 
+        // 查询分类、品牌、商家信息（需要空值保护）
         TbItemCat itemCat = itemCatMapper.selectByPrimaryKey(goods.getGoods().getCategory3Id());
-        item.setCategory(itemCat.getName());
+        item.setCategory(itemCat != null ? itemCat.getName() : "未分类");
 
         TbBrand brand = brandMapper.selectByPrimaryKey(goods.getGoods().getBrandId());
-        item.setBrand(brand.getName());
+        item.setBrand(brand != null ? brand.getName() : "未知品牌");
 
         TbSeller seller = sellerMapper.selectByPrimaryKey(goods.getGoods().getSellerId());
-        item.setSeller(seller.getNickName());
+        item.setSeller(seller != null ? seller.getNickName() : "未知商家");
     }
 
     /**
      * 修改
      */
     @Override
+    @Transactional
     public void update(Goods goods) {
         // 修改商品信息
         goods.getGoods().setAuditStatus("0");
@@ -178,6 +184,7 @@ public class GoodsServiceImpl implements GoodsService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
 //			goodsMapper.deleteByPrimaryKey(id);
@@ -229,6 +236,7 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    @Transactional
     public void updateStatus(Long[] ids, String status) {
         for (Long id : ids) {
             TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);

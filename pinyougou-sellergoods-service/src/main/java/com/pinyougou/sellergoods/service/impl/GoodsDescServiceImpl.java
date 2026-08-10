@@ -1,6 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -45,19 +46,21 @@ public class GoodsDescServiceImpl implements GoodsDescService {
 	 * 增加
 	 */
 	@Override
+	@Transactional
 	public void add(TbGoodsDesc goodsDesc) {
-		goodsDescMapper.insert(goodsDesc);		
+		goodsDescMapper.insert(goodsDesc);
 	}
 
-	
+
 	/**
 	 * 修改
 	 */
 	@Override
+	@Transactional
 	public void update(TbGoodsDesc goodsDesc){
 		goodsDescMapper.updateByPrimaryKey(goodsDesc);
-	}	
-	
+	}
+
 	/**
 	 * 根据ID获取实体
 	 * @param id
@@ -72,10 +75,11 @@ public class GoodsDescServiceImpl implements GoodsDescService {
 	 * 批量删除
 	 */
 	@Override
+	@Transactional
 	public void delete(Long[] ids) {
 		for(Long id:ids){
 			goodsDescMapper.deleteByPrimaryKey(id);
-		}		
+		}
 	}
 	
 	

@@ -23,7 +23,6 @@ import java.util.List;
  * @author Administrator
  */
 @Service
-@Transactional
 public class ContentServiceImpl implements ContentService {
 
     private static final Logger logger = Logger.getLogger(ContentServiceImpl.class);
@@ -57,6 +56,7 @@ public class ContentServiceImpl implements ContentService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbContent content) {
         contentMapper.insert(content);
         //清除缓存
@@ -68,6 +68,7 @@ public class ContentServiceImpl implements ContentService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbContent content) {
         //查询原来的分组ID
         TbContent oldContent = contentMapper.selectByPrimaryKey(content.getId());
@@ -101,6 +102,7 @@ public class ContentServiceImpl implements ContentService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             //清除缓存

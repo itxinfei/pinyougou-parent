@@ -13,11 +13,61 @@
     <result column="finish_time" jdbcType="TIMESTAMP" property="finishTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
-    ${whereClause}
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" suffix=")" prefixOverrides="and">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
   </sql>
   <sql id="Update_By_Example_Where_Clause">
     <where>
-      ${whereClause}
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" suffix=")" prefixOverrides="and">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
     </where>
   </sql>
   <sql id="Base_Column_List">
@@ -140,7 +190,7 @@
         transaction_id = #{record.transactionId,jdbcType=VARCHAR},
       </if>
       <if test="record.responseContent != null">
-      response_content = #{responseContent,jdbcType=VARCHAR},
+        response_content = #{record.responseContent,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -204,7 +254,7 @@
       reason = #{reason,jdbcType=VARCHAR},
       status = #{status,jdbcType=CHAR},
       transaction_id = #{transactionId,jdbcType=VARCHAR},
-      response_content = #{record.responseContent,jdbcType=VARCHAR},
+      response_content = #{responseContent,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       finish_time = #{finishTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}

@@ -17,7 +17,6 @@ import java.util.List;
  * 商品分类管理
  */
 @Service
-@Transactional
 public class ItemCatServiceImpl implements ItemCatService {
 
     @Autowired
@@ -54,6 +53,7 @@ public class ItemCatServiceImpl implements ItemCatService {
      * @param itemCat
      */
     @Override
+    @Transactional
     public void add(TbItemCat itemCat) {
         tbItemCatMapper.insert(itemCat);
     }
@@ -64,6 +64,7 @@ public class ItemCatServiceImpl implements ItemCatService {
      * @param itemCat
      */
     @Override
+    @Transactional
     public void update(TbItemCat itemCat) {
         tbItemCatMapper.updateByPrimaryKey(itemCat);
     }
@@ -84,6 +85,7 @@ public class ItemCatServiceImpl implements ItemCatService {
      *
      * @param ids
      */
+    @Transactional
     public void delete(Long[] ids) {
         tbItemCatMapper.deleteByPrimaryKey(ids);
     }

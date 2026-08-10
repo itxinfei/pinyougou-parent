@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.alibaba.dubbo.config.annotation.Service;
@@ -105,6 +105,7 @@ public class UserServiceImpl implements UserService {
      * @param user 用户实体（username/password/phone等）
      */
     @Override
+    @Transactional
     public void add(TbUser user) {
 
         user.setCreated(new Date());//用户注册时间
@@ -123,6 +124,7 @@ public class UserServiceImpl implements UserService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbUser user) {
         userMapper.updateByPrimaryKey(user);
     }
@@ -142,6 +144,7 @@ public class UserServiceImpl implements UserService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             userMapper.deleteByPrimaryKey(id);

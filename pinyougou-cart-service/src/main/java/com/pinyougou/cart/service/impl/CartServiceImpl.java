@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -99,31 +100,27 @@ public class CartServiceImpl implements CartService {
     public List<Cart> addGoodsToCartList(String userId, List<Cart> cartList, Long itemId, Integer num) {
         // ========== 分布式锁 ==========
         // 锁键格式: lock:cart:{userId}
-        // 注意：Spring Data Redis 1.7.x 的 setIfAbsent 不支持超时参数
-        // 需要分两步：先设置值，再设置过期时间
+        // 使用UUID作为锁值，确保只有持有相同值的线程才能释放锁
         String lockKey = CART_LOCK_PREFIX + userId;
-        Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1");
+        String lockValue = UUID.randomUUID().toString();
 
-        // 如果获取锁成功，设置过期时间
-        if (locked != null && locked) {
-            redisTemplate.expire(lockKey, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
-        }
-
-        // 尝试获取锁
+        // 尝试获取锁（使用setIfAbsent + 设置值 + 设置过期时间）
         int waitCount = 0;
-        while (locked == null || !locked) {
+        Boolean locked = false;
+        while (!locked) {
             if (waitCount++ >= CART_LOCK_WAIT_COUNT) {
                 throw new ValidationException("系统繁忙，请稍后重试");
+            }
+            locked = redisTemplate.opsForValue().setIfAbsent(lockKey, lockValue);
+            if (locked != null && locked) {
+                redisTemplate.expire(lockKey, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
+                break;
             }
             try {
                 Thread.sleep(500); // 500ms后重试
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new ValidationException("操作被中断");
-            }
-            locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1");
-            if (locked != null && locked) {
-                redisTemplate.expire(lockKey, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
             }
         }
 
@@ -226,8 +223,16 @@ public class CartServiceImpl implements CartService {
 
         } finally {
             // ========== 释放锁 ==========
-            // 使用finally确保锁一定会被释放（防止死锁）
-            redisTemplate.delete(lockKey);
+            // 使用Lua脚本确保原子性：只有锁值匹配时才删除，防止误删其他线程的锁
+            String luaScript = "if redis.call('get', KEYS[1]) == ARGV[1] then " +
+                    "return redis.call('del', KEYS[1]) " +
+                    "else " +
+                    "return 0 " +
+                    "end";
+            redisTemplate.execute(
+                    new org.springframework.data.redis.core.script.DefaultRedisScript<>(luaScript, Long.class),
+                    java.util.Collections.singletonList(lockKey),
+                    lockValue);
         }
     }
 
@@ -428,6 +433,30 @@ public class CartServiceImpl implements CartService {
                 }
             }
         }
+
+        // ========== 第三步：过滤已下架或无库存的商品 ==========
+        // 合并完成后，对购物车中每个商品查询数据库验证状态
+        List<Cart> cartsToRemove = new ArrayList<>();
+        for (Cart cart : cartList1) {
+            List<TbOrderItem> itemsToRemove = new ArrayList<>();
+            for (TbOrderItem orderItem : cart.getOrderItemList()) {
+                TbItem item = itemMapper.selectByPrimaryKey(orderItem.getItemId());
+                // 商品不存在、已下架(status!=1)或无库存
+                if (item == null || !"1".equals(item.getStatus()) || item.getStockCount() == null || item.getStockCount() <= 0) {
+                    logger.warn("合并时过滤无效商品: userId=" + userId + ", itemId=" + orderItem.getItemId());
+                    itemsToRemove.add(orderItem);
+                } else {
+                    // 更新商品最新价格
+                    orderItem.setPrice(item.getPrice());
+                    orderItem.setTotalFee(item.getPrice().multiply(new BigDecimal(orderItem.getNum())));
+                }
+            }
+            cart.getOrderItemList().removeAll(itemsToRemove);
+            if (cart.getOrderItemList().isEmpty()) {
+                cartsToRemove.add(cart);
+            }
+        }
+        cartList1.removeAll(cartsToRemove);
 
         logger.info("购物车合并完成: userId=" + userId + ", 合并后大小=" + cartList1.size());
         return cartList1;

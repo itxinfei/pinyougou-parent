@@ -46,7 +46,7 @@ public class CartController {
 		}
 		List<Cart> cartList_cookie = JSON.parseArray(cartListString, Cart.class);
 		
-		if(username.equals("anonymousUser")){//如果未登录
+		if("anonymousUser".equals(username)){//如果未登录
 			//从cookie中提取购物车
 			logger.info("从cookie中提取购物车");
 						
@@ -86,7 +86,7 @@ public class CartController {
 			//调用服务方法操作购物车
 			cartList = cartService.addGoodsToCartList(name, cartList, itemId, num);
 			
-			if(name.equals("anonymousUser")){//如果未登录
+			if("anonymousUser".equals(name)){//如果未登录
 				//将新的购物车存入cookie
 				String cartListString = JSON.toJSONString(cartList);
 				util.CookieUtil.setCookie(request, response, "cartList", cartListString, 3600*24, "UTF-8");

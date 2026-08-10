@@ -3,6 +3,7 @@ package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -47,6 +48,7 @@ public class ItemServiceImpl implements ItemService {
      * 增加
      */
     @Override
+    @Transactional
     public void add(TbItem item) {
         itemMapper.insert(item);
     }
@@ -56,6 +58,7 @@ public class ItemServiceImpl implements ItemService {
      * 修改
      */
     @Override
+    @Transactional
     public void update(TbItem item) {
         itemMapper.updateByPrimaryKey(item);
     }
@@ -75,6 +78,7 @@ public class ItemServiceImpl implements ItemService {
      * 批量删除
      */
     @Override
+    @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
             itemMapper.deleteByPrimaryKey(id);

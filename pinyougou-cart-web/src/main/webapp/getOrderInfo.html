@@ -58,7 +58,7 @@
 			<div class="fr search">
 				<form class="sui-form form-inline">
 					<div class="input-append">
-						<input type="text" type="text" class="input-error input-xxlarge" placeholder="品优购自营" />
+						<input type="text" class="input-error input-xxlarge" placeholder="品优购自营" />
 						<button class="sui-btn btn-xlarge btn-danger" type="button">搜索</button>
 					</div>
 				</form>
@@ -77,17 +77,13 @@
 				<div class="step-cont">
 					<div class="addressInfo">
 						<ul class="addr-detail">
-							<li class="addr-item">
-							
-							  <div ng-repeat="address in addressList">
+							<li class="addr-item" ng-repeat="address in addressList">
 								<div class="con name {{isSeletedAddress(address)?'selected':''}}"><a href="javascript:;" ng-click="selectAddress(address)">{{address.contact}}<span title="点击取消选择">&nbsp;</a></div>
 								<div class="con address">{{address.address}}<span>{{address.mobile}}</span>
 									<span class="base" ng-if="address.isDefault=='1'">默认地址</span>
 									<span class="edittext"><a data-toggle="modal" data-target=".edit" data-keyboard="false" >编辑</a>&nbsp;&nbsp;<a href="javascript:;">删除</a></span>
 								</div>
 								<div class="clearfix"></div>
-							  </div>
-							 
 							</li>
 							
 							

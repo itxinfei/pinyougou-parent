@@ -26,7 +26,7 @@
     <result column="legal_person_card_id" property="legalPersonCardId" jdbcType="VARCHAR" />
     <result column="bank_user" property="bankUser" jdbcType="VARCHAR" />
     <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
-    <result column="account_number" property="accountNumber" jdbcType="VARCHAR"></result>
+    <result column="account_number" property="accountNumber" jdbcType="VARCHAR"/>
   </resultMap>
 
   <sql id="Example_Where_Clause" >
