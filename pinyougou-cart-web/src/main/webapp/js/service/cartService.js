@@ -19,6 +19,7 @@ app.service('cartService',function($http){
 			return totalValue;
 		}
 
+		var totalMoney = 0;
 		for(var i=0;i<cartList.length ;i++){
 			var cart=cartList[i];//购物车对象
 			if(!cart || !cart.orderItemList) continue;
@@ -28,9 +29,11 @@ app.service('cartService',function($http){
 				if(!orderItem) continue;
 
 				totalValue.totalNum+=(orderItem.num || 0);//累加数量
-				totalValue.totalMoney+=(orderItem.totalFee || 0);//累加金额
+				totalMoney+=(orderItem.totalFee || 0);//累加金额
 			}
 		}
+		// 使用 toFixed(2) 避免浮点数精度问题
+		totalValue.totalMoney = parseFloat(totalMoney.toFixed(2));
 		return totalValue;
 
 	}
