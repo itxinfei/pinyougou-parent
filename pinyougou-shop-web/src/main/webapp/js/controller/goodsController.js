@@ -243,7 +243,20 @@ app.controller('goodsController' ,function($scope,$controller,$location,typeTemp
 	
 	// 显示状态
 	$scope.status = ["未审核","审核通过","审核未通过","关闭"];
-	
+
+	// 审核状态变更
+	$scope.updateStatus = function(status){
+		goodsService.updateStatus($scope.selectIds,status).success(
+			function(response){
+				if(response.flag){
+					$scope.reloadList();
+					$scope.selectIds = [];
+				}
+				alert(response.message);
+			}
+		).error(function(){ alert('操作失败，请稍后重试'); });
+	}
+
 	$scope.itemCatList = [];
 
 	// 显示分类:

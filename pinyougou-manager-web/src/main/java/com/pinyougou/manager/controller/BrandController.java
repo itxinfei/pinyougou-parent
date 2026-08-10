@@ -42,6 +42,14 @@ public class BrandController {
     }
 
     /**
+     * 分页查询品牌
+     */
+    @RequestMapping("/findPage")
+    public PageResult findPage(int page, int rows) {
+        return brandService.findPage(page, rows);
+    }
+
+    /**
      * 保存品牌
      *
      * @param brand 品牌信息
