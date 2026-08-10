@@ -165,14 +165,14 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         Criteria criteria = new Criteria("item_keywords").is(searchMap.get("keywords"));
         query.addCriteria(criteria);
         //1.2 按商品分类过滤
-        if (!"".equals(searchMap.get("category"))) {//如果用户选择了分类
+        if (searchMap.get("category") != null && !"".equals(searchMap.get("category"))) {//如果用户选择了分类
             FilterQuery filterQuery = new SimpleFilterQuery();
             Criteria filterCriteria = new Criteria("item_category").is(searchMap.get("category"));
             filterQuery.addCriteria(filterCriteria);
             query.addFilterQuery(filterQuery);
         }
         //1.3 按品牌过滤
-        if (!"".equals(searchMap.get("brand"))) {//如果用户选择了品牌
+        if (searchMap.get("brand") != null && !"".equals(searchMap.get("brand"))) {//如果用户选择了品牌
             FilterQuery filterQuery = new SimpleFilterQuery();
             Criteria filterCriteria = new Criteria("item_brand").is(searchMap.get("brand"));
             filterQuery.addCriteria(filterCriteria);
@@ -189,7 +189,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             }
         }
         //1.5按价格过滤
-        if (!"".equals(searchMap.get("price"))) {
+        if (searchMap.get("price") != null && !"".equals(searchMap.get("price"))) {
             String[] price = ((String) searchMap.get("price")).split("-");
             if (!price[0].equals("0")) { //如果最低价格不等于0
                 FilterQuery filterQuery = new SimpleFilterQuery();
