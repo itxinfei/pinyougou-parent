@@ -1,5 +1,5 @@
  //控制层
-app.controller('userController' ,function($scope,$controller,$location ,userService){
+app.controller('userController' ,function($scope,$controller,$location,$interval ,userService){
 
 	//注册用户
 	$scope.reg=function(){
@@ -27,6 +27,14 @@ app.controller('userController' ,function($scope,$controller,$location ,userServ
 
 	// 倒计时秒数
 	$scope.smsCooldown = 0;
+	var countdownTimer = null;
+
+	// 页面销毁时取消定时器，防止内存泄露
+	$scope.$on('$destroy', function() {
+		if (countdownTimer) {
+			$interval.cancel(countdownTimer);
+		}
+	});
 
 	//发送验证码
 	$scope.sendCode=function(){
@@ -44,15 +52,14 @@ app.controller('userController' ,function($scope,$controller,$location ,userServ
 			function(response){
 				if(response.success){
 					alert("验证码已发送");
-					// 开始60秒倒计时
+					// 使用 $interval 替代 setInterval，确保 AngularJS digest cycle 正确执行
 					$scope.smsCooldown = 60;
-					var timer = setInterval(function(){
-						$scope.$apply(function(){
-							$scope.smsCooldown--;
-							if($scope.smsCooldown <= 0){
-								clearInterval(timer);
-							}
-						});
+					countdownTimer = $interval(function(){
+						$scope.smsCooldown--;
+						if($scope.smsCooldown <= 0){
+							$interval.cancel(countdownTimer);
+							countdownTimer = null;
+						}
 					}, 1000);
 				} else {
 					alert(response.message);
