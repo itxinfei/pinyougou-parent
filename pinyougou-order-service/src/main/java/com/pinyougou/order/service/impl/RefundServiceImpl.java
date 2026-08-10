@@ -103,8 +103,8 @@ public class RefundServiceImpl implements RefundService {
 
             // 2. 检查订单状态
             String status = order.getStatus();
-            // 状态值与OrderServiceImpl保持一致："1"-未付款, "2"-已付款
-            if ("CLOSED".equals(status) || "FINISHED".equals(status)) {
+            // 状态值："1"-未付款, "2"-已付款, "5"-交易成功, "6"-交易关闭
+            if ("6".equals(status) || "5".equals(status)) {
                 resultMap.put("success", false);
                 resultMap.put("message", "订单状态不允许取消");
                 return resultMap;
@@ -119,7 +119,7 @@ public class RefundServiceImpl implements RefundService {
             } else {
                 // 未付款，直接取消
                 // 3.1 更新订单状态
-                order.setStatus("CLOSED");
+                order.setStatus("6");
                 order.setCloseTime(new Date());
                 order.setCancelReason(reason);
                 orderMapper.updateByPrimaryKey(order);
@@ -229,8 +229,8 @@ public class RefundServiceImpl implements RefundService {
 
             refundMapper.insert(refund);
 
-            // 6. 更新订单状态为退款中
-            order.setStatus("REFUND");
+            // 6. 更新订单状态为已付款（退款处理中，退款状态由退款记录单独跟踪）
+            order.setStatus("2");
             order.setCancelReason(reason);
             orderMapper.updateByPrimaryKey(order);
 
@@ -322,8 +322,8 @@ public class RefundServiceImpl implements RefundService {
             refund.setFinishTime(new Date());
             refundMapper.updateByPrimaryKey(refund);
 
-            // 5. 更新订单状态
-            order.setStatus("CLOSED");
+            // 5. 更新订单状态为交易关闭
+            order.setStatus("6");
             order.setCloseTime(new Date());
             orderMapper.updateByPrimaryKey(order);
 
