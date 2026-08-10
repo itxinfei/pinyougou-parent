@@ -28,4 +28,8 @@ app.service('settingService', function($http) {
     this.updatePassword = function(entity) {
         return $http.post('../user/updatePassword.do', entity);
     }
+    // 发送验证码
+    this.sendCode = function(phone) {
+        return $http.get('../user/sendCode.do?phone=' + phone);
+    }
 });

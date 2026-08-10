@@ -1,5 +1,5 @@
 // 用户设置控制器
-app.controller('settingController', function($scope, $timeout, loginService, settingService) {
+app.controller('settingController', function($scope, $timeout, $interval, loginService, settingService) {
     // 显示用户名
     $scope.showName = function() {
         loginService.showName().success(function(response) {
@@ -102,7 +102,32 @@ app.controller('settingController', function($scope, $timeout, loginService, set
             } else {
                 alert(response.message || '密码修改失败');
             }
-        });
+        }).error(function(){ alert('操作失败，请稍后重试'); });
+    }
+
+    // === 手机验证码 ===
+    $scope.smsCooldown = 0;
+    var countdownTimer = null;
+
+    $scope.sendCode = function(phone) {
+        if (!phone) {
+            alert('请输入手机号');
+            return;
+        }
+        settingService.sendCode(phone).success(function(response) {
+            if (response.success) {
+                alert('验证码已发送');
+                $scope.smsCooldown = 60;
+                countdownTimer = $interval(function() {
+                    $scope.smsCooldown--;
+                    if ($scope.smsCooldown <= 0) {
+                        $interval.cancel(countdownTimer);
+                    }
+                }, 1000);
+            } else {
+                alert(response.message || '发送失败');
+            }
+        }).error(function(){ alert('操作失败，请稍后重试'); });
     }
 
     // === 消息提示 ===
