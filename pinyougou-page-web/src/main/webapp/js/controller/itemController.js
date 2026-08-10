@@ -29,6 +29,10 @@ app.controller("itemController",function($scope,$http){
 	
 	//加载默认SKU
 	$scope.loadSku=function(){
+		if(!skuList || skuList.length === 0) {
+			$scope.sku={id:0,title:'暂无库存',price:0};
+			return;
+		}
 		$scope.sku=skuList[0];
 		$scope.specificationItems= JSON.parse(JSON.stringify($scope.sku.spec)) ;
 	}
@@ -64,19 +68,26 @@ app.controller("itemController",function($scope,$http){
 	
 	//添加商品到购物车
 	$scope.addToCart=function(){
-		//alert('SKUID:'+$scope.sku.id );		
-		
-		$http.get('http://localhost:9107/cart/addGoodsToCartList.do?itemId='
+		//alert('SKUID:'+$scope.sku.id );
+
+		// 检查SKU是否有效
+		if(!$scope.sku || !$scope.sku.id || $scope.sku.id === 0) {
+			alert('请选择有效的商品规格');
+			return;
+		}
+
+		// 使用相对路径，避免硬编码localhost
+		$http.get('cart/addGoodsToCartList.do?itemId='
 				+$scope.sku.id+'&num='+$scope.num ,{'withCredentials':true} ).success(
 					function(response){
 						if(response.success){
-							location.href='http://localhost:9107/cart.html';						
+							location.href='cart.html';
 						}else{
 							alert(response.message);
-						}					
-					}						
-				);	
-		
+						}
+					}
+				);
+
 	}
 	
 	
