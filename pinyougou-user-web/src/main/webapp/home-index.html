@@ -49,7 +49,7 @@
 								<li><a href="cooperation.html" target="_blank">合作招商</a></li>
 								<li><a href="shoplogin.html" target="_blank">商家后台</a></li>
 								<li><a href="cooperation.html" target="_blank">合作招商</a></li>
-								<li><a href="#">商家后台</a></li>
+								<li><a href="../shop-web/index.html" target="_blank">商家后台</a></li>
 							</ul>
 						</li>
 						<li class="f-item space"></li>
@@ -213,9 +213,9 @@ $(function(){
                                 <div class="choose-order">
                                     <div class="sui-pagination pagination-large top-pages">
                                         <ul>
-                                            <li class="prev disabled"><a href="#">上一页</a></li>
+                                            <li class="prev disabled"><a href="javascript:void(0)" ng-click="prevPage()">上一页</a></li>
 
-                                            <li class="next"><a href="#">下一页</a></li>
+                                            <li class="next"><a href="javascript:void(0)" ng-click="nextPage()">下一页</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -260,7 +260,7 @@ $(function(){
                                                     <td width="35%">
                                                         <div class="typographic">
                                                             <img src="img/goods.png" />
-                                                            <a href="#" class="block-text">{{order.goodsName}}</a>
+                                                            <a href="javascript:void(0)" class="block-text">{{order.goodsName}}</a>
                                                             <span class="guige">规格：{{order.spec}}</span>
                                                         </div>
                                                     </td>
@@ -285,16 +285,16 @@ $(function(){
                                                     <td width="10%" class="center">
                                                         <ul class="unstyled">
                                                             <li>{{getStatusName(order.status)}}</li>
-                                                            <li><a href="orderDetail.html" class="btn">订单详情</a></li>
+                                                            <li><a href="home-orderDetail.html?orderId={{order.orderId}}" class="btn">订单详情</a></li>
                                                         </ul>
                                                     </td>
                                                     <td width="10%" class="center">
                                                         <ul class="unstyled">
-                                                            <li ng-if="order.status=='1'"><a href="#" class="sui-btn btn-info">立即付款</a></li>
-                                                            <li ng-if="order.status=='1'">取消订单</li>
-                                                            <li ng-if="order.status=='2'"><a href="#" class="sui-btn btn-info">提醒发货</a></li>
-                                                            <li ng-if="order.status=='4'"><a href="#" class="sui-btn btn-info">确认收货</a></li>
-                                                            <li ng-if="order.status=='5'"><a href="#" class="sui-btn btn-info">评价</a></li>
+                                                            <li ng-if="order.status=='1'"><a href="javascript:void(0)" ng-click="goToPay(order.orderId)" class="sui-btn btn-info">立即付款</a></li>
+                                                            <li ng-if="order.status=='1'"><a href="javascript:void(0)" ng-click="cancelOrder(order.orderId)">取消订单</a></li>
+                                                            <li ng-if="order.status=='2'"><a href="javascript:void(0)" ng-click="remindShip(order.orderId)" class="sui-btn btn-info">提醒发货</a></li>
+                                                            <li ng-if="order.status=='4'"><a href="javascript:void(0)" ng-click="confirmReceive(order.orderId)" class="sui-btn btn-info">确认收货</a></li>
+                                                            <li ng-if="order.status=='5'"><a href="javascript:void(0)" ng-click="goToEvaluate(order.orderId)" class="sui-btn btn-info">评价</a></li>
                                                         </ul>
                                                     </td>
                                                 </tr>

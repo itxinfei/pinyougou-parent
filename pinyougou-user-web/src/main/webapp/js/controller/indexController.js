@@ -1,5 +1,5 @@
 //首页控制器
-app.controller('indexController',function($scope,$timeout,loginService,orderService){
+app.controller('indexController',function($scope,$timeout,$location,loginService,orderService){
 	$scope.paginationConf={
 		currentPage:1,
 		itemsPerPage:10,
@@ -99,6 +99,51 @@ app.controller('indexController',function($scope,$timeout,loginService,orderServ
 			return;
 		}
 		$scope.goToPage(page);
+	}
+
+	//去付款
+	$scope.goToPay=function(orderId){
+		location.href='../cart/pay.html?orderId='+orderId;
+	}
+
+	//取消订单
+	$scope.cancelOrder=function(orderId){
+		if(!confirm('确定要取消该订单吗？')) return;
+		orderService.updateStatus(orderId,'6').success(
+			function(response){
+				if(response.success){
+					$scope.showMessage('success','订单已取消');
+					$scope.reloadList();
+				}else{
+					$scope.showMessage('error',response.message||'取消失败');
+				}
+			}
+		).error(function(){ alert('操作失败，请稍后重试'); });
+	}
+
+	//提醒发货
+	$scope.remindShip=function(orderId){
+		$scope.showMessage('success','已提醒卖家发货');
+	}
+
+	//确认收货
+	$scope.confirmReceive=function(orderId){
+		if(!confirm('确认已收到货物？')) return;
+		orderService.updateStatus(orderId,'5').success(
+			function(response){
+				if(response.success){
+					$scope.showMessage('success','已确认收货');
+					$scope.reloadList();
+				}else{
+					$scope.showMessage('error',response.message||'确认失败');
+				}
+			}
+		).error(function(){ alert('操作失败，请稍后重试'); });
+	}
+
+	//去评价
+	$scope.goToEvaluate=function(orderId){
+		location.href='home-order-evaluate.html?orderId='+orderId;
 	}
 	
 	$scope.getStatusName=function(status){
