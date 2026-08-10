@@ -96,5 +96,5 @@ String.toJson = function() {
         return null;
 
     var str = arguments[0];
-    return (new Function("return " + str))();
+    return JSON.parse(str);
 };

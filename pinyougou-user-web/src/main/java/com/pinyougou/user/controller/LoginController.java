@@ -98,7 +98,8 @@ public class LoginController {
 
             return new Result(success, message);
         } catch (Exception e) {
-            return new Result(false, "注册失败：" + e.getMessage());
+            logger.error("注册失败", e);
+            return new Result(false, "注册失败，请稍后重试");
         }
     }
 

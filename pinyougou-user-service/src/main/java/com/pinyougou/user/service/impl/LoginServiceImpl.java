@@ -117,20 +117,19 @@ public class LoginServiceImpl implements LoginService {
 
             // ========== 第二步：检查IP频率限制 ==========
             String ipKey = LOGIN_FAILURE_PREFIX + "ip:" + clientIp;
-            Long ipCount = redisTemplate.boundValueOps(ipKey).increment(0);
+            // ✅ 原子操作：先递增再检查（消除 check-then-act 竞态条件）
+            Long ipCount = redisTemplate.boundValueOps(ipKey).increment(1);
 
-            if (ipCount != null && ipCount >= IP_LOGIN_LIMIT_PER_MINUTE) {
+            if (ipCount != null && ipCount == 1) {
+                // 第一次请求，设置过期时间为1分钟
+                redisTemplate.boundValueOps(ipKey).expire(1, java.util.concurrent.TimeUnit.MINUTES);
+            }
+
+            if (ipCount != null && ipCount > IP_LOGIN_LIMIT_PER_MINUTE) {
                 logger.warn("IP访问频率过高，拒绝请求: ip=" + clientIp + ", count=" + ipCount);
                 resultMap.put("success", false);
                 resultMap.put("message", "访问过于频繁，请稍后再试");
                 return resultMap;
-            }
-
-            // 递增IP计数器（过期时间1分钟）
-            redisTemplate.boundValueOps(ipKey).increment(1);
-            if (ipCount == null || ipCount == 0) {
-                // 第一次请求，设置过期时间为1分钟
-                redisTemplate.boundValueOps(ipKey).expire(1, java.util.concurrent.TimeUnit.MINUTES);
             }
 
             // ========== 第三步：检查登录失败次数（防暴力破解） ==========

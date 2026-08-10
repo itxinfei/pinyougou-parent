@@ -50,9 +50,12 @@ public class IdWorker {
 
     private final static long sequenceMask = -1L ^ (-1L << sequenceBits);
     /* 上次生产id时间戳 */
-    private static long lastTimestamp = -1L;
+    private static volatile long lastTimestamp = -1L;
     // 0，并发控制
-    private static long sequence = 0L;
+    private static volatile long sequence = 0L;
+
+    // 类级别锁对象（保护静态字段 lastTimestamp 和 sequence）
+    private static final Object LOCK = new Object();
 
     private final long workerId;
     // 数据标识id部分
@@ -83,26 +86,28 @@ public class IdWorker {
      *
      * @return
      */
-    public synchronized long nextId() {
-        long timestamp = timeGen();
-        if (timestamp < lastTimestamp) {
-            throw new ValidationException("时钟回拨，拒绝生成ID，回拨时间：" + (lastTimestamp - timestamp) + "毫秒");
-        }
-
-        if (lastTimestamp == timestamp) {
-            sequence = (sequence + 1) & sequenceMask;
-            if (sequence == 0) {
-                timestamp = tilNextMillis(lastTimestamp);
+    public long nextId() {
+        synchronized (LOCK) {
+            long timestamp = timeGen();
+            if (timestamp < lastTimestamp) {
+                throw new ValidationException("时钟回拨，拒绝生成ID，回拨时间：" + (lastTimestamp - timestamp) + "毫秒");
             }
-        } else {
-            sequence = 0L;
-        }
-        lastTimestamp = timestamp;
-        long nextId = ((timestamp - twepoch) << timestampLeftShift)
-                | (datacenterId << datacenterIdShift)
-                | (workerId << workerIdShift) | sequence;
 
-        return nextId;
+            if (lastTimestamp == timestamp) {
+                sequence = (sequence + 1) & sequenceMask;
+                if (sequence == 0) {
+                    timestamp = tilNextMillis(lastTimestamp);
+                }
+            } else {
+                sequence = 0L;
+            }
+            lastTimestamp = timestamp;
+            long nextId = ((timestamp - twepoch) << timestampLeftShift)
+                    | (datacenterId << datacenterIdShift)
+                    | (workerId << workerIdShift) | sequence;
+
+            return nextId;
+        }
     }
 
     private long tilNextMillis(final long lastTimestamp) {

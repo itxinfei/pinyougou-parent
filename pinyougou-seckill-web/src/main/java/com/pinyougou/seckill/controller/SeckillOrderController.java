@@ -127,13 +127,13 @@ public class SeckillOrderController {
 		try {
 			seckillOrderService.submitOrder(seckillId, username);
 			return new Result(true, "提交订单成功");
-			
-		}catch (RuntimeException e) {
-			logger.error("提交秒杀订单运行时异常", e);
+
+		} catch (com.pinyougou.exception.BusinessException e) {
+			logger.warn("提交秒杀订单业务异常: " + e.getMessage());
 			return new Result(false, e.getMessage());
 		} catch (Exception e) {
 			logger.error("提交秒杀订单失败", e);
-			return new Result(false, "提交订单失败");
+			return new Result(false, "提交订单失败，请稍后重试");
 		}
 		
 	}

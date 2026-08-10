@@ -111,9 +111,8 @@ public class CartServiceImpl implements CartService {
             if (waitCount++ >= CART_LOCK_WAIT_COUNT) {
                 throw new ValidationException("系统繁忙，请稍后重试");
             }
-            locked = redisTemplate.opsForValue().setIfAbsent(lockKey, lockValue);
+            locked = redisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
             if (locked != null && locked) {
-                redisTemplate.expire(lockKey, CART_LOCK_TIMEOUT, TimeUnit.SECONDS);
                 break;
             }
             try {
