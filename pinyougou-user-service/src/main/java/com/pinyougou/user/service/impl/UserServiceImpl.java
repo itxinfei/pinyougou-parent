@@ -1,7 +1,6 @@
 package com.pinyougou.user.service.impl;
 
 import java.security.SecureRandom;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +12,6 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -210,7 +208,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private JmsTemplate jmsTemplate;
@@ -355,11 +353,10 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new ValidationException("用户不存在");
         }
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if (!encoder.matches(oldPassword, user.getPassword())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new ValidationException("原密码错误");
         }
-        user.setPassword(encoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userMapper.updateByPrimaryKeySelective(user);
     }
 }

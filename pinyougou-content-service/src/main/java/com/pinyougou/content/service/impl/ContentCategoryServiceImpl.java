@@ -20,7 +20,6 @@ import java.util.List;
  * @author Administrator
  */
 @Service
-//@Transactional
 public class ContentCategoryServiceImpl implements ContentCategoryService {
 
     @Autowired

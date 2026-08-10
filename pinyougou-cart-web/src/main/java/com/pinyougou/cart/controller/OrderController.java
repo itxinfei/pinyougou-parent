@@ -123,7 +123,7 @@ public class OrderController {
 	
 		/**
 	 * 查询+分页
-	 * @param brand
+	 * @param order
 	 * @param page
 	 * @param rows
 	 * @return

@@ -190,7 +190,6 @@ public class GoodsServiceImpl implements GoodsService {
     @Transactional
     public void delete(Long[] ids) {
         for (Long id : ids) {
-//			goodsMapper.deleteByPrimaryKey(id);
             TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
             tbGoods.setIsDelete("1");
             goodsMapper.updateByPrimaryKey(tbGoods);

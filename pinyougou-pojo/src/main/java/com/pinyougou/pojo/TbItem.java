@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Map;
 
 public class TbItem implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Field
     private Long id;

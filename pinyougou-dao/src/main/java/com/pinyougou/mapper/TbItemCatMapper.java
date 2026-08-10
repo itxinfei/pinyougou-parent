@@ -12,7 +12,7 @@ public interface TbItemCatMapper {
 
     int deleteByExample(TbItemCatExample example);
 
-    int deleteByPrimaryKey(Long [] id);
+    int deleteByPrimaryKey(Long id);
 
     int deleteByPrimaryKeys(Long [] id);
 

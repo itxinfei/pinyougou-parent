@@ -11,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.alibaba.dubbo.config.annotation.Service;
@@ -80,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private IdWorker idWorker;
@@ -123,22 +122,22 @@ public class OrderServiceImpl implements OrderService {
     public void add(TbOrder order) {
 
         // ========== 第一步：参数校验 ==========
-        if(order==null){
+        if (order == null) {
             throw new ValidationException("订单信息不能为空");
         }
-        if(order.getUserId()==null||order.getUserId().trim().isEmpty()){
+        if (order.getUserId() == null || order.getUserId().trim().isEmpty()) {
             throw new ValidationException("用户ID不能为空");
         }
-        if(order.getPaymentType()==null||order.getPaymentType().trim().isEmpty()){
+        if (order.getPaymentType() == null || order.getPaymentType().trim().isEmpty()) {
             throw new ValidationException("支付方式不能为空");
         }
-        if(order.getReceiver()==null||order.getReceiver().trim().isEmpty()){
+        if (order.getReceiver() == null || order.getReceiver().trim().isEmpty()) {
             throw new ValidationException("收货人不能为空");
         }
-        if(order.getReceiverMobile()==null||order.getReceiverMobile().trim().isEmpty()){
+        if (order.getReceiverMobile() == null || order.getReceiverMobile().trim().isEmpty()) {
             throw new ValidationException("收货人电话不能为空");
         }
-        if(order.getReceiverAreaName()==null||order.getReceiverAreaName().trim().isEmpty()){
+        if (order.getReceiverAreaName() == null || order.getReceiverAreaName().trim().isEmpty()) {
             throw new ValidationException("收货地址不能为空");
         }
 
@@ -146,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
         // key 格式: cartList -> HashMap(userId -> List<Cart>)
         List<Cart> cartList = (List<Cart>) redisTemplate.boundHashOps("cartList").get(order.getUserId());
 
-        if(cartList==null||cartList.isEmpty()){
+        if (cartList == null || cartList.isEmpty()) {
             throw new ValidationException("购物车为空，无法创建订单");
         }
 
@@ -155,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
         // ✅ 使用BigDecimal替代double计算金额（避免精度损失）
         // BigDecimal特点：任意精度、适合货币计算
         // 使用String.valueOf()构造器避免double精度损失
-        BigDecimal total_money = BigDecimal.ZERO;
+        BigDecimal totalMoney = BigDecimal.ZERO;
 
         // ✅ 记录成功和失败的订单
         List<String> successOrderIds = new ArrayList<>();
@@ -178,7 +177,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 // 累加总金额
-                // 注意：total_money 在成功时累加（从 createOrderByCart 返回的 tbOrder 中获取）
+                // 注意：totalMoney 在成功时累加（从 createOrderByCart 返回的 tbOrder 中获取）
                 // 由于 createOrderByCart 现在返回 sellerId，需要另一种方式获取金额
                 // 这里重新计算：从 orderIdList 中查询已创建的订单
             } catch (Exception e) {
@@ -196,7 +195,7 @@ public class OrderServiceImpl implements OrderService {
             for (String orderIdStr : successOrderIds) {
                 TbOrder createdOrder = orderMapper.selectByPrimaryKey(Long.valueOf(orderIdStr));
                 if (createdOrder != null) {
-                    total_money = total_money.add(createdOrder.getPayment());
+                    totalMoney = totalMoney.add(createdOrder.getPayment());
                 }
             }
             // 生成支付日志
@@ -214,7 +213,7 @@ public class OrderServiceImpl implements OrderService {
             // ✅ 金额转换：使用BigDecimal精确计算，避免double精度损失
             // 元转分：multiply(100) 乘以100
             // setScale(0, RoundingMode.HALF_UP) 四舍五入取整
-            payLog.setTotalFee(total_money.multiply(new BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).longValue());
+            payLog.setTotalFee(totalMoney.multiply(new BigDecimal(100)).setScale(0, RoundingMode.HALF_UP).longValue());
 
             payLog.setTradeState("0");  // 交易状态：0-未支付
             payLog.setPayType("1");     // 支付类型：1-微信支付

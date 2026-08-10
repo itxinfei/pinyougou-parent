@@ -102,7 +102,7 @@ public class ItemCatController {
 	
 		/**
 	 * 查询+分页
-	 * @param brand
+	 * @param itemCat
 	 * @param page
 	 * @param rows
 	 * @return

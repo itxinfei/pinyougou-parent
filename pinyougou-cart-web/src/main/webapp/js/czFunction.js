@@ -33,26 +33,28 @@ var czHttp = {
 
     // 获取 http get 对象
     get : function (url, data, callback) {
-        $.get(url, data, function(json){
-            callback(json);
-        });
-    },
-    get : function (url, callback) {
-        $.get(url, function(json){
-            callback(json);
-        });
+        if (arguments.length === 2) {
+            $.get(url, function(json){
+                data(json);
+            });
+        } else {
+            $.get(url, data, function(json){
+                callback(json);
+            });
+        }
     },
 
     // 获取 http post 对象
     post : function (url, data, callback) {
-        $.post(url, data, function(json){
-            callback(json);
-        });
-    },
-    post : function (url, callback) {
-        $.post(url, function(json){
-            callback(json);
-        });
+        if (arguments.length === 2) {
+            $.post(url, function(json){
+                data(json);
+            });
+        } else {
+            $.post(url, data, function(json){
+                callback(json);
+            });
+        }
     }
 
 };

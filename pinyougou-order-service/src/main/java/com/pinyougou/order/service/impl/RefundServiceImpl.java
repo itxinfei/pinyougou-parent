@@ -476,24 +476,7 @@ public class RefundServiceImpl implements RefundService {
      * 退还优惠券
      */
     private void returnCoupon(Long orderId) {
-        try {
-            // 查询订单使用的优惠券
-            // TODO: 需要在TbOrder中添加user_coupon_id字段
-            // 暂时注释
-            /*
-            TbOrder order = orderMapper.selectByPrimaryKey(orderId);
-            Long userCouponId = order.getUserCouponId();
-            if (userCouponId != null) {
-                // 退还优惠券
-                TbUserCoupon userCoupon = userCouponService.findOne(userCouponId);
-                userCoupon.setStatus("0"); // 未使用
-                userCouponService.update(userCoupon);
-                logger.info("退还优惠券: " + userCouponId);
-            }
-            */
-        } catch (Exception e) {
-            logger.error("退还优惠券失败", e);
-        }
+        // TODO: 需要在TbOrder中添加user_coupon_id字段后实现
     }
 
     /**

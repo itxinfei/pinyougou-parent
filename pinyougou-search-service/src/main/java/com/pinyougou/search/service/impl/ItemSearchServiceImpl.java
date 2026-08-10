@@ -33,7 +33,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     private SolrTemplate solrTemplate;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     // ✅ 新增：商品分类Mapper（用于缓存降级）
     @Autowired

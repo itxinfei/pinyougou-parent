@@ -105,7 +105,7 @@ public class AddressController {
 	
 		/**
 	 * 查询+分页
-	 * @param brand
+	 * @param address
 	 * @param page
 	 * @param rows
 	 * @return

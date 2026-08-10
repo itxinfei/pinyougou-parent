@@ -36,19 +36,19 @@ public class JwtUtils {
      * ✅ 从配置文件读取JWT签名密钥（替代硬编码）
      */
     @Value("${jwt.secret:pinyougou_secure_key_2026_change_in_production}")
-    private String SECRET;
+    private String secret;
 
     /**
      * ✅ 从配置文件读取Access Token有效期（默认2小时）
      */
     @Value("${jwt.expiration:7200}")
-    private long EXPIRATION;
+    private long expiration;
 
     /**
      * ✅ 从配置文件读取Refresh Token有效期（默认7天）
      */
     @Value("${jwt.refreshExpiration:604800}")
-    private long REFRESH_EXPIRATION;
+    private long refreshExpiration;
 
     /**
      * 主题（Subject）
@@ -67,7 +67,7 @@ public class JwtUtils {
      * @return JWT Token
      */
     public String generateToken(String username) {
-        return generateToken(username, EXPIRATION);
+        return generateToken(username, expiration);
     }
 
     /**
@@ -88,7 +88,7 @@ public class JwtUtils {
             .setIssuedAt(issuedAt)
             .setExpiration(expirationDate)
             .setAudience(username) // 观众（用户名）
-            .signWith(SignatureAlgorithm.HS512, SECRET);
+            .signWith(SignatureAlgorithm.HS512, secret);
 
         return builder.compact();
     }
@@ -100,7 +100,7 @@ public class JwtUtils {
      * @return Refresh Token
      */
     public String generateRefreshToken(String username) {
-        return generateToken(username, REFRESH_EXPIRATION);
+        return generateToken(username, refreshExpiration);
     }
 
     /**
@@ -112,7 +112,7 @@ public class JwtUtils {
     public Claims parseToken(String token) {
         try {
             return Jwts.parser()
-                .setSigningKey(SECRET)
+                .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
         } catch (Exception e) {

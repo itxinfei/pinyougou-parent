@@ -136,7 +136,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
     }
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private TbSeckillGoodsMapper seckillGoodsMapper;
@@ -150,10 +150,10 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      */
     @Override
     public void submitOrder(Long seckillId, String userId) {
-        if(seckillId==null||seckillId<=0){
+        if (seckillId == null || seckillId <= 0) {
             throw new ValidationException("秒杀商品ID不能为空且必须大于0");
         }
-        if(userId==null||userId.trim().isEmpty()){
+        if (userId == null || userId.trim().isEmpty()) {
             throw new ValidationException("用户ID不能为空");
         }
 
@@ -226,13 +226,13 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      */
     @Override
     public void saveOrderFromRedisToDb(String userId, Long orderId, String transactionId) {
-        if(userId==null||userId.trim().isEmpty()){
+        if (userId == null || userId.trim().isEmpty()) {
             throw new ValidationException("用户ID不能为空");
         }
-        if(orderId==null||orderId<=0){
+        if (orderId == null || orderId <= 0) {
             throw new ValidationException("订单ID不能为空且必须大于0");
         }
-        if(transactionId==null||transactionId.trim().isEmpty()){
+        if (transactionId == null || transactionId.trim().isEmpty()) {
             throw new ValidationException("交易ID不能为空");
         }
 

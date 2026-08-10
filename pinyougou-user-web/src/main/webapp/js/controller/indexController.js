@@ -19,7 +19,7 @@ app.controller('indexController',function($scope,$timeout,$location,loginService
 		{value:'',name:'全部状态'},
 		{value:'1',name:'未付款'},
 		{value:'2',name:'已付款'},
-		{value:'3',name:'未发货'},
+		{value:'3',name:'待发货'},
 		{value:'4',name:'已发货'},
 		{value:'5',name:'交易成功'},
 		{value:'6',name:'交易关闭'}

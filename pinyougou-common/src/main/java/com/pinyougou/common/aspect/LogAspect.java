@@ -46,13 +46,11 @@ public class LogAspect {
         }
 
         // 4. 执行目标方法
-        Object result = null;
         boolean success = true;
         String errorMessage = null;
 
         try {
-            result = point.proceed();
-            return result;
+            return point.proceed();
         } catch (Exception e) {
             success = false;
             errorMessage = e.getMessage();

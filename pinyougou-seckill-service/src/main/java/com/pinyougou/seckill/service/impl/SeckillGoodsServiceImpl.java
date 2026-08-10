@@ -126,7 +126,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
     }
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 返回当前正在参与秒杀的商品
@@ -134,8 +134,9 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
      * @return
      */
     @Override
+    @SuppressWarnings("unchecked")
     public List<TbSeckillGoods> findList() {
-        List<TbSeckillGoods> seckillGoodsList = redisTemplate.boundHashOps("seckillGoods").values();
+        List<TbSeckillGoods> seckillGoodsList = (List<TbSeckillGoods>)(List<?>) redisTemplate.boundHashOps("seckillGoods").values();
         if (seckillGoodsList == null || seckillGoodsList.size() == 0) {
             TbSeckillGoodsExample example = new TbSeckillGoodsExample();
             Criteria criteria = example.createCriteria();

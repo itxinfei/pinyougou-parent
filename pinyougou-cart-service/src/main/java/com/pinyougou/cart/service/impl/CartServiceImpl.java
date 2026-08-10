@@ -127,13 +127,13 @@ public class CartServiceImpl implements CartService {
 
         try {
             // ========== 参数校验 ==========
-            if(itemId==null||itemId<=0){
+            if (itemId == null || itemId <= 0) {
                 throw new ValidationException("商品ID不能为空且必须大于0");
             }
-            if(num==null){
+            if (num == null) {
                 throw new ValidationException("商品数量不能为空");
             }
-            if(num>999){
+            if (num > 999) {
                 throw new ValidationException("单次购买数量不能超过999件");
             }
 
@@ -161,59 +161,59 @@ public class CartServiceImpl implements CartService {
 
             // ========== 商品信息校验 ==========
             TbItem item = itemMapper.selectByPrimaryKey(itemId);
-            if(item==null){
+            if (item == null) {
                 throw new ResourceNotFoundException("商品不存在");
             }
-            if(!item.getStatus().equals("1")){
+            if (!"1".equals(item.getStatus())) {
                 throw new ValidationException("商品状态不合法");
             }
-            if(item.getStockCount()==null||item.getStockCount()<=0){
+            if (item.getStockCount() == null || item.getStockCount() <= 0) {
                 throw new InsufficientStockException("商品库存不足");
             }
-            if(num>item.getStockCount()){
-                throw new InsufficientStockException("购买数量超过库存，当前库存："+item.getStockCount());
+            if (num > item.getStockCount()) {
+                throw new InsufficientStockException("购买数量超过库存，当前库存：" + item.getStockCount());
             }
 
             String sellerId = item.getSellerId();
 
             // ========== 查找购物车 ==========
-            Cart cart = searchCartBySellerId(cartList,sellerId);
+            Cart cart = searchCartBySellerId(cartList, sellerId);
 
-            if(cart==null){
+            if (cart == null) {
                 // ========== 购物车不存在，创建新购物车 ==========
-                cart=new Cart();
+                cart = new Cart();
                 cart.setSellerId(sellerId);
                 cart.setSellerName(item.getSeller());
-                List<TbOrderItem> orderItemList=new ArrayList();
-                TbOrderItem orderItem = createOrderItem(item,num);
+                List<TbOrderItem> orderItemList = new ArrayList();
+                TbOrderItem orderItem = createOrderItem(item, num);
                 orderItemList.add(orderItem);
                 cart.setOrderItemList(orderItemList);
 
                 cartList.add(cart);
 
-            }else{
+            } else {
                 // ========== 购物车已存在，查找商品 ==========
-                TbOrderItem orderItem = searchOrderItemByItemId(cart.getOrderItemList(),itemId);
-                if(orderItem==null){
+                TbOrderItem orderItem = searchOrderItemByItemId(cart.getOrderItemList(), itemId);
+                if (orderItem == null) {
                     // ========== 商品不存在，新增商品 ==========
-                    orderItem=createOrderItem(item,num);
+                    orderItem = createOrderItem(item, num);
                     cart.getOrderItemList().add(orderItem);
 
-                }else{
+                } else {
                     // ========== 商品已存在，增加数量 ==========
-                    int newNum=orderItem.getNum()+num;
-                    if(newNum>999){
+                    int newNum = orderItem.getNum() + num;
+                    if (newNum > 999) {
                         throw new ValidationException("单次购买数量不能超过999件");
                     }
-                    if(newNum>item.getStockCount()){
-                        throw new InsufficientStockException("购买数量超过库存，当前库存："+item.getStockCount());
+                    if (newNum > item.getStockCount()) {
+                        throw new InsufficientStockException("购买数量超过库存，当前库存：" + item.getStockCount());
                     }
                     orderItem.setNum(newNum);
                     orderItem.setTotalFee(orderItem.getPrice().multiply(new BigDecimal(orderItem.getNum())));
-                    if(orderItem.getNum()<=0){
+                    if (orderItem.getNum() <= 0) {
                         cart.getOrderItemList().remove(orderItem);
                     }
-                    if(cart.getOrderItemList().size()==0){
+                    if (cart.getOrderItemList().size() == 0) {
                         cartList.remove(cart);
                     }
                 }

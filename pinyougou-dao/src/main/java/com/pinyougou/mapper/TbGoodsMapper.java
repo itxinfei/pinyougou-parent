@@ -12,7 +12,9 @@ public interface TbGoodsMapper {
 
     int deleteByExample(TbGoodsExample example);
 
-    int deleteByPrimaryKey(Long[] id);
+    int deleteByPrimaryKey(Long id);
+
+    int deleteByPrimaryKeys(Long[] ids);
 
     int insert(TbGoods record);
 

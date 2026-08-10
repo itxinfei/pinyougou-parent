@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.annotation.PreDestroy;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +39,11 @@ public class PayController {
 
 	@Reference
 	private OrderService orderService;
+
+	@PreDestroy
+	public void destroy() {
+		payQueryExecutor.shutdown();
+	}
 
 	@RequestMapping("/createNative")
 	public Map createNative(){

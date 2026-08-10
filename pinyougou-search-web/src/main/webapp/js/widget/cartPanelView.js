@@ -106,14 +106,16 @@ $(function() {
 
     // 初始购物车侧边栏
     cartPanelView.setup(function(){
-        // 载入购物车列表
-        cartPanelView.fillCart(orderData);
+        // 购物车数据应从服务端加载，不再使用本地mock数据
+        // cartPanelView.fillCart(orderData);
     });
 
 });
 
 
 
+// 以下为本地mock数据，已注释
+/*
 var orderData = {
   "totalQuantity":2,
   "totalPrices":8998,
@@ -163,3 +165,4 @@ var orderData = {
     }
   ]
 };
+*/

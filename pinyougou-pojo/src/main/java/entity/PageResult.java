@@ -9,6 +9,7 @@ import java.util.List;
  *
  */
 public class PageResult implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private long total; // 总记录数
 	private List rows; // 返回每页的数据的集合
 	

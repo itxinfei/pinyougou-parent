@@ -102,7 +102,6 @@ $(function() {
 			$(".type-list li a").not(".redhover").attr("class", "grayhover");
 		})
 		$(this).removeClass(".redhover");
-		alert(RetSelecteds());
 	})
 
 });

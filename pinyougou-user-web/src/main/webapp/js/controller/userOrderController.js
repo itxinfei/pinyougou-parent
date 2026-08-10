@@ -13,7 +13,7 @@ app.controller('userOrderController', function($scope, $timeout, $location, user
 
     //状态映射
     $scope.statusMap = {
-        '1': '待付款',
+        '1': '未付款',
         '2': '已付款',
         '3': '待发货',
         '4': '已发货',

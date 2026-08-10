@@ -25,9 +25,4 @@ public class BusinessException extends RuntimeException {
     public void setCode(String code) {
         this.code = code;
     }
-
-    @Override
-    public String getMessage() {
-        return super.getMessage();
-    }
 }

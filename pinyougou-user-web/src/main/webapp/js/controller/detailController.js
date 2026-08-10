@@ -19,7 +19,7 @@ app.controller('detailController', function($scope, $timeout, $location, loginSe
     }
 
     $scope.getStatusName = function(status) {
-        var map = {'1':'待付款','2':'待发货','3':'已发货','4':'已完成','5':'已关闭'};
+        var map = {'1':'未付款','2':'已付款','3':'待发货','4':'已发货','5':'交易成功','6':'交易关闭'};
         return map[status] || '未知状态';
     }
 

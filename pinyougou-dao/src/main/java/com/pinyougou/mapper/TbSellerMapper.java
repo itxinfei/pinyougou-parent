@@ -11,7 +11,7 @@ public interface TbSellerMapper {
 
     int deleteByExample(TbSellerExample example);
 
-    int deleteByPrimaryKey(String[] sellerId);
+    int deleteByPrimaryKey(String sellerId);
 
     int deleteByPrimaryKeys(String[] sellerId);
 

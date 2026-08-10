@@ -140,7 +140,7 @@ public final class CookieUtil {
      * 
      * @param cookieMaxage cookie生效的最大秒数
      */
-    private static final void doSetCookie(HttpServletRequest request, HttpServletResponse response,
+    private static void doSetCookie(HttpServletRequest request, HttpServletResponse response,
             String cookieName, String cookieValue, int cookieMaxage, boolean isEncode) {
         try {
             if (cookieValue == null) {
@@ -170,7 +170,7 @@ public final class CookieUtil {
      * 
      * @param cookieMaxage cookie生效的最大秒数
      */
-    private static final void doSetCookie(HttpServletRequest request, HttpServletResponse response,
+    private static void doSetCookie(HttpServletRequest request, HttpServletResponse response,
             String cookieName, String cookieValue, int cookieMaxage, String encodeString) {
         try {
             if (cookieValue == null) {
@@ -198,7 +198,7 @@ public final class CookieUtil {
     /**
      * 得到cookie的域名
      */
-    private static final String getDomainName(HttpServletRequest request) {
+    private static String getDomainName(HttpServletRequest request) {
         String domainName = null;
 
         String serverName = request.getRequestURL().toString();
