@@ -128,8 +128,8 @@ public class CartServiceImpl implements CartService {
             if(itemId==null||itemId<=0){
                 throw new ValidationException("商品ID不能为空且必须大于0");
             }
-            if(num==null||num<=0){
-                throw new ValidationException("商品数量不能为空且必须大于0");
+            if(num==null){
+                throw new ValidationException("商品数量不能为空");
             }
             if(num>999){
                 throw new ValidationException("单次购买数量不能超过999件");

@@ -85,31 +85,7 @@ app.controller('cartController',function($scope,cartService){
 			}
 		);		
 	}
-	
-	$scope.updateItemNum=function(itemId, num) {
-		$scope.clearMessages();
-		if(!$scope.validateItemId(itemId)) {
-			return;
-		}
-		if(!$scope.validateNum(num)) {
-			return;
-		}
-		cartService.addGoodsToCartList(itemId,0).success(
-			function(response){
-				if(response.success){
-					$scope.findCartList();
-					$scope.showMessage('success', '数量已更新');
-				}else{
-					$scope.showMessage('error', response.message || '更新失败');
-				}				
-			}
-		).error(
-			function(data, status, headers, config){
-				$scope.showMessage('error', '网络请求失败，请检查网络连接');
-			}
-		);
-	};
-	
+
 	$scope.findAddressList=function(){
 		$scope.clearMessages();
 		cartService.findAddressList().success(

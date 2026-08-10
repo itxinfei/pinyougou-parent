@@ -240,9 +240,11 @@ public class GoodsServiceImpl implements GoodsService {
     public void updateStatus(Long[] ids, String status) {
         for (Long id : ids) {
             TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
-
+            if (tbGoods == null) {
+                logger.warn("商品不存在，ID: " + id);
+                continue;
+            }
             tbGoods.setAuditStatus(status);
-
             goodsMapper.updateByPrimaryKey(tbGoods);
         }
     }

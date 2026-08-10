@@ -124,6 +124,10 @@ public class SellerServiceImpl implements SellerService {
     @Transactional
     public void updateStatus(String sellerId, String status) {
         TbSeller seller = tbSellerMapper.selectByPrimaryKey(sellerId);
+        if (seller == null) {
+            logger.warn("商家不存在，ID: " + sellerId);
+            return;
+        }
         logger.info("商家信息：" + seller);
         seller.setStatus(status);
         tbSellerMapper.updateByPrimaryKeySelective(seller);
@@ -131,6 +135,24 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     public PageResult search(TbSeller tbSeller, int page, int rows) {
-        return null;
+        PageHelper.startPage(page, rows);
+        TbSellerExample sellerExample = new TbSellerExample();
+        TbSellerExample.Criteria criteria = sellerExample.createCriteria();
+        if (tbSeller != null) {
+            if (tbSeller.getSellerId() != null && !tbSeller.getSellerId().isEmpty()) {
+                criteria.andSellerIdLike("%" + tbSeller.getSellerId() + "%");
+            }
+            if (tbSeller.getName() != null && !tbSeller.getName().isEmpty()) {
+                criteria.andNameLike("%" + tbSeller.getName() + "%");
+            }
+            if (tbSeller.getNickName() != null && !tbSeller.getNickName().isEmpty()) {
+                criteria.andNickNameLike("%" + tbSeller.getNickName() + "%");
+            }
+            if (tbSeller.getStatus() != null && !tbSeller.getStatus().isEmpty()) {
+                criteria.andStatusEqualTo(tbSeller.getStatus());
+            }
+        }
+        Page<TbSeller> pageResult = (Page<TbSeller>) tbSellerMapper.selectByExample(sellerExample);
+        return new PageResult(pageResult.getTotal(), pageResult.getResult());
     }
 }
