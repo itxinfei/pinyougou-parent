@@ -110,6 +110,17 @@ public class SellerServiceImpl implements SellerService {
         PageHelper.startPage(pageNum, pageSize);
         TbSellerExample sellerExample = new TbSellerExample();
         TbSellerExample.Criteria criteria = sellerExample.createCriteria();
+        if (seller != null) {
+            if (seller.getName() != null && !seller.getName().isEmpty()) {
+                criteria.andNameLike("%" + seller.getName() + "%");
+            }
+            if (seller.getNickName() != null && !seller.getNickName().isEmpty()) {
+                criteria.andNickNameLike("%" + seller.getNickName() + "%");
+            }
+            if (seller.getStatus() != null && !seller.getStatus().isEmpty()) {
+                criteria.andStatusEqualTo(seller.getStatus());
+            }
+        }
         Page<TbSeller> page = (Page<TbSeller>) tbSellerMapper.selectByExample(sellerExample);
         return new PageResult(page.getTotal(), page.getResult());
     }

@@ -8,7 +8,7 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 		// 向后台发送请求:
 		brandService.findAll().success(function(response){
 			$scope.list = response;
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 	// 分页查询
@@ -17,7 +17,7 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 		brandService.findByPage(page,rows).success(function(response){
 			$scope.paginationConf.totalItems = response.total;
 			$scope.list = response.rows;
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	// 保存品牌的方法:
@@ -42,7 +42,7 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 				// 保存失败
 				alert(response.message);
 			}
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	// 查询一个:
@@ -50,7 +50,7 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 		brandService.findById(id).success(function(response){
 			// {id:xx,name:yy,firstChar:zz}
 			$scope.entity = response;
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	// 删除品牌:
@@ -66,7 +66,7 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 				// 保存失败
 				alert(response.message);
 			}
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	$scope.searchEntity={};
@@ -77,7 +77,7 @@ app.controller("brandController",function($scope,$controller,$http,brandService)
 		brandService.search(page,rows,$scope.searchEntity).success(function(response){
 			$scope.paginationConf.totalItems = response.total;
 			$scope.list = response.rows;
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 });

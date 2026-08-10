@@ -10,9 +10,15 @@
 
     <link rel="stylesheet" type="text/css" href="css/webbase.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-seckillOrder.css" />
+
+    <script type="text/javascript" src="plugins/angularjs/angular.min.js"></script>
+    <script type="text/javascript" src="js/base.js"></script>
+    <script type="text/javascript" src="js/service/loginService.js"></script>
+    <script type="text/javascript" src="js/service/settingService.js"></script>
+    <script type="text/javascript" src="js/controller/settingController.js"></script>
 </head>
 
-<body>
+<body ng-app="pinyougou" ng-controller="settingController" ng-init="showName()">
     <!-- 头部栏位 -->
     <!--页面顶部-->
 <div id="nav-bottom">
@@ -322,8 +328,9 @@ $(function(){
                                     <div class="control-group">
                                         <label for="inputusername" class="control-label">用户名：</label>
                                         <div class="controls">
-                                            <input id="pwdid" class="fn-tinput" data-rule-remote="http://www.baidu.com" type="password" name="OldPassword" placeholder="输入昵称"
-                                                required data-msg-required="请输入昵称" minlength="6" data-msg-minlength="至少输入6个字符"
+                                            <input id="pwdid" class="fn-tinput" data-rule-remote="http://www.baidu.com" type="password" name="OldPassword" placeholder="输入旧密码"
+                                                required data-msg-required="请输入旧密码" minlength="6" data-msg-minlength="至少输入6个字符"
+                                                ng-model="passwordEntity.oldPassword"
                                             />
 
                                         </div>
@@ -331,20 +338,20 @@ $(function(){
                                     <div class="control-group">
                                         <label for="inputPassword" class="control-label">密码：</label>
                                         <div class="controls">
-                                            <input class="fn-tinput" type="password" name="password" value="" placeholder="新密码" required id="password" data-rule-remote="php.php">
+                                            <input class="fn-tinput" type="password" name="password" value="" placeholder="新密码" required id="password" data-rule-remote="php.php" ng-model="passwordEntity.newPassword">
                                         </div>
                                     </div>
                                     <div class="control-group">
                                         <label for="inputRepassword" class="control-label">重复密码：</label>
                                         <div class="controls">
-                                            <input class="fn-tinput" type="password" name="confirm_password" value="" placeholder="确认新密码" required equalTo="#password">
+                                            <input class="fn-tinput" type="password" name="confirm_password" value="" placeholder="确认新密码" required equalTo="#password" ng-model="passwordEntity.confirmPassword">
                                         </div>
                                     </div>
 
                                     <div class="control-group">
                                         <label class="control-label"></label>
                                         <div class="controls">
-                                            <button type="submit" class="sui-btn btn-primary">提交按钮</button>
+                                            <button type="button" class="sui-btn btn-primary" ng-click="updatePassword()">提交按钮</button>
                                         </div>
                                     </div>
                                 </form>

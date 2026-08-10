@@ -22,7 +22,7 @@ app.controller('userController' ,function($scope,$controller,$location,$interval
 					alert(response.message);
 				}
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 	// 倒计时秒数
@@ -65,7 +65,7 @@ app.controller('userController' ,function($scope,$controller,$location,$interval
 					alert(response.message);
 				}
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 });

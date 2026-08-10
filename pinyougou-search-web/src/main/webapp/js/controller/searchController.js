@@ -13,7 +13,7 @@ app.controller('searchController',function($scope,$location,searchService){
 				buildPageLabel();//构建分页栏			
 				//$scope.searchMap.pageNo=1;//查询后显示第一页
 			}
-		);		
+		).error(function(){ alert('操作失败，请稍后重试'); });		
 	}
 	
 	//构建分页栏	

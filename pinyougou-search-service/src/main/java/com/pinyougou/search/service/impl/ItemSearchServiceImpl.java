@@ -88,7 +88,9 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         Map map = new HashMap();
         //空格处理
         String key = (String) searchMap.get("keywords");
-        searchMap.put("keywords", key);
+        if (key == null) {
+            key = "";
+        }
         searchMap.put("keywords", key.replace(" ", ""));//关键字去掉空格
         //1.查询列表
         map.putAll(searchList(searchMap));

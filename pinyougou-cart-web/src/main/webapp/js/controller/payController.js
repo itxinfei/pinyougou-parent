@@ -20,7 +20,7 @@ app.controller('payController' ,function($scope ,$location,payService){
 				 queryPayStatus();//调用查询
 				
 			}	
-		);	
+		).error(function(){ alert('操作失败，请稍后重试'); });	
 	}
 	
 	//调用查询
@@ -37,7 +37,7 @@ app.controller('payController' ,function($scope ,$location,payService){
 					}
 				}				
 			}		
-		);		
+		).error(function(){ alert('操作失败，请稍后重试'); });		
 	}
 	
 	//获取金额

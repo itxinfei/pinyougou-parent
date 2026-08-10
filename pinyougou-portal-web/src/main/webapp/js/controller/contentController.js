@@ -7,7 +7,7 @@ app.controller('contentController',function($scope,contentService){
 			function(response){
 				$scope.contentList[categoryId]=response;
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 	// 搜索功能

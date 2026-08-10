@@ -9,7 +9,7 @@ app.controller('itemController' ,function($scope,$controller   ,itemService){
 			function(response){
 				$scope.list=response;
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}    
 	
 	//分页
@@ -19,7 +19,7 @@ app.controller('itemController' ,function($scope,$controller   ,itemService){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	//查询实体 
@@ -28,7 +28,7 @@ app.controller('itemController' ,function($scope,$controller   ,itemService){
 			function(response){
 				$scope.entity= response;					
 			}
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	//保存 
@@ -48,7 +48,7 @@ app.controller('itemController' ,function($scope,$controller   ,itemService){
 					alert(response.message);
 				}
 			}		
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	 
@@ -62,7 +62,7 @@ app.controller('itemController' ,function($scope,$controller   ,itemService){
 					$scope.selectIds = [];
 				}						
 			}		
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	$scope.searchEntity={};//定义搜索对象 
@@ -74,7 +74,7 @@ app.controller('itemController' ,function($scope,$controller   ,itemService){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
     
 });	

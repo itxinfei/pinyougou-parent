@@ -86,7 +86,7 @@ app.controller("itemController",function($scope,$http){
 							alert(response.message);
 						}
 					}
-				);
+				).error(function(){ alert('操作失败，请稍后重试'); });
 
 	}
 	

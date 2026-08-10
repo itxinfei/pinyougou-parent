@@ -9,7 +9,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 			function(response){
 				$scope.list=response;
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}    
 	
 	//分页
@@ -19,7 +19,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	//查询实体 
@@ -28,7 +28,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 			function(response){
 				$scope.entity= response;					
 			}
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	//保存 
@@ -49,7 +49,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 					alert(response.message);
 				}
 			}		
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	 
@@ -63,7 +63,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 					$scope.selectIds = [];
 				}						
 			}		
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	$scope.searchEntity={};//定义搜索对象 
@@ -75,14 +75,14 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	// 根据父ID查询分类
 	$scope.findByParentId =function(parentId){
 		itemCatService.findByParentId(parentId).success(function(response){
 			$scope.list=response;
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	// 定义一个变量记录当前是第几级分类
@@ -119,7 +119,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 			function(response){
 				$scope.list=response;
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 

@@ -9,7 +9,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 			function(response){
 				$scope.list=response;
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}    
 	
 	//分页
@@ -19,7 +19,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	//查询实体 
@@ -34,7 +34,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 				
 				$scope.entity.customAttributeItems = JSON.parse($scope.entity.customAttributeItems);
 			}
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	//保存 
@@ -54,7 +54,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 					alert(response.message);
 				}
 			}		
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	 
@@ -68,7 +68,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 					$scope.selectIds = [];
 				}						
 			}		
-		);				
+		).error(function(){ alert('操作失败，请稍后重试'); });				
 	}
 	
 	$scope.searchEntity={};//定义搜索对象 
@@ -80,7 +80,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
     
 	$scope.brandList={data:[]}
@@ -88,7 +88,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 	$scope.findBrandList = function(){
 		brandService.selectOptionList().success(function(response){
 			$scope.brandList = {data:response};
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	$scope.specList={data:[]}
@@ -96,7 +96,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 	$scope.findSpecList = function(){
 		specificationService.selectOptionList().success(function(response){
 			$scope.specList = {data:response};
-		});
+		}).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	//给扩展属性添加行

@@ -17,7 +17,7 @@ app.controller('seckillGoodsController' ,function($scope,$location,seckillGoodsS
 			function(response){
 				$scope.list=response;
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 	//查询商品
@@ -58,7 +58,7 @@ app.controller('seckillGoodsController' ,function($scope,$location,seckillGoodsS
 				},1000 );
 
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 
 
@@ -91,7 +91,7 @@ app.controller('seckillGoodsController' ,function($scope,$location,seckillGoodsS
 					alert(response.message);
 				}
 			}
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 
 	}
 

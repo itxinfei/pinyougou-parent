@@ -10,9 +10,15 @@
 
     <link rel="stylesheet" type="text/css" href="css/webbase.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-seckillOrder.css" />
+
+    <script type="text/javascript" src="plugins/angularjs/angular.min.js"></script>
+    <script type="text/javascript" src="js/base.js"></script>
+    <script type="text/javascript" src="js/service/loginService.js"></script>
+    <script type="text/javascript" src="js/service/orderService.js"></script>
+    <script type="text/javascript" src="js/controller/detailController.js"></script>
 </head>
 
-<body>
+<body ng-app="pinyougou" ng-controller="detailController" ng-init="showName();loadOrderDetail()">
     <!-- 头部栏位 -->
     <!--页面顶部-->
 <div id="nav-bottom">
@@ -248,18 +254,18 @@ $(function(){
                                     </div>
                             </div>
                             <div class="order-state">
-                                <p>当前订单状态：<span class="red">已发货</span></p>
+                                <p>当前订单状态：<span class="red">{{order.status=='1'?'已付款':order.status=='2'?'已发货':order.status=='3'?'已收货':'已完成'}}</span></p>
                                 <p>还剩06天00小时 自动确认收货</p>
                             </div>
                         </div>
                         <div class="order-info">
                             <h5>订单信息</h5>
-                            <p>收货地址：神茶减肥茶就观察及噶盘滚啊  </p>
-                            <p>订单单号：178789758976986</p>
-                            <p>下单时间：2017-06-04 09：03：03</p>
-                            <p>支付时间：2017-06-05  09：03：03</p>
-                            <p>支付方式：微信</p>
-                            <p>发货时间：201707-06-06 09：03：03</p>
+                            <p>收货地址：{{order.receiverAddress}}</p>
+                            <p>订单单号：{{order.orderId}}</p>
+                            <p>下单时间：{{order.createTime}}</p>
+                            <p>支付时间：{{order.paymentTime}}</p>
+                            <p>支付方式：{{order.payType=='1'?'微信支付':'支付宝'}}</p>
+                            <p>发货时间：{{order.consignTime}}</p>
                         </div>
                         <div class="order-goods">
                             <table class="sui-table">
@@ -271,34 +277,34 @@ $(function(){
                                         <th class="center" >状态</th>
                                     </thead>                                   
                              
-                                <tbody>                               
+                                <tbody>
                                     <tr>
-                                        <td colspan="5">订单编号：787587819591509</td>
+                                        <td colspan="5">订单编号：{{order.orderId}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr ng-repeat="item in orderItemList">
                                         <td>
-                                            <div class="typographic"><img src="img/goods.png" />
-                                                    <span>包邮 正品玛姬儿压缩面膜无纺布纸膜100粒 送泡瓶面膜刷喷瓶 新款</span>
-                                                    <span class="guige">规格：温泉喷雾150ml</span>
+                                            <div class="typographic"><img src="{{item.picPath}}" />
+                                                    <span>{{item.title}}</span>
+                                                    <span class="guige">规格：{{item.spec}}</span>
                                                 </div>
                                         </td>
                                         <td>
                                             <ul class="unstyled">
-                                                    <li class="o-price">¥599.00</li>	
-                                                    <li>¥299.00</li>											
+                                                    <li class="o-price">¥{{item.price}}</li>
+                                                    <li>¥{{item.price}}</li>
                                                 </ul>
                                         </td>
-                                        <td>1</td>
+                                        <td>{{item.num}}</td>
                                         <td>无优惠</td>
-                                        <td>交易成功</td>
+                                        <td>{{getStatusName(order.status)}}</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="order-price">
-                                <p>商品总金额：￥1.8</p>
-                                <p>运费金额：，免费用</p>
+                                <p>商品总金额：￥{{order.totalMoney}}</p>
+                                <p>运费金额：￥{{order.postFee==0?'免运费':order.postFee}}</p>
                                 <p>使用优惠券：无</p>
-                                <h4 class="red">实际支付：￥1.8</h4>
+                                <h4 class="red">实际支付：￥{{order.payment}}</h4>
                             </div>
                             <div class="clearfix"></div>
                         </div>

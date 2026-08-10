@@ -11,7 +11,7 @@ app.controller('indexController',function($scope,$timeout,loginService,orderServ
 					function(response){
 						$scope.loginName=response.loginName;
 					}
-			);
+			).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	$scope.searchEntity={};
@@ -31,7 +31,7 @@ app.controller('indexController',function($scope,$timeout,loginService,orderServ
 				$scope.list=response.rows;
 				$scope.paginationConf.totalItems=response.total;
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	$scope.reloadList=function(){
@@ -47,7 +47,7 @@ app.controller('indexController',function($scope,$timeout,loginService,orderServ
 				$scope.paginationConf.itemsPerPage=rows;
 				$scope.buildPageNumbers();
 			}			
-		);
+		).error(function(){ alert('操作失败，请稍后重试'); });
 	}
 	
 	$scope.buildPageNumbers=function(){
