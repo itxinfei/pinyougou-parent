@@ -74,7 +74,9 @@ public class WeixinPayServiceImpl implements WeixinPayService {
 
         } catch (Exception e) {
             logger.error("创建微信支付订单失败", e);
-            return new HashMap();
+            Map errorMap = new HashMap();
+            errorMap.put("return_msg", "创建支付订单失败");
+            return errorMap;
         }
 
     }

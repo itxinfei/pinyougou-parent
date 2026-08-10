@@ -1,8 +1,10 @@
 package com.pinyougou.user.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -142,5 +144,24 @@ public class LoginController {
             logger.error("登出失败", e);
             return new Result(false, "登出失败");
         }
+    }
+
+    /**
+     * 获取当前登录用户名（用于页面显示）
+     */
+    @RequestMapping("/name")
+    public Map<String, String> name() {
+        Map<String, String> map = new HashMap<>();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        map.put("loginName", username);
+        return map;
+    }
+
+    /**
+     * 获取当前登录用户名（别名，兼容不同前端调用）
+     */
+    @RequestMapping("/getLoginName")
+    public Map<String, String> getLoginName() {
+        return name();
     }
 }

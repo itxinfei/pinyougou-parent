@@ -2,7 +2,10 @@ package com.pinyougou.user.controller;
 
 import java.util.List;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -145,6 +148,46 @@ public class UserController {
         } catch (Exception e) {
             logger.error("发送验证码失败", e);
             return new Result(false, "验证码发送失败");
+        }
+    }
+
+    /**
+     * 获取当前登录用户信息
+     */
+    @RequestMapping("/getUserInfo")
+    public TbUser getUserInfo() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userService.findByUsername(username);
+    }
+
+    /**
+     * 修改用户信息
+     */
+    @RequestMapping("/updateUserInfo")
+    public Result updateUserInfo(@RequestBody TbUser user) {
+        try {
+            userService.updateUserInfo(user);
+            return new Result(true, "修改成功");
+        } catch (Exception e) {
+            logger.error("修改用户信息失败", e);
+            return new Result(false, "修改失败");
+        }
+    }
+
+    /**
+     * 修改密码
+     */
+    @RequestMapping("/updatePassword")
+    public Result updatePassword(@RequestBody Map<String, String> params) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String oldPassword = params.get("oldPassword");
+        String newPassword = params.get("newPassword");
+        try {
+            userService.updatePassword(username, oldPassword, newPassword);
+            return new Result(true, "密码修改成功");
+        } catch (Exception e) {
+            logger.error("修改密码失败", e);
+            return new Result(false, e.getMessage());
         }
     }
 

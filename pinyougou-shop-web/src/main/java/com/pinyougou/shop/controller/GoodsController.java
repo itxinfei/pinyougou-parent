@@ -73,7 +73,7 @@ public class GoodsController {
      * @param goods
      * @return
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@RequestBody Goods goods) {
         try {
             goodsService.update(goods);
@@ -101,7 +101,7 @@ public class GoodsController {
      * @param ids
      * @return
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(Long[] ids) {
         try {
             goodsService.delete(ids);

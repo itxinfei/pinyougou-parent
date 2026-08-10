@@ -68,7 +68,7 @@ public class BrandController {
      * @param ids 品牌ID数组
      * @return 操作结果
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         if (ids == null || ids.length == 0) {
             return new Result(false, "请选择要删除的品牌");
@@ -89,7 +89,7 @@ public class BrandController {
      * @param brand 品牌信息
      * @return 操作结果
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@Valid @RequestBody TbBrand brand) {
         try {
             brandService.update(brand);

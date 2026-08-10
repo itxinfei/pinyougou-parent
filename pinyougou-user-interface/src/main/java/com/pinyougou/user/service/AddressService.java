@@ -57,7 +57,14 @@ public interface AddressService {
 	 * @return
 	 */
 	public PageResult findPage(TbAddress address, int pageNum,int pageSize);
-	
+
 	public List<TbAddress> findListByUserId(String userId);
-	
+
+	/**
+	 * 设置默认地址
+	 * @param userId
+	 * @param addressId
+	 */
+	public void setDefault(String userId, Long addressId);
+
 }

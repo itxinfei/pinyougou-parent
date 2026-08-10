@@ -220,4 +220,27 @@ public class OrderController {
 		}
 	}
 
+	/**
+	 * 更新订单状态（确认收货等）
+	 */
+	@RequestMapping("/updateStatus")
+	public Result updateStatus(Long orderId, String status) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		TbOrder order = orderService.findOne(orderId);
+		if (order == null) {
+			return new Result(false, "订单不存在");
+		}
+		if (!username.equals(order.getUserId())) {
+			return new Result(false, "无权操作此订单");
+		}
+		try {
+			order.setStatus(status);
+			orderService.update(order);
+			return new Result(true, "状态更新成功");
+		} catch (Exception e) {
+			logger.error("更新订单状态失败", e);
+			return new Result(false, "状态更新失败");
+		}
+	}
+
 }

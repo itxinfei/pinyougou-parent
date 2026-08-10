@@ -72,5 +72,26 @@ public interface UserService {
 	 * @return
 	 */
 	public boolean checkSmsCode(String phone,String code);
-	
+
+	/**
+	 * 根据用户名获取用户信息
+	 * @param username
+	 * @return
+	 */
+	public TbUser findByUsername(String username);
+
+	/**
+	 * 修改用户信息
+	 * @param user
+	 */
+	public void updateUserInfo(TbUser user);
+
+	/**
+	 * 修改密码
+	 * @param username
+	 * @param oldPassword
+	 * @param newPassword
+	 */
+	public void updatePassword(String username, String oldPassword, String newPassword);
+
 }

@@ -23,6 +23,7 @@ import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbGoodsDesc;
 import com.pinyougou.pojo.TbItem;
+import com.pinyougou.pojo.TbItemCat;
 import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.pojo.TbItemExample.Criteria;
 
@@ -92,13 +93,12 @@ public class ItemPageServiceImpl implements ItemPageService {
             }
             dataModel.put("goodsDesc", goodsDesc);
             //3.读取商品分类
-
-            String itemCat1 = itemCatMapper.selectByPrimaryKey(goods.getCategory1Id()).getName();
-            String itemCat2 = itemCatMapper.selectByPrimaryKey(goods.getCategory2Id()).getName();
-            String itemCat3 = itemCatMapper.selectByPrimaryKey(goods.getCategory3Id()).getName();
-            dataModel.put("itemCat1", itemCat1);
-            dataModel.put("itemCat2", itemCat2);
-            dataModel.put("itemCat3", itemCat3);
+            TbItemCat cat1 = itemCatMapper.selectByPrimaryKey(goods.getCategory1Id());
+            dataModel.put("itemCat1", cat1 != null ? cat1.getName() : "未分类");
+            TbItemCat cat2 = itemCatMapper.selectByPrimaryKey(goods.getCategory2Id());
+            dataModel.put("itemCat2", cat2 != null ? cat2.getName() : "未分类");
+            TbItemCat cat3 = itemCatMapper.selectByPrimaryKey(goods.getCategory3Id());
+            dataModel.put("itemCat3", cat3 != null ? cat3.getName() : "未分类");
 
             //4.读取SKU列表
             TbItemExample example = new TbItemExample();

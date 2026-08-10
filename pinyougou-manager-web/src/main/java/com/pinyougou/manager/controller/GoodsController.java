@@ -61,7 +61,7 @@ public class GoodsController {
      * @param goods 商品信息
      * @return 操作结果
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@RequestBody Goods goods) {
         try {
             goodsService.update(goods);
@@ -90,7 +90,7 @@ public class GoodsController {
      * @param ids 商品ID数组
      * @return 操作结果
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         if (ids == null || ids.length == 0) {
             return new Result(false, "请选择要删除的商品");
@@ -135,7 +135,7 @@ public class GoodsController {
      * @param status 状态值
      * @return 操作结果
      */
-    @PostMapping("/updateStatus")
+    @RequestMapping(value="/updateStatus")
     public Result updateStatus(@RequestParam(required = true) Long[] ids,
                                @RequestParam(required = true) String status) {
         if (ids == null || ids.length == 0) {
@@ -160,7 +160,7 @@ public class GoodsController {
      * @param ids 商品ID数组
      * @return 操作结果
      */
-    @DeleteMapping("/updateIsDelete")
+    @RequestMapping(value="/updateIsDelete")
     public Result updateIsDelete(@RequestParam(required = true) Long[] ids) {
         if (ids == null || ids.length == 0) {
             return new Result(false, "请选择要删除的商品");

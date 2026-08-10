@@ -93,7 +93,9 @@ public class SellerServiceImpl implements SellerService {
     @Override
     @Transactional
     public void delete(String[] ids) {
-        tbSellerMapper.deleteByPrimaryKey(ids);
+        for (String id : ids) {
+            tbSellerMapper.deleteByPrimaryKey(id);
+        }
     }
 
     /**

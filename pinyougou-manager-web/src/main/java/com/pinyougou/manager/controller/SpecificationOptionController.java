@@ -72,7 +72,7 @@ public class SpecificationOptionController {
      * @param specificationOption
      * @return
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@RequestBody TbSpecificationOption specificationOption) {
         try {
             specificationOptionService.update(specificationOption);
@@ -100,7 +100,7 @@ public class SpecificationOptionController {
      * @param ids
      * @return
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             specificationOptionService.delete(ids);

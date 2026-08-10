@@ -149,4 +149,22 @@ public class AddressServiceImpl implements AddressService {
         return addressMapper.selectByExample(example);
     }
 
+    @Override
+    public void setDefault(String userId, Long addressId) {
+        // 先将该用户所有地址设为非默认
+        TbAddressExample example = new TbAddressExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andUserIdEqualTo(userId);
+        TbAddress record = new TbAddress();
+        record.setIsDefault("0");
+        addressMapper.updateByExampleSelective(record, example);
+
+        // 再将指定地址设为默认
+        TbAddress address = addressMapper.selectByPrimaryKey(addressId);
+        if (address != null) {
+            address.setIsDefault("1");
+            addressMapper.updateByPrimaryKeySelective(address);
+        }
+    }
+
 }

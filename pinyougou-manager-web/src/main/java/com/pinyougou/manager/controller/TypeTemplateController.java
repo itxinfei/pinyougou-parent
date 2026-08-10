@@ -72,7 +72,7 @@ public class TypeTemplateController {
      * @param typeTemplate
      * @return
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@RequestBody TbTypeTemplate typeTemplate) {
         try {
             typeTemplateService.update(typeTemplate);
@@ -100,7 +100,7 @@ public class TypeTemplateController {
      * @param ids
      * @return
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             typeTemplateService.delete(ids);

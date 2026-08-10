@@ -85,9 +85,12 @@ public class ItemCatServiceImpl implements ItemCatService {
      *
      * @param ids
      */
+    @Override
     @Transactional
     public void delete(Long[] ids) {
-        tbItemCatMapper.deleteByPrimaryKey(ids);
+        for (Long id : ids) {
+            tbItemCatMapper.deleteByPrimaryKey(id);
+        }
     }
 
     /**
@@ -101,8 +104,10 @@ public class ItemCatServiceImpl implements ItemCatService {
         TbItemCatExample example = new TbItemCatExample();
         TbItemCatExample.Criteria criteria = example.createCriteria();
         // 设置条件:
-        if (itemCat.getName() != null && itemCat.getName().length() > 0) {
-            criteria.andNameLike("%" + itemCat.getName() + "%");
+        if (itemCat != null) {
+            if (itemCat.getName() != null && itemCat.getName().length() > 0) {
+                criteria.andNameLike("%" + itemCat.getName() + "%");
+            }
         }
         Page<TbItemCat> page = (Page<TbItemCat>) tbItemCatMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());

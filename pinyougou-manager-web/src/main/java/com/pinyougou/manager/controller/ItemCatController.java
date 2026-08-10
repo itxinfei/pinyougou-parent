@@ -65,7 +65,7 @@ public class ItemCatController {
      * @param ids 分类ID数组
      * @return 操作结果
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         if (ids == null || ids.length == 0) {
             return new Result(false, "请选择要删除的分类");

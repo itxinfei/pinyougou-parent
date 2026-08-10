@@ -333,4 +333,32 @@ public class UserServiceImpl implements UserService {
         redisTemplate.boundHashOps("smscode").delete(phone);
         return true;
     }
+
+    @Override
+    public TbUser findByUsername(String username) {
+        TbUserExample example = new TbUserExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andUsernameEqualTo(username);
+        List<TbUser> users = userMapper.selectByExample(example);
+        return users != null && !users.isEmpty() ? users.get(0) : null;
+    }
+
+    @Override
+    public void updateUserInfo(TbUser user) {
+        userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    @Override
+    public void updatePassword(String username, String oldPassword, String newPassword) {
+        TbUser user = findByUsername(username);
+        if (user == null) {
+            throw new ValidationException("用户不存在");
+        }
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (!encoder.matches(oldPassword, user.getPassword())) {
+            throw new ValidationException("原密码错误");
+        }
+        user.setPassword(encoder.encode(newPassword));
+        userMapper.updateByPrimaryKeySelective(user);
+    }
 }

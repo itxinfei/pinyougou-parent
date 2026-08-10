@@ -73,7 +73,7 @@ public class ContentController {
      * @param content
      * @return
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@RequestBody TbContent content) {
         try {
             contentService.update(content);
@@ -101,7 +101,7 @@ public class ContentController {
      * @param ids
      * @return
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             contentService.delete(ids);

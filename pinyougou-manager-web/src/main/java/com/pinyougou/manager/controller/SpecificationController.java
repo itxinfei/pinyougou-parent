@@ -80,7 +80,7 @@ public class SpecificationController {
      * @param specification 规格信息
      * @return 操作结果
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@Valid @RequestBody Specification specification) {
         try {
             specificationService.update(specification);
@@ -109,7 +109,7 @@ public class SpecificationController {
      * @param ids 规格ID数组
      * @return 操作结果
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         if (ids == null || ids.length == 0) {
             return new Result(false, "请选择要删除的规格");

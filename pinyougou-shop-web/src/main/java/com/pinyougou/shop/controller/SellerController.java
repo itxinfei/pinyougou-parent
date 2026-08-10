@@ -67,7 +67,7 @@ public class SellerController {
 	 * @param seller
 	 * @return
 	 */
-	@PutMapping("/update")
+	@RequestMapping(value="/update")
 	public Result update(@RequestBody TbSeller seller){
 		try {
 			sellerService.update(seller);
@@ -93,7 +93,7 @@ public class SellerController {
 	 * @param ids
 	 * @return
 	 */
-	@DeleteMapping("/delete")
+	@RequestMapping(value="/delete")
 	public Result delete(String [] ids){
 		try {
 			sellerService.delete(ids);

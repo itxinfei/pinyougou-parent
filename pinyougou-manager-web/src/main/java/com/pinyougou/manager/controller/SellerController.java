@@ -94,7 +94,7 @@ public class SellerController {
      * @param tbSeller 商家信息
      * @return 操作结果
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@Valid @RequestBody TbSeller tbSeller) {
         try {
             sellerService.update(tbSeller);
@@ -113,7 +113,7 @@ public class SellerController {
      * @param status   状态值
      * @return 操作结果
      */
-    @PostMapping("/updateStatus")
+    @RequestMapping(value="/updateStatus")
     public Result updateStatus(@RequestParam(required = true) String sellerId,
                                @RequestParam(required = true) String status) {
         try {

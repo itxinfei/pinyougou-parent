@@ -63,7 +63,7 @@ public class ItemCatController {
 	 * @param itemCat
 	 * @return
 	 */
-	@PutMapping("/update")
+	@RequestMapping(value="/update")
 	public Result update(@RequestBody TbItemCat itemCat){
 		try {
 			itemCatService.update(itemCat);
@@ -89,7 +89,7 @@ public class ItemCatController {
 	 * @param ids
 	 * @return
 	 */
-	@DeleteMapping("/delete")
+	@RequestMapping(value="/delete")
 	public Result delete(Long [] ids){
 		try {
 			itemCatService.delete(ids);

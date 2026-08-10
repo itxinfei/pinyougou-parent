@@ -72,7 +72,7 @@ public class GoodsDescController {
      * @param goodsDesc
      * @return
      */
-    @PutMapping("/update")
+    @RequestMapping(value="/update")
     public Result update(@RequestBody TbGoodsDesc goodsDesc) {
         try {
             goodsDescService.update(goodsDesc);
@@ -100,7 +100,7 @@ public class GoodsDescController {
      * @param ids
      * @return
      */
-    @DeleteMapping("/delete")
+    @RequestMapping(value="/delete")
     public Result delete(@RequestParam(required = true) Long[] ids) {
         try {
             goodsDescService.delete(ids);

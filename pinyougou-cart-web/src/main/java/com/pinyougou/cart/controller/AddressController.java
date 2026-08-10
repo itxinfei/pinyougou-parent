@@ -119,7 +119,22 @@ public class AddressController {
 	public List<TbAddress> findListByLoginUser(){
 		//获取登陆用户
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		return addressService.findListByUserId(username);		
+		return addressService.findListByUserId(username);
 	}
-	
+
+	/**
+	 * 设置默认地址
+	 */
+	@RequestMapping("/setDefault")
+	public Result setDefault(Long id){
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			addressService.setDefault(username, id);
+			return new Result(true, "设置成功");
+		} catch (Exception e) {
+			logger.error("设置默认地址失败", e);
+			return new Result(false, "设置失败");
+		}
+	}
+
 }
