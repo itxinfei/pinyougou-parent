@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public Result handleIllegalArgumentException(IllegalArgumentException e) {
         logger.warn("非法参数: " + e.getMessage());
-        return new Result(false, "参数错误: " + e.getMessage());
+        return new Result(false, "参数错误，请检查输入");
     }
 
     /**
