@@ -1,19 +1,19 @@
 package com.pinyougou.user.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.GenericMapper;
 import com.pinyougou.mapper.TbAddressMapper;
 import com.pinyougou.pojo.TbAddress;
 import com.pinyougou.pojo.TbAddressExample;
 import com.pinyougou.pojo.TbAddressExample.Criteria;
+import com.pinyougou.service.BaseServiceImpl;
 import com.pinyougou.user.service.AddressService;
-
 import entity.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * 服务实现层
@@ -21,76 +21,16 @@ import entity.PageResult;
  * @author Administrator
  */
 @Service
-public class AddressServiceImpl implements AddressService {
+public class AddressServiceImpl extends BaseServiceImpl<TbAddress> implements AddressService {
 
     @Autowired
     private TbAddressMapper addressMapper;
 
-    /**
-     * 查询全部
-     */
     @Override
-    public List<TbAddress> findAll() {
-        return addressMapper.selectByExample(null);
+    protected GenericMapper<TbAddress> getMapper() {
+        return addressMapper;
     }
 
-    /**
-     * 按分页查询
-     */
-    @Override
-    public PageResult findPage(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        Page<TbAddress> page = (Page<TbAddress>) addressMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
-    }
-
-    /**
-     * 增加
-     */
-    @Override
-    @Transactional
-    public void add(TbAddress address) {
-        addressMapper.insert(address);
-    }
-
-
-    /**
-     * 修改
-     */
-    @Override
-    @Transactional
-    public void update(TbAddress address) {
-        addressMapper.updateByPrimaryKey(address);
-    }
-
-    /**
-     * 根据ID获取实体
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public TbAddress findOne(Long id) {
-        return addressMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 批量删除
-     */
-    @Override
-    @Transactional
-    public void delete(Long[] ids) {
-        for (Long id : ids) {
-            addressMapper.deleteByPrimaryKey(id);
-        }
-    }
-
-    /**
-     * @param address
-     * @param pageNum  当前页 码
-     * @param pageSize 每页记录数
-     * @return
-     */
     @Override
     public PageResult findPage(TbAddress address, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);

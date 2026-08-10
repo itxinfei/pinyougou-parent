@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface TbAddressMapper {
+public interface TbAddressMapper extends GenericMapper<TbAddress> {
     int countByExample(TbAddressExample example);
 
     int deleteByExample(TbAddressExample example);

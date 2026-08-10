@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface TbSpecificationOptionMapper {
+public interface TbSpecificationOptionMapper extends GenericMapper<TbSpecificationOption> {
     int countByExample(TbSpecificationOptionExample example);
 
     int deleteByExample(TbSpecificationOptionExample example);

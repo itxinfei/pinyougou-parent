@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface TbGoodsDescMapper {
+public interface TbGoodsDescMapper extends GenericMapper<TbGoodsDesc> {
     int countByExample(TbGoodsDescExample example);
 
     int deleteByExample(TbGoodsDescExample example);

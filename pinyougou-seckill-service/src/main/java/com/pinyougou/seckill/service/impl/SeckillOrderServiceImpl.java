@@ -3,6 +3,7 @@ package com.pinyougou.seckill.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.GenericMapper;
 import com.pinyougou.mapper.TbSeckillGoodsMapper;
 import com.pinyougou.mapper.TbSeckillOrderMapper;
 import com.pinyougou.pojo.TbSeckillGoods;
@@ -10,6 +11,7 @@ import com.pinyougou.pojo.TbSeckillOrder;
 import com.pinyougou.pojo.TbSeckillOrderExample;
 import com.pinyougou.pojo.TbSeckillOrderExample.Criteria;
 import com.pinyougou.seckill.service.SeckillOrderService;
+import com.pinyougou.service.BaseServiceImpl;
 import entity.PageResult;
 import com.pinyougou.exception.InsufficientStockException;
 import com.pinyougou.exception.ResourceNotFoundException;
@@ -29,78 +31,18 @@ import java.util.List;
  * @author Administrator
  */
 @Service
-public class SeckillOrderServiceImpl implements SeckillOrderService {
+public class SeckillOrderServiceImpl extends BaseServiceImpl<TbSeckillOrder> implements SeckillOrderService {
 
     private static final Logger logger = Logger.getLogger(SeckillOrderServiceImpl.class);
 
     @Autowired
     private TbSeckillOrderMapper seckillOrderMapper;
 
-    /**
-     * 查询全部
-     */
     @Override
-    public List<TbSeckillOrder> findAll() {
-        return seckillOrderMapper.selectByExample(null);
+    protected GenericMapper<TbSeckillOrder> getMapper() {
+        return seckillOrderMapper;
     }
 
-    /**
-     * 按分页查询
-     */
-    @Override
-    public PageResult findPage(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        Page<TbSeckillOrder> page = (Page<TbSeckillOrder>) seckillOrderMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
-    }
-
-    /**
-     * 增加
-     */
-    @Override
-    @Transactional
-    public void add(TbSeckillOrder seckillOrder) {
-        seckillOrderMapper.insert(seckillOrder);
-    }
-
-
-    /**
-     * 修改
-     */
-    @Override
-    @Transactional
-    public void update(TbSeckillOrder seckillOrder) {
-        seckillOrderMapper.updateByPrimaryKey(seckillOrder);
-    }
-
-    /**
-     * 根据ID获取实体
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public TbSeckillOrder findOne(Long id) {
-        return seckillOrderMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 批量删除
-     */
-    @Override
-    @Transactional
-    public void delete(Long[] ids) {
-        for (Long id : ids) {
-            seckillOrderMapper.deleteByPrimaryKey(id);
-        }
-    }
-
-    /**
-     * @param seckillOrder
-     * @param pageNum      当前页 码
-     * @param pageSize     每页记录数
-     * @return
-     */
     @Override
     public PageResult findPage(TbSeckillOrder seckillOrder, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
@@ -163,7 +105,6 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         }
 
         // ✅ 修复：检查重复秒杀 + 扣减库存合并为一个Lua脚本原子执行
-        // 避免先扣库存后发现重复导致库存回滚的竞态窗口
         String seckillUserKey = "seckill:user:" + seckillId;
         String luaScript =
                 "local userKey = KEYS[2] " +
@@ -193,7 +134,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
             logger.info("商品同步到数据库...");
         }
 
-        // 设置秒杀用户记录过期时间（秒杀活动结束后7天自动清理）
+        // 设置秒杀用户记录过期时间
         redisTemplate.boundSetOps(seckillUserKey).expire(7, java.util.concurrent.TimeUnit.DAYS);
 
         TbSeckillOrder seckillOrder = new TbSeckillOrder();
@@ -257,12 +198,10 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
      */
     @Override
     public void deleteOrderFromRedis(String userId, Long orderId) {
-        //1.查询出缓存中的订单
         TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
         if (seckillOrder != null) {
-            //2.删除缓存中的订单
             redisTemplate.boundHashOps("seckillOrder").delete(userId);
-            //3.库存回退 - 使用Lua脚本保证原子性
+            // 库存回退 - 使用Lua脚本保证原子性
             String luaScript = "local stock = redis.call('HGET', KEYS[1], ARGV[1]) " +
                     "if stock == false then " +
                     "  redis.call('HSET', KEYS[1], ARGV[1], 1) " +

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface TbSeckillOrderMapper {
+public interface TbSeckillOrderMapper extends GenericMapper<TbSeckillOrder> {
     int countByExample(TbSeckillOrderExample example);
 
     int deleteByExample(TbSeckillOrderExample example);

@@ -3,16 +3,17 @@ package com.pinyougou.seckill.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.GenericMapper;
 import com.pinyougou.mapper.TbSeckillGoodsMapper;
 import com.pinyougou.pojo.TbSeckillGoods;
 import com.pinyougou.pojo.TbSeckillGoodsExample;
 import com.pinyougou.pojo.TbSeckillGoodsExample.Criteria;
 import com.pinyougou.seckill.service.SeckillGoodsService;
+import com.pinyougou.service.BaseServiceImpl;
 import entity.PageResult;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -23,78 +24,18 @@ import java.util.List;
  * @author Administrator
  */
 @Service
-public class SeckillGoodsServiceImpl implements SeckillGoodsService {
+public class SeckillGoodsServiceImpl extends BaseServiceImpl<TbSeckillGoods> implements SeckillGoodsService {
 
     private static final Logger logger = Logger.getLogger(SeckillGoodsServiceImpl.class);
 
     @Autowired
     private TbSeckillGoodsMapper seckillGoodsMapper;
 
-    /**
-     * 查询全部
-     */
     @Override
-    public List<TbSeckillGoods> findAll() {
-        return seckillGoodsMapper.selectByExample(null);
+    protected GenericMapper<TbSeckillGoods> getMapper() {
+        return seckillGoodsMapper;
     }
 
-    /**
-     * 按分页查询
-     */
-    @Override
-    public PageResult findPage(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        Page<TbSeckillGoods> page = (Page<TbSeckillGoods>) seckillGoodsMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
-    }
-
-    /**
-     * 增加
-     */
-    @Override
-    @Transactional
-    public void add(TbSeckillGoods seckillGoods) {
-        seckillGoodsMapper.insert(seckillGoods);
-    }
-
-
-    /**
-     * 修改
-     */
-    @Override
-    @Transactional
-    public void update(TbSeckillGoods seckillGoods) {
-        seckillGoodsMapper.updateByPrimaryKey(seckillGoods);
-    }
-
-    /**
-     * 根据ID获取实体
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public TbSeckillGoods findOne(Long id) {
-        return seckillGoodsMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 批量删除
-     */
-    @Override
-    @Transactional
-    public void delete(Long[] ids) {
-        for (Long id : ids) {
-            seckillGoodsMapper.deleteByPrimaryKey(id);
-        }
-    }
-
-    /**
-     * @param seckillGoods
-     * @param pageNum      当前页 码
-     * @param pageSize     每页记录数
-     * @return
-     */
     @Override
     public PageResult findPage(TbSeckillGoods seckillGoods, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);

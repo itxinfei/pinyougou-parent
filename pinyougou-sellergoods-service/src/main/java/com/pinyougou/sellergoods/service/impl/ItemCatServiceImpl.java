@@ -3,13 +3,14 @@ package com.pinyougou.sellergoods.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.GenericMapper;
 import com.pinyougou.mapper.TbItemCatMapper;
 import com.pinyougou.pojo.TbItemCat;
 import com.pinyougou.pojo.TbItemCatExample;
 import com.pinyougou.sellergoods.service.ItemCatService;
+import com.pinyougou.service.BaseServiceImpl;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,78 +18,14 @@ import java.util.List;
  * 商品分类管理
  */
 @Service
-public class ItemCatServiceImpl implements ItemCatService {
+public class ItemCatServiceImpl extends BaseServiceImpl<TbItemCat> implements ItemCatService {
 
     @Autowired
     private TbItemCatMapper tbItemCatMapper;
 
-
-    /**
-     * 查询所有商品分类管理
-     *
-     * @return
-     */
     @Override
-    public List<TbItemCat> findAll() {
-        return tbItemCatMapper.selectByExample(null);
-    }
-
-    /**
-     * 分页查询品牌的方法
-     *
-     * @param pageNum
-     * @param pageSize
-     * @return
-     */
-    @Override
-    public PageResult findPage(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        Page<TbItemCat> page = (Page<TbItemCat>) tbItemCatMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
-    }
-
-    /**
-     * 添加品牌
-     *
-     * @param itemCat
-     */
-    @Override
-    @Transactional
-    public void add(TbItemCat itemCat) {
-        tbItemCatMapper.insert(itemCat);
-    }
-
-    /**
-     * 更改品牌
-     *
-     * @param itemCat
-     */
-    @Override
-    @Transactional
-    public void update(TbItemCat itemCat) {
-        tbItemCatMapper.updateByPrimaryKey(itemCat);
-    }
-
-    /**
-     * 根据ID查询实体
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public TbItemCat findOne(Long id) {
-        return tbItemCatMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 删除品牌
-     *
-     * @param ids
-     */
-    @Override
-    @Transactional
-    public void delete(Long[] ids) {
-        tbItemCatMapper.deleteByPrimaryKeys(ids);
+    protected GenericMapper<TbItemCat> getMapper() {
+        return tbItemCatMapper;
     }
 
     /**
@@ -96,12 +33,9 @@ public class ItemCatServiceImpl implements ItemCatService {
      */
     @Override
     public PageResult findPage(TbItemCat itemCat, int pageNum, int pageSize) {
-        // 使用分页插件:
         PageHelper.startPage(pageNum, pageSize);
-        // 进行条件查询:
         TbItemCatExample example = new TbItemCatExample();
         TbItemCatExample.Criteria criteria = example.createCriteria();
-        // 设置条件:
         if (itemCat != null) {
             if (itemCat.getName() != null && itemCat.getName().length() > 0) {
                 criteria.andNameLike("%" + itemCat.getName() + "%");

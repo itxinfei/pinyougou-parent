@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface TbContentCategoryMapper {
+public interface TbContentCategoryMapper extends GenericMapper<TbContentCategory> {
     int countByExample(TbContentCategoryExample example);
 
     int deleteByExample(TbContentCategoryExample example);

@@ -1,19 +1,17 @@
 package com.pinyougou.sellergoods.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.GenericMapper;
 import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.pojo.TbItemExample.Criteria;
 import com.pinyougou.sellergoods.service.ItemService;
-
+import com.pinyougou.service.BaseServiceImpl;
 import entity.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 服务实现层
@@ -21,70 +19,15 @@ import entity.PageResult;
  * @author Administrator
  */
 @Service
-public class ItemServiceImpl implements ItemService {
+public class ItemServiceImpl extends BaseServiceImpl<TbItem> implements ItemService {
 
     @Autowired
     private TbItemMapper itemMapper;
 
-    /**
-     * 查询全部
-     */
     @Override
-    public List<TbItem> findAll() {
-        return itemMapper.selectByExample(null);
+    protected GenericMapper<TbItem> getMapper() {
+        return itemMapper;
     }
-
-    /**
-     * 按分页查询
-     */
-    @Override
-    public PageResult findPage(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        Page<TbItem> page = (Page<TbItem>) itemMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
-    }
-
-    /**
-     * 增加
-     */
-    @Override
-    @Transactional
-    public void add(TbItem item) {
-        itemMapper.insert(item);
-    }
-
-
-    /**
-     * 修改
-     */
-    @Override
-    @Transactional
-    public void update(TbItem item) {
-        itemMapper.updateByPrimaryKey(item);
-    }
-
-    /**
-     * 根据ID获取实体
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public TbItem findOne(Long id) {
-        return itemMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 批量删除
-     */
-    @Override
-    @Transactional
-    public void delete(Long[] ids) {
-        for (Long id : ids) {
-            itemMapper.deleteByPrimaryKey(id);
-        }
-    }
-
 
     @Override
     public PageResult findPage(TbItem item, int pageNum, int pageSize) {
@@ -127,9 +70,6 @@ public class ItemServiceImpl implements ItemService {
             if (item.getBrand() != null && item.getBrand().length() > 0) {
                 criteria.andBrandLike("%" + item.getBrand() + "%");
             }
-            //if(item.getSpec()!=null && item.getSpec().length()>0){
-            //	criteria.andSpecLike("%"+item.getSpec()+"%");
-            //}
             if (item.getSeller() != null && item.getSeller().length() > 0) {
                 criteria.andSellerLike("%" + item.getSeller() + "%");
             }

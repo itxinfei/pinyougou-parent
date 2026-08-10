@@ -1,17 +1,18 @@
 package com.pinyougou.sellergoods.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.GenericMapper;
 import com.pinyougou.mapper.TbTypeTemplateMapper;
 import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
+import com.pinyougou.service.BaseServiceImpl;
+import com.alibaba.fastjson.JSON;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -20,67 +21,16 @@ import java.util.Map;
  * 模板管理
  */
 @Service
-public class TypeTemplateServiceImpl implements TypeTemplateService {
+public class TypeTemplateServiceImpl extends BaseServiceImpl<TbTypeTemplate> implements TypeTemplateService {
 
     @Autowired
     private TbTypeTemplateMapper typeTemplateMapper;
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TypeTemplateServiceImpl.class);
 
-    /**
-     * 查询全部
-     */
     @Override
-    public List<TbTypeTemplate> findAll() {
-        return typeTemplateMapper.selectByExample(null);
-    }
-
-    /**
-     * 按分页查询
-     */
-    @Override
-    public PageResult findPage(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        Page<TbTypeTemplate> page = (Page<TbTypeTemplate>) typeTemplateMapper.selectByExample(null);
-        return new PageResult(page.getTotal(), page.getResult());
-    }
-
-    /**
-     * 增加
-     */
-    @Override
-    @Transactional
-    public void add(TbTypeTemplate typeTemplate) {
-        typeTemplateMapper.insert(typeTemplate);
-    }
-
-
-    /**
-     * 修改
-     */
-    @Override
-    @Transactional
-    public void update(TbTypeTemplate typeTemplate) {
-        typeTemplateMapper.updateByPrimaryKey(typeTemplate);
-    }
-
-    /**
-     * 根据ID获取实体
-     */
-    @Override
-    public TbTypeTemplate findOne(Long id) {
-        return typeTemplateMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 批量删除
-     */
-    @Override
-    @Transactional
-    public void delete(Long[] ids) {
-        for (Long id : ids) {
-            typeTemplateMapper.deleteByPrimaryKey(id);
-        }
+    protected GenericMapper<TbTypeTemplate> getMapper() {
+        return typeTemplateMapper;
     }
 
     @Override
@@ -113,13 +63,10 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
         if (id == null) {
             return null;
         }
-        // 查询类型模板
         TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
         if (typeTemplate == null || typeTemplate.getSpecIds() == null || typeTemplate.getSpecIds().trim().isEmpty()) {
             return null;
         }
-        // 解析 specIds JSON 数组
-        // specIds 格式：[{"id":27,"name":"内存"},{"id":28,"name":"颜色"}]
         try {
             List<Map> specList = JSON.parseArray(typeTemplate.getSpecIds(), Map.class);
             return specList;
@@ -128,6 +75,5 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
             return null;
         }
     }
-
 
 }
