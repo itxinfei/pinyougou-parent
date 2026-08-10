@@ -46,7 +46,7 @@ public class BrandController {
      */
     @RequestMapping("/findPage")
     public PageResult findPage(int page, int rows) {
-        return brandService.findPage(page, rows);
+        return brandService.findByPage(new TbBrand(), page, rows);
     }
 
     /**

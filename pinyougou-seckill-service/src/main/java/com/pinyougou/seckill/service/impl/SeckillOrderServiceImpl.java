@@ -17,6 +17,7 @@ import com.pinyougou.exception.ValidationException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import util.IdWorker;
 
 import java.util.Date;

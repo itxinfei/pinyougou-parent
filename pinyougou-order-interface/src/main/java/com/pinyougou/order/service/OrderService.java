@@ -110,5 +110,11 @@ public interface OrderService {
 	 */
 	public void updateOrderStatus(String out_trade_no,String transaction_id);
 
+	/**
+	 * 更新订单状态（用户操作：取消订单、确认收货等）
+	 * @param orderId 订单ID
+	 * @param status 目标状态
+	 */
+	public void updateStatus(Long orderId, String status);
 
 }

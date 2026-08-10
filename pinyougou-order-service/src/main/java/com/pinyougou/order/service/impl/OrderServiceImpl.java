@@ -29,6 +29,7 @@ import com.pinyougou.pojo.TbOrder;
 import com.pinyougou.pojo.TbOrderExample;
 import com.pinyougou.pojo.TbOrderExample.Criteria;
 import com.pinyougou.pojo.TbOrderItem;
+import com.pinyougou.pojo.TbOrderItemExample;
 import com.pinyougou.pojo.TbPayLog;
 import com.pinyougou.pojo.group.Cart;
 import com.pinyougou.order.service.OrderService;
@@ -460,5 +461,58 @@ public class OrderServiceImpl implements OrderService {
         // ========== 第三步：清除支付日志缓存 ==========
         // 支付日志处理完成后，从Redis中删除
         redisTemplate.boundHashOps("payLog").delete(payLog.getUserId());
+    }
+
+    /**
+     * 更新订单状态（用户操作：取消订单、确认收货等）
+     */
+    @Override
+    public void updateStatus(Long orderId, String status) {
+        TbOrder order = orderMapper.selectByPrimaryKey(orderId);
+        if (order == null) {
+            throw new ResourceNotFoundException("订单不存在，ID：" + orderId);
+        }
+
+        // 校验状态流转合法性
+        String currentStatus = order.getStatus();
+        if (!isValidStatusTransition(currentStatus, status)) {
+            throw new ValidationException("订单状态不允许此操作");
+        }
+
+        order.setStatus(status);
+        orderMapper.updateByPrimaryKey(order);
+
+        // 如果取消订单，需要恢复库存
+        if ("6".equals(status) && "1".equals(currentStatus)) {
+            TbOrderItemExample itemExample = new TbOrderItemExample();
+            itemExample.createCriteria().andOrderIdEqualTo(orderId);
+            List<TbOrderItem> items = orderItemMapper.selectByExample(itemExample);
+            for (TbOrderItem item : items) {
+                TbItem tbItem = itemMapper.selectByPrimaryKey(item.getItemId());
+                if (tbItem != null) {
+                    tbItem.setNum(tbItem.getNum() + item.getNum());
+                    tbItem.setStatus("1");
+                    itemMapper.updateByPrimaryKey(tbItem);
+                }
+            }
+        }
+    }
+
+    /**
+     * 校验订单状态流转是否合法
+     */
+    private boolean isValidStatusTransition(String currentStatus, String targetStatus) {
+        if (currentStatus == null || targetStatus == null) {
+            return false;
+        }
+        // 1(未付款) -> 6(已关闭)：取消订单
+        if ("1".equals(currentStatus) && "6".equals(targetStatus)) {
+            return true;
+        }
+        // 4(已发货) -> 5(已收货)：确认收货
+        if ("4".equals(currentStatus) && "5".equals(targetStatus)) {
+            return true;
+        }
+        return false;
     }
 }

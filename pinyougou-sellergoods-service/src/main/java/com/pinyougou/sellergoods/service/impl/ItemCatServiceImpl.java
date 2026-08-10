@@ -88,9 +88,7 @@ public class ItemCatServiceImpl implements ItemCatService {
     @Override
     @Transactional
     public void delete(Long[] ids) {
-        for (Long id : ids) {
-            tbItemCatMapper.deleteByPrimaryKey(id);
-        }
+        tbItemCatMapper.deleteByPrimaryKeys(ids);
     }
 
     /**

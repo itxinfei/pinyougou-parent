@@ -9,6 +9,7 @@ import com.pinyougou.pojo.*;
 import com.pinyougou.pojo.group.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,8 @@ import java.util.Map;
  */
 @Service
 public class GoodsServiceImpl implements GoodsService {
+
+    private static final Logger logger = Logger.getLogger(GoodsServiceImpl.class);
 
     @Autowired
     private TbGoodsMapper goodsMapper;

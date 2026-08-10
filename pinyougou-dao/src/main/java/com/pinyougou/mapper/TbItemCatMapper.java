@@ -14,6 +14,8 @@ public interface TbItemCatMapper {
 
     int deleteByPrimaryKey(Long [] id);
 
+    int deleteByPrimaryKeys(Long [] id);
+
     int insert(TbItemCat record);
 
     int insertSelective(TbItemCat record);

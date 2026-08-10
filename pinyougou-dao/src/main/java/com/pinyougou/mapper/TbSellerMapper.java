@@ -13,6 +13,8 @@ public interface TbSellerMapper {
 
     int deleteByPrimaryKey(String[] sellerId);
 
+    int deleteByPrimaryKeys(String[] sellerId);
+
     int insert(TbSeller record);
 
     int insertSelective(TbSeller record);
