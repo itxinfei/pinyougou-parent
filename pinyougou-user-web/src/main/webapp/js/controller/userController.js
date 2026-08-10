@@ -15,9 +15,9 @@ app.controller('userController' ,function($scope,$controller,$location,$interval
 		userService.add($scope.entity,$scope.smscode).success(
 			function(response){
 				if(response.success){
-					alert("注册成功，即将跳转到登录页面");
-					// 注册成功后自动跳转到登录页
-					window.location.href="login.html";
+					alert("注册成功，请登录");
+					// 注册成功后跳转到首页（触发CAS登录）
+					window.location.href="home-index.html";
 				} else {
 					alert(response.message);
 				}
