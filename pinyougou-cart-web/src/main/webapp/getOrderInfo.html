@@ -101,35 +101,35 @@
 						      		 <div class="control-group">
 									    <label class="control-label">收货人：</label>
 									    <div class="controls">
-									      <input type="text" class="input-medium">
+									      <input type="text" class="input-medium" ng-model="addressEntity.contact">
 									    </div>
 									  </div>
 									   
 									   <div class="control-group">
 									    <label class="control-label">详细地址：</label>
 									    <div class="controls">
-									      <input type="text" class="input-large">
+									      <input type="text" class="input-large" ng-model="addressEntity.address">
 									    </div>
 									  </div>
 									   <div class="control-group">
 									    <label class="control-label">联系电话：</label>
 									    <div class="controls">
-									      <input type="text" class="input-medium">
+									      <input type="text" class="input-medium" ng-model="addressEntity.contact">
 									    </div>
 									  </div>
 									   <div class="control-group">
 									    <label class="control-label">邮箱：</label>
 									    <div class="controls">
-									      <input type="text" class="input-medium">
+									      <input type="text" class="input-medium" ng-model="addressEntity.contact">
 									    </div>
 									  </div>
 									   <div class="control-group">
 									    <label class="control-label">地址别名：</label>
 									    <div class="controls">
-									      <input type="text" class="input-medium">
+									      <input type="text" class="input-medium" ng-model="addressEntity.contact">
 									    </div>
 									    <div class="othername">
-									    	建议填写常用地址：<a href="#" class="sui-btn btn-default">家里</a>　<a href="#" class="sui-btn btn-default">父母家</a>　<a href="#" class="sui-btn btn-default">公司</a>
+									    	建议填写常用地址：<a href="javascript:;" class="sui-btn btn-default" ng-click="addressEntity.notes='家里'">家里</a>　<a href="javascript:;" class="sui-btn btn-default" ng-click="addressEntity.notes='父母家'">父母家</a>　<a href="javascript:;" class="sui-btn btn-default" ng-click="addressEntity.notes='公司'">公司</a>
 									    </div>
 									  </div>
 									  
@@ -138,7 +138,7 @@
 						      	
 						      </div>
 						      <div class="modal-footer">
-						        <button type="button" data-ok="modal" class="sui-btn btn-primary btn-large">确定</button>
+						        <button type="button" data-ok="modal" class="sui-btn btn-primary btn-large" ng-click="saveAddress()">确定</button>
 						        <button type="button" data-dismiss="modal" class="sui-btn btn-default btn-large">取消</button>
 						      </div>
 						    </div>

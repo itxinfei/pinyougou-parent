@@ -1,5 +1,5 @@
 //首页控制器
-app.controller('indexController',function($scope,loginService,orderService){
+app.controller('indexController',function($scope,$timeout,loginService,orderService){
 	$scope.paginationConf={
 		currentPage:1,
 		itemsPerPage:10,
@@ -113,10 +113,10 @@ app.controller('indexController',function($scope,loginService,orderService){
 	$scope.showMessage=function(type,msg,duration){
 		$scope.messageType=type;
 		$scope.message=msg;
-		setTimeout(function(){
+		// 使用 $timeout 替代 setTimeout，确保 AngularJS digest cycle 正确执行
+		$timeout(function(){
 			$scope.message='';
 			$scope.messageType='';
-			$scope.$apply();
 		},duration||3000);
 	}
 });

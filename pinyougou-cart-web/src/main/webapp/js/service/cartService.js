@@ -42,7 +42,12 @@ app.service('cartService',function($http){
 	
 	//提交订单
 	this.submitOrder=function(order){
-		return $http.post('order/add.do',order);		
+		return $http.post('order/add.do',order);
+	}
+
+	//保存新地址
+	this.saveAddress=function(addressEntity){
+		return $http.post('address/add.do',addressEntity);
 	}
 	
 	

@@ -1,8 +1,8 @@
 //购物车控制层
-app.controller('cartController',function($scope,cartService){
+app.controller('cartController',function($scope,$timeout,cartService){
 	$scope.errorMessage = '';
 	$scope.successMessage = '';
-	
+
 	$scope.showMessage = function(type, msg, duration) {
 		if(type === 'error') {
 			$scope.errorMessage = msg;
@@ -11,10 +11,10 @@ app.controller('cartController',function($scope,cartService){
 			$scope.successMessage = msg;
 			$scope.errorMessage = '';
 		}
-		setTimeout(function() {
+		// 使用 $timeout 替代 setTimeout，确保 AngularJS digest cycle 正确执行
+		$timeout(function() {
 			$scope.errorMessage = '';
 			$scope.successMessage = '';
-			$scope.$apply();
 		}, duration || 3000);
 	};
 	
@@ -119,10 +119,46 @@ app.controller('cartController',function($scope,cartService){
 	}
 	
 	$scope.order={paymentType:'1'};
-	
+
+	$scope.addressEntity={};
+
 	$scope.selectPayType=function(type){
 		$scope.clearMessages();
 		$scope.order.paymentType=type;
+	}
+
+	// 保存新地址
+	$scope.saveAddress=function(){
+		$scope.clearMessages();
+		if(!$scope.addressEntity.contact){
+			$scope.showMessage('error', '请输入收货人姓名');
+			return;
+		}
+		if(!$scope.addressEntity.address){
+			$scope.showMessage('error', '请输入详细地址');
+			return;
+		}
+		if(!$scope.addressEntity.mobile){
+			$scope.showMessage('error', '请输入联系电话');
+			return;
+		}
+		cartService.saveAddress($scope.addressEntity).success(
+			function(response){
+				if(response.success){
+					$scope.findAddressList();
+					$scope.addressEntity={};
+					// 关闭模态框
+					$('.edit').modal('hide');
+					$scope.showMessage('success', '地址添加成功');
+				}else{
+					$scope.showMessage('error', response.message || '保存地址失败');
+				}
+			}
+		).error(
+			function(){
+				$scope.showMessage('error', '网络请求失败，请检查网络连接');
+			}
+		);
 	}
 	
 	$scope.validateOrder=function() {

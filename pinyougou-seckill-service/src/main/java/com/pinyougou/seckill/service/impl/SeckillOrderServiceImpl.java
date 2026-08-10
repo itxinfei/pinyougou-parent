@@ -204,7 +204,9 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
         seckillOrder.setCreateTime(new Date());
         seckillOrder.setStatus("0");
         redisTemplate.boundHashOps("seckillOrder").put(userId, seckillOrder);
-        logger.info("保存订单成功(redis)");
+        // 设置秒杀订单过期时间（30分钟内未支付自动取消）
+        redisTemplate.boundHashOps("seckillOrder").expire(30, java.util.concurrent.TimeUnit.MINUTES);
+        logger.info("保存订单成功(redis)，订单ID：" + seckillOrder.getId());
     }
 
     /**
