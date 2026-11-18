@@ -1,3 +1,5 @@
+> ⚠️ 本仓库为个人学习归档，代码著作权归原作者／原课程机构所有。本仓库不授予任何许可，请勿用于商业用途。
+
 <p align="center">
   <img src="docs/Logo.png" alt="品优购" width="400">
 </p>
@@ -276,7 +278,7 @@ mvn clean install -DskipTests
 
 ## 十二、许可证
 
-本项目采用 [Apache License 2.0](LICENSE) 许可证
+本项目代码著作权归原作者／原课程机构所有，本仓库仅作学习归档，不授予任何许可。
 
 ---
 
