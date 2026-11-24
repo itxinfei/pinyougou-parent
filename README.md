@@ -20,7 +20,7 @@
   <img src="https://img.shields.io/badge/JDK-1.8+-green?style=flat&logo=openjdk" alt="JDK">
   <img src="https://img.shields.io/badge/Spring-5.3-6db33f?style=flat&logo=spring" alt="Spring">
   <img src="https://img.shields.io/badge/Dubbo-2.8-blue?style=flat" alt="Dubbo">
-  <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="license">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-学习归档%20不授权-lightgrey?style=flat-square" alt="license"></a>
 </p>
 
 ---
